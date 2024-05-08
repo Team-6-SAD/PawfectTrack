@@ -1,8 +1,10 @@
 <?php
 require_once 'pawfect_connect.php';
 session_start(); // Start the session
-$error = isset($_SESSION['error']) ? $_SESSION['error'] : "";
-unset($_SESSION['error']); // Clear the error message from session
+if (isset($_SESSION['error'])) {
+    $errorMessage = $_SESSION['error'];
+    unset($_SESSION['error']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,6 +17,7 @@ unset($_SESSION['error']); // Clear the error message from session
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
 
      body{
@@ -83,6 +86,15 @@ unset($_SESSION['error']); // Clear the error message from session
             border: 1px solid #EAEFF6; /* Light gray border */
             background-color: #F9FAFD; /* Light blue background */
         }
+        .featherer{
+            width: 35px;
+            height: 35px;
+            color: red;
+            cursor: pointer;
+        }
+        .modal-header{
+            border-bottom: 1px solid black;
+        }
     </style>
 </head>
 <body>
@@ -122,9 +134,6 @@ unset($_SESSION['error']); // Clear the error message from session
                 <div class="col-md-8 px-3 py-3 mt-5">
                     <div class="pl-4 pr-4">
                     <h4 class="text-center pb-4" style="color:#5E6E82;"><b>Account Login</b></h4>
-                    <?php if(!empty($error)): ?>
-                    <div class="alert alert-danger"><?php echo $error; ?></div>
-                <?php endif; ?>
                     <form method="post" action="Login-backend.php" id="loginForm">
                     <div class="col-md-12">
                         <div class="form-group">
@@ -143,7 +152,7 @@ unset($_SESSION['error']); // Clear the error message from session
                     </div>
                     <div id="password-error" class="text-danger"></div>
                         <div class="d-flex justify-content-end pt-2">
-                            <small><a href="#" style="color: #0449A6;">Forgot password?</a></small>
+                            <small><a id="forgot-password" href="#" style="color: #0449A6;">Forgot password?</a></small>
                         </div>
                       
                     </div>
@@ -156,6 +165,7 @@ unset($_SESSION['error']); // Clear the error message from session
                       <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Password">
                       <i class="toggle-confirm-password fas fa-eye"></i>
                     </div>
+                    <div id="confirmPassword-error" class="text-danger"></div>
                   </div>
                     
             </div>
@@ -169,12 +179,318 @@ unset($_SESSION['error']); // Clear the error message from session
     </div>  
       
     </div>
+    <!-- Username and Password Mismatch Modal -->
+<div class="modal fade" id="usernamePasswordMismatchModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel">Login Failed</h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
 
 
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>MISMATCH</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">The username and password you entered do not match any records.<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">Please try again or <a href="#" data-dismiss="modal" data-toggle="modal" data-target="#forgotPasswordModal">reset your password</a>.</small>
+
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+ 
+<!-- Password Mismatch Modal -->
+<div class="modal fade" id="passwordMismatchModal" tabindex="-1" role="dialog" aria-labelledby="passwordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="passwordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+</i>
+      </div>
+
+      <div class="modal-body">
+
+        <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>PASSWORD</b></h2>
+
+        <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>MISMATCH</b></h2>
+        <div class="text-center">
+    <small style="letter-spacing: -1px; color:#5e6e82;">Passwords you have entered do<br></small>
+    <small style="letter-spacing: -1px; color:#5e6e82;">NOT match.</small>
+    
+</div>
+    <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+    <button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+    </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotPasswordModalLabel" ></h5>
+      <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+        
+        </button>
+      </div>
+      <div class="modal-body">
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>FORGOT</b></h2>
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>PASSWORD</b></h2>
+    <div class="text-center">
+        <small style="letter-spacing: -1px; color:#5e6e82;">To reset your own password<br></small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">Enter your email address</small>
+    </div>
+    <div class="col-md-12 w-100 px-5">
+        <form action="forgot_password.php" method="post"> <!-- Change the action to your PHP script -->
+            <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
+                <label for="inputEmail" class="d-block mb-1"><b>Email<span style="color:red;">*</span></b></label>
+                <input type="email" name="email" id="inputEmail" class="form-control" placeholder="@gmail.com">
+            </div>
+            <div class="align-items-center justify-content-center d-flex mb-3">
+                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPassword2Modal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel2" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotPasswordModalLabel2" ></h5>
+      <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+        
+        </button>
+      </div>
+      <div class="modal-body">
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>RESET CODE</b></h2>
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>DELIVERED</b></h2>
+    <div class="text-center">
+        <small style="letter-spacing: -1px; color:#5e6e82;">To reset your own password<br></small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">Enter reset code</small>
+    </div>
+    <div class="col-md-12 w-100 px-5">
+    <form action="verify_reset_code.php" method="post">
+            <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
+                <label for="resetCode" class="d-block mb-1"><b>Reset Code:<span style="color:red;">*</span></b></label>
+                <input type="text" name="resetCode" id="resetCode" class="form-control" placeholder="Reset Code">
+            </div>
+            <div class="align-items-center justify-content-center d-flex mb-3">
+                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="forgotPassword3Modal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel3" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotPasswordModalLabel3" ></h5>
+      <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+        
+        </button>
+      </div>
+      <div class="modal-body">
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>NEW</b></h2>
+    <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>PASSWORD</b></h2>
+    <div class="text-center">
+        <small style="letter-spacing: -1px; color:#5e6e82;">Create a new password that you<br></small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">don't use on any other site. </small>
+    </div>
+    <div class="col-md-12 w-100 px-5">
+    <form action="update_password.php" method="post">
+            <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
+                <label for="newPassword" class="d-block mb-1"><b>New Password:<span style="color:red;">*</span></b></label>
+                <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="New Password">
+            </div>
+            <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
+                <label for="confirmNewPassword" class="d-block mb-1"><b>Confirm New Password:<span style="color:red;">*</span></b></label>
+                <input type="password" name="confirmNewPassword" id="confirmNewPassword" class="form-control" placeholder="New Password">
+            </div>
+            <div class="align-items-center justify-content-center d-flex mb-3">
+                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="forgotPasswordSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>PASSWORD SUCCESSFULLY</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>CHANGED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">You may now log-in with<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">your new password.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="EmailNotExistModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EMAIL DOES NOT</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EXIST</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">The email you inserted does not<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">exist in our records.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="CodeNotExistModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>INCORRECT RESET</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>CODE</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">The reset code you inserted is<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">incorrect.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="PasswordNotExistModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>NEW PASSWORD MISMATCH</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">The password you inserted does<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">not match.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+      feather.replace();
+    </script>
+    <script>
+          $(document).ready(function() {
+    <?php if(isset($_SESSION['error_no_match'])) { ?>
+      $('#PasswordNotExistModal').modal('show');
+      <?php unset($_SESSION['error_no_match']); ?> // Unset the session variable
+    <?php } ?>
+  });
+            $(document).ready(function() {
+    <?php if(isset($_SESSION['error_message_code'])) { ?>
+      $('#CodeNotExistModal').modal('show');
+      <?php unset($_SESSION['error_message_code']); ?> // Unset the session variable
+    <?php } ?>
+  });
+         $(document).ready(function() {
+    <?php if(isset($_SESSION['error_message'])) { ?>
+      $('#EmailNotExistModal').modal('show');
+      <?php unset($_SESSION['error_message']); ?> // Unset the session variable
+    <?php } ?>
+  });
+            $(document).ready(function() {
+    <?php if(isset($_SESSION['success_message_password'])) { ?>
+      $('#forgotPasswordSuccessModal').modal('show');
+      <?php unset($_SESSION['success_message_password']); ?> // Unset the session variable
+    <?php } ?>
+  });
+          $(document).ready(function() {
+    <?php if(isset($_SESSION['code_verified']) && $_SESSION['code_verified'] === true) { ?>
+      $('#forgotPassword3Modal').modal('show');
+      <?php unset($_SESSION['code_verified']); ?> // Unset the session variable
+    <?php } ?>
+  });
+          $(document).ready(function() {
+    <?php if(isset($_SESSION['success_message'])) { ?>
+      $('#forgotPassword2Modal').modal('show');
+      <?php unset($_SESSION['success_message']); ?> // Unset the session variable
+    <?php } ?>
+  });
+$(document).ready(function(){
+    console.log("Document ready!"); // Debugging statement
+    <?php if(isset($errorMessage)): ?>
+        console.log("Error exists in session!"); // Debugging statement
+        $('#usernamePasswordMismatchModal').modal('show');
+        <?php unset($errorMessage); ?> // Clear the error message after showing the modal
+    <?php endif; ?>
+}); 
+</script>
+    <script>
+
+document.getElementById('forgot-password').addEventListener('click', function() {
+    $('#forgotPasswordModal').modal('show');
+});
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password');
             const togglePassword = document.querySelector('.toggle-password');
@@ -212,10 +528,12 @@ unset($_SESSION['error']); // Clear the error message from session
             const confirmPassword = document.getElementById('confirmPassword');
             const usernameError = document.getElementById('username-error');
             const passwordError = document.getElementById('password-error');
+            const confirmPasswordError= document.getElementById('confirmPassword-error');
 
             // Reset previous error messages
             usernameError.textContent = '';
             passwordError.textContent = '';
+            confirmPasswordError.textContent= '';
 
             // Validate username
             if (username.value.trim() === '') {
@@ -228,11 +546,17 @@ unset($_SESSION['error']); // Clear the error message from session
                 passwordError.textContent = 'Please enter your password.';
                 return;
             }
+            if (confirmPassword.value.trim() === '') {
+                confirmPasswordError.textContent = 'Please confirm your password.';
+                return;
+            }
 
             // Validate if password and confirm password match
             if (password.value.trim() !== confirmPassword.value.trim()) {
-                passwordError.textContent = 'Passwords do not match.';
-                return;
+                if (password.value.trim() !== confirmPassword.value.trim()) {
+    $('#passwordMismatchModal').modal('show'); // Show the password mismatch modal
+    return;
+}
             }
 
             // If validation passes, submit the form

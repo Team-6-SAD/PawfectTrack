@@ -37,6 +37,38 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
+// Check if the patientID is set in the URL
+if(isset($_GET['patientID'])) {
+    $patientID = $_GET['patientID'];
+    $sql = "SELECT 
+    t.TreatmentID, 
+    t.Category, 
+    t.DateOfTreatment, 
+    GROUP_CONCAT(DISTINCT mu.Dosage) AS Dosage, 
+    GROUP_CONCAT(DISTINCT mu.MedicineName) AS MedicineNames, 
+    GROUP_CONCAT(DISTINCT e.Name) AS EquipmentUsed
+FROM 
+    treatment AS t
+LEFT JOIN 
+    medicineusage AS mu ON t.TreatmentID = mu.TreatmentID
+LEFT JOIN 
+    equipmentusage AS eu ON t.TreatmentID = eu.TreatmentID
+LEFT JOIN 
+    equipment AS e ON eu.EquipmentID = e.EquipmentID
+WHERE 
+    t.PatientID = ?
+GROUP BY
+    t.TreatmentID, 
+    t.Category, 
+    t.DateOfTreatment";
+
+// Prepare and execute the SQL query
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "i", $patientID);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+
+}
 // Close the database connection
 mysqli_stmt_close($stmt);
 mysqli_close($conn);
@@ -84,115 +116,65 @@ mysqli_close($conn);
         <div class="col-md-11">
         <div class="row mt-4">
     <div class="col-md-3 patient-navigation-active text-center">
-        <a href="patientdetails-profile.php" class="text-center link-text">
+        <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Profile
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-    <a href="patientdetails-bitedetails.php" class="text-center link-text">
+    <a href="patientdetails-bitedetails.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Bite Exposure Details
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-treatmenthistory.php" class="text-center link-text-active">
+        <a href="patientdetails-treatmenthistory.php?patientID=<?php echo $patientID?>" class="text-center link-text-active">
             <img src="Frame 156.png" class="mr-3 nav-logo">Treatment History
             <hr class="profile-nav-active">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-appointments.php" class="text-center link-text">
+        <a href="patientdetails-appointments.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Appointments
             <hr class="profile-nav">
         </a>
     </div>
 </div>
 </div>
-<div class="row">
+</div>
+<div class="row align-items-center d-flex justify-content-center">
  
-    <div class="col-md-12">
+    <div class="col-md-11">
 
-        <div class=" table-responsive mt-5">
-                <table id="example" class="table table-striped">
-                    <thead class="table-header mb-5">
-                        <tr>
-                           
-                            <th>Treatment ID</th>
-                            <th>Type of Medicine</th>
-                            <th>Dosage</th>
-                            <th>Session</th>
-                            <th>Appointment Date</th>
-                            <th>Equipment Used</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                 
-       
-        
-                        
-            <tr style="background-color:white;">
-        
-          <td> $row['ApplicantID'] </td>
-             <td> $row['FirstName']   $row['LastName'] </td>
-            <td> $row['UnitNumber'] </td>
-             <td> $row['MoveInDate']  </td>
-             <td>$endDDate </td>
-             <td>$endDDate </td>
-             </tr>
-             <tr style="background-color:white;">
-       
-          <td>dafak </td>
-             <td> $row['FirstName']   $row['LastName'] </td>
-            <td> $row['UnitNumber'] </td>
-             <td> $row['MoveInDate']  </td>
-             <td>$endDDate </td>
-             <td>$endDDate </td>
-             </tr>  
-             <tr style="background-color:white;">
-       
-       <td>dafak </td>
-          <td> $row['FirstName']   $row['LastName'] </td>
-         <td> $row['UnitNumber'] </td>
-          <td> $row['MoveInDate']  </td>
-          <td>$endDDate </td>
-          <td>$endDDate </td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-       <td>dafak </td>
-          <td> $row['FirstName']   $row['LastName'] </td>
-         <td> $row['UnitNumber'] </td>
-          <td> $row['MoveInDate']  </td>
-          <td>$endDDate </td>
-          <td>$endDDate </td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-       <td>dafak </td>
-          <td> $row['FirstName']   $row['LastName'] </td>
-         <td> $row['UnitNumber'] </td>
-          <td> $row['MoveInDate']  </td>
-          <td>$endDDate </td>
-          <td>$endDDate </td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-       <td>dafak </td>
-          <td> $row['FirstName']   $row['LastName'] </td>
-         <td> $row['UnitNumber'] </td>
-          <td> $row['MoveInDate']  </td>
-          <td>$endDDate </td>
-          <td>$endDDate </td>
-          </tr>  
-               
-                
-                
-                    <!-- ... other rows ... -->
-                </tbody>
-                
-            </div>
-            </table>
+    <div class="col-md-12 mt-5">
+    <table id="example" class="table table-striped">
+        <thead class="table-header mb-5">
+            <tr>
+                <th>Treatment ID</th>
+                <th>Type of Medicine</th>
+                <th>Dosage</th>
+                <th>Category</th>
+                <th>Date of Treatment</th>
+                <th>Equipment Used</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Loop through each row of treatment details and populate the table
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<tr>";
+                echo "<td>" . $row['TreatmentID'] . "</td>";
+                echo "<td>" . $row['MedicineNames'] . "</td>";
+                echo "<td>" . $row['Dosage'] . "</td>";
+                echo "<td>" . $row['Category'] . "</td>";
+                echo "<td>" . $row['DateOfTreatment'] . "</td>";
+                echo "<td>" . $row['EquipmentUsed'] . "</td>";
+                echo "</tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+
             </form>
         </div>
         </div>

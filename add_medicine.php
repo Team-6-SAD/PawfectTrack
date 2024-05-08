@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Check if the 'admin' session variable is not set or is false (user not logged in)
+// Check if the user is logged in as admin
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSION['adminID'])) {
     // Redirect the user to the login page
     header("Location: Admin Login.php");
@@ -11,10 +11,10 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 // Include your database connection file
 require_once 'pawfect_connect.php';
 
-// Retrieve form data
-$productName = $_POST['productName'];
-$productBrand = $_POST['productBrand'];
-$route = $_POST['route'];
+// Retrieve form data and sanitize input
+$productName = mysqli_real_escape_string($conn, $_POST['productName']);
+$productBrand = mysqli_real_escape_string($conn, $_POST['productBrand']);
+$route = mysqli_real_escape_string($conn, $_POST['route']);
 
 // Check if the Medicine already exists in the medicine table
 $sql = "SELECT * FROM medicine WHERE MedicineName = '$productName'";
@@ -29,7 +29,8 @@ if ($result->num_rows > 0) {
     if ($conn->query($sql) === TRUE) {
         $medicineID = $conn->insert_id; // Get the ID of the last inserted row
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        $_SESSION['errorMessage'] = "Error: " . $sql . "<br>" . $conn->error;
+        header("Location: inventory.php");
         exit(); // Terminate the script
     }
 }
@@ -48,11 +49,12 @@ if ($result->num_rows > 0) {
 $sql = "INSERT INTO medicinebrand (MedicineID, BrandName, Route) 
         VALUES ($medicineID, '$productBrand', '$route')";
 if ($conn->query($sql) === TRUE) {
-    $_SESSION['success'] = true;
+    $_SESSION['successMessage'] = "Medicine added successfully!";
     header("Location: inventory.php"); // Redirect back to the inventory page
     exit();
 } else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
+    $_SESSION['errorMessage'] = "Error: " . $sql . "<br>" . $conn->error;
+    header("Location: inventory.php");
     exit(); // Terminate the script
 }
 

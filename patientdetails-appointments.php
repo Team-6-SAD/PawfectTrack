@@ -37,9 +37,28 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
-// Close the database connection
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
+// Check if the patientID is set in the URL
+if(isset($_GET['patientID'])) {
+    $patientID = $_GET['patientID'];
+    $sql = "SELECT 
+            ai.AppointmentID, 
+            ai.AppointmentDate, 
+            ai.SessionDays,
+            ai.Status,
+            GROUP_CONCAT(DISTINCT mu.MedicineName SEPARATOR ', ') AS MedicineNames
+        FROM 
+            appointmentinformation AS ai
+        JOIN 
+            medicineusage AS mu ON ai.TreatmentID = mu.TreatmentID
+        WHERE 
+            ai.PatientID = ?
+        GROUP BY 
+            ai.AppointmentID, ai.AppointmentDate, ai.SessionDays, ai.Status";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "i", $patientID);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+}
 ?>
 
 <!DOCTYPE html>
@@ -85,25 +104,25 @@ mysqli_close($conn);
         <div class="col-md-11">
         <div class="row mt-4">
     <div class=" col-md-12 col-lg-3 no-break patient-navigation-active text-center">
-        <a href="patientdetails-profile.php" class="text-center link-text">
+        <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Profile
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
-        <a href="patientdetails-bitedetails.php" class="text-center link-text">
+        <a href="patientdetails-bitedetails.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Bite Exposure Details
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
-        <a href="patientdetails-treatmenthistory.php" class="text-center link-text">
+        <a href="patientdetails-treatmenthistory.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Treatment History
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
-        <a href="appointments.html" class="text-center link-text-active">
+        <a href="patientdetails-appointments.php?patientID=<?php echo $patientID?>" class="text-center link-text-active">
             <img src="Frame 156.png" class="mr-3 nav-logo">Appointments
             <hr class="profile-nav-active">
         </a>
@@ -116,77 +135,40 @@ mysqli_close($conn);
     <div class="col-md-11">
 
         <div class=" table-responsive mt-5">
-                <table id="example" class="table table-striped text-center">
-                    <thead class="table-header mb-5">
-                        <tr >
-                           
-                            <th class="text-center">Appointment ID</th>
-                            <th class="text-center">Service</th>
-                            <th class="text-center">Session</th>
-                            <th class="text-center">Appointment Date</th>  
-                            <th class="text-center">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                 
-       
-        
-                        
-            <tr style="background-color:white;">
-        
-            <td >Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table green"> Done </td>
-             </tr>
-             <tr style="background-color:white;">
-       
-             <td>Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table yellow"> Pending</td>
-             </tr>  
-             <tr style="background-color:white;">
-       
-             <td>Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table yellow"> Pending</td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-          <td>Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table yellow"> Pending</td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-          <td>Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table yellow"> Pending</td>
-          </tr>  
-          <tr style="background-color:white;">
-       
-          <td>Appointment ID</td>
-                            <td>Service</td>
-                            <td>Session</td>
-                            <td>Appointment Date</td>  
-                            <td><button class="btn btn-table yellow"> Pending</td>
-               
-                
-                
-                    <!-- ... other rows ... -->
-                </tbody>
-                
-            </div>
-            </table>
+        <table id="example" class="table table-striped text-center">
+    <thead class="table-header mb-5">
+        <tr>
+            <th class="text-center">Appointment ID</th>
+            <th class="text-center">Service</th>
+            <th class="text-center">Session</th>
+            <th class="text-center">Appointment Date</th>  
+            <th class="text-center">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+<?php
+// Iterate over the result set obtained from the database query
+while ($row = mysqli_fetch_assoc($result)) {
+    // Extract appointment details from the current row
+    $appointmentID = $row['AppointmentID'];
+    $service = $row['MedicineNames'];
+    $session = $row['SessionDays'];
+    $appointmentDate = $row['AppointmentDate'];
+    $status = $row['Status'];
+
+    // Apply appointment details to table rows dynamically
+    echo "<tr style='background-color: white;'>";
+    echo "<td>$appointmentID</td>";
+    echo "<td>$service</td>";
+    echo "<td>$session</td>";
+    echo "<td>$appointmentDate</td>";
+    echo "<td><button class='btn btn-table status-button " . ($status == 'Done' ? 'green' : 'yellow') . "' data-appointment-id='$appointmentID'>$status</button></td>";
+    echo "</tr>";
+}
+?>
+    </tbody>
+</table>
+
             </form>
         </div>
         </div>
@@ -197,6 +179,34 @@ mysqli_close($conn);
 </div>
             
  
+<!-- Modal for changing status -->
+<div class="modal fade" id="changeStatusModal" tabindex="-1" role="dialog" aria-labelledby="changeStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changeStatusModalLabel">Change Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+    <form id="changeStatusForm" method="post">
+        <input type="hidden" id="appointmentID" name="appointmentID">
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select class="form-control" id="status" name="status">
+                <option value="Done">Done</option>
+            </select>
+        </div>
+      <h5><b>  Used Medicine </b> </h5>
+        <div id="medicalDetails"></div> <!-- Display medical details here -->
+        <button type="submit" class="btn btn-primary">Change Status</button>
+    </form>
+</div>
+
+    </div>
+  </div>
+</div>
 
 
 
@@ -224,8 +234,90 @@ mysqli_close($conn);
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+  <script>
+$(document).ready(function() {
+    var appointmentID; // Define appointmentID variable outside the functions
+    var status;
 
-<!-- Include jQuery -->
+    // Event listener for form submission
+    $('#changeStatusForm').submit(function(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        // Serialize the form data
+        var formData = $(this).serialize();
+
+        // Submit the form data via AJAX
+        $.ajax({
+            type: 'POST',
+            url: 'update_status.php',
+            data: formData,
+            success: function(response) {
+                // Handle success response
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+            }
+        });
+    });
+
+    // Event listener for clicking the status button
+    $('.status-button').click(function() {
+        $('#medicalDetails').empty(); // Clear previous medical details
+        status = $(this).text().trim();
+        appointmentID = $(this).data('appointment-id');
+
+        // Update the appointment ID input field in the modal
+        $('#appointmentID').val(appointmentID);
+
+        // Arrays to store medicine brands, quantities, and treatment IDs
+        var medicineBrand = [];
+        var quantity = [];
+        var treatmentID = [];
+        var dosage = [];
+        var medicineName = [];
+        // Check if the status is 'Pending'
+        if (status === 'Pending') {
+            // Show the change status modal
+            $('#changeStatusModal').modal('show');
+
+            // Fetch medical details via AJAX
+            $.ajax({
+                type: 'POST',
+                url: 'fetch_medical_details.php',
+                data: { appointmentID: appointmentID },
+                dataType: 'json',
+                success: function(response) {
+                    // Append form fields for each medicine brand with quantity inputs
+                    $.each(response, function(index, item) {
+                        dosage.push(item.dosage);
+                        medicineBrand.push(item.medicineBrand); // Push medicineBrand to array
+                        quantity.push(item.quantity); // Push quantity to array
+                        treatmentID.push(item.treatmentID); // Push treatmentID to array
+                        medicineName.push(item.medicineName);
+                        
+                        var formField = '<div class="form-group">';
+                        formField += '<input type="hidden" name="medicineBrand[]" value="' + item.medicineBrand + '">';
+                        formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
+                        formField += '<input type="hidden" name="dosage[]" value="' + item.dosage + '">';
+                        formField += '<input type="hidden" name="medicineName[]" value="' + item.medicineName + '">';
+                        formField += '<label>' + item.medicineBrand + '</label>';
+                        formField += '<input type="number" class="form-control" name="quantity[]" value="' + item.quantity + '" min="0">';
+                        formField += '</div>';
+
+                        $('#medicalDetails').append(formField);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    });
+});
+</script>
+
+
+
 
 
 
@@ -246,8 +338,6 @@ mysqli_close($conn);
 });
 
 </script>
-
-
 
 </body>
 </html>

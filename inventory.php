@@ -36,8 +36,102 @@ if ($row = mysqli_fetch_assoc($result)) {
     // Admin information not found
     echo "Admin information not found!";
 }
+$sql = "SELECT 
+            mu.UsageID,
+            mu.Quantity,
+            mu.Dosage,
+            mu.UsageDate,
+            mu.TreatmentID,
+            mu.MedicineBrand,
+            t.PatientID,
+            p.FirstName,
+            p.LastName
+       
+        FROM 
+            MedicineUsage mu
+        JOIN 
+            Treatment t ON mu.TreatmentID = t.TreatmentID
+        JOIN 
+            Patient p ON t.PatientID = p.PatientID";
+// Perform the query
+$result = mysqli_query($conn, $sql);
 
-// Close the database connection
+// Check if the query was successful
+if ($result) {
+    // Initialize an empty array to store the query results
+    $medicineUsageData = array();
+
+    // Fetch the rows from the result set
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Add each row to the medicine usage data array
+        $medicineUsageData[] = $row;
+    }
+
+    // Now $medicineUsageData contains the fetched data
+} else {
+    // Error executing the query
+    echo "Error: " . mysqli_error($conn);
+}
+
+$sql = "SELECT 
+            eu.Quantity,
+            eu.UsageDate,
+            eu.EquipmentID,
+            e.Name AS EquipmentName
+        FROM 
+            EquipmentUsage eu
+        JOIN 
+            Equipment e ON eu.EquipmentID = e.EquipmentID";
+
+// Perform the query
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Initialize an empty array to store the query results
+    $equipmentUsageData = array();
+
+    // Fetch the rows from the result set
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Add each row to the equipment usage data array
+        $equipmentUsageData[] = $row;
+    }
+
+    // Now $equipmentUsageData contains the fetched data
+} else {
+    // Error executing the query
+    echo "Error: " . mysqli_error($conn);
+}
+
+$sql = "SELECT 
+            SUM(mi.StockQuantity) AS TotalQuantity,
+            mi.MedicineBrandID,
+            mb.BrandName
+        FROM 
+            medicineinventory mi
+        LEFT JOIN 
+            medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+        GROUP BY 
+            mi.MedicineBrandID";
+
+$result = $conn->query($sql);
+
+if ($result) {
+    // Initialize an empty array to store the query results
+    $medicineInventoryData = array();
+
+    // Fetch the rows from the result set
+    while ($row = $result->fetch_assoc()) {
+        // Add each row to the medicine inventory data array
+        $medicineInventoryData[] = $row;
+    }
+
+    // Now $medicineInventoryData contains the fetched data
+} else {
+    // Error executing the query
+    echo "Error: " . $conn->error;
+}
+
 
 ?>
 
@@ -60,8 +154,19 @@ if ($row = mysqli_fetch_assoc($result)) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="hamburgers.css" rel="stylesheet">
   <link href="userdashboard.css" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
   <title>Tenant Dashboard</title>
-  
+  <style>
+.row-spacing {
+    margin-bottom: 10px; /* Adjust the value to control the spacing between rows */
+}
+#TotalStock tbody tr.row-spacing td {
+    border-top: 4px solid #FFFFFF !important;
+}
+table.dataTable.no-footer {
+    border-bottom:none !important;
+}
+  </style>
 </head>
 <body>
 <div class="container-fluid">
@@ -86,19 +191,19 @@ if ($row = mysqli_fetch_assoc($result)) {
                     <div class="card-body bg-main-color-2 p-5">
                         <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-2 mt-1">
                             <!-- Edit button on the left -->
-                            <button id="toggleButtons" class="btn btn-lg btn-outline-info mr-2">Save Table</button>
+                           
                             <button id="editButton" class="btn btn-lg main-color-2 btn-gray-color  mr-2 ">Action</button>
                             <!-- Additional buttons next to Edit -->
                             <div class="d-flex flex-row flex-wrap align-items-center">
 
                     
-                                <button id="deleteButton" class="btn btn-lg btn-danger" onclick="deleteSelectedRows()">Remove Medicine</button>
+                                <button id="deleteButton" class="btn btn-lg btn-danger">Remove Medicine</button>
                                
                             </div>
                             
                         </div>
                         <div class="medicine-header">
-                            <h4 class="main-color">Medicine</h4>
+                            <h4 class="main-color"><b>Medicine</b></h4>
                             <div class="button-container">
                           
                             <button id="addMedicineButton" class="btn btn-lg greener mb-2  mr-sm-2 pt-2 pb-2 no-break" data-toggle="modal" data-target="#addMedicineModal">Add Medicine</button>
@@ -109,7 +214,7 @@ if ($row = mysqli_fetch_assoc($result)) {
                         <form id="deleteForm" action="remove_medicine.php" method="post">
                         <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
                 </form>
-                <div class="table-responsive">
+              
                     <table id="example" class="table table-striped">
                         <thead class="table-header no-break sm-text text-left">
                             <tr>
@@ -124,24 +229,22 @@ if ($row = mysqli_fetch_assoc($result)) {
                         <tbody>
                         <?php
 $sql = "SELECT 
-            m.MedicineID,
-            m.MedicineName,
-            mb.MedicineBrandID,
-            mb.BrandName,
-            mb.Route,
-            SUM(mi.StockQuantity) AS TotalStockQuantity,
-            mi.StockPrice,
-            mi.StockDosage,
-            mi.StockExpiryDate,
-            mi.StockBoughtPrice
-        FROM 
-            medicinebrand mb
-        JOIN 
-            medicine m ON mb.MedicineID = m.MedicineID
-        JOIN 
-            medicineinventory mi ON mb.MedicineBrandID = mi.MedicineBrandID
-        GROUP BY 
-            m.MedicineID, mb.BrandName, mi.StockExpiryDate"; // Group by MedicineID, BrandName, and StockExpiryDate
+mb.MedicineBrandID,
+mb.BrandName,
+mb.Route,
+SUM(mi.StockQuantity) AS TotalStockQuantity,
+mi.InventoryID,
+mi.StockPrice,
+mi.StockDosage,
+mi.StockExpiryDate,
+mi.StockBoughtPrice
+FROM 
+medicineinventory mi
+JOIN 
+medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+GROUP BY 
+mb.BrandName, mi.StockExpiryDate;
+"; // Group by MedicineID, BrandName, and StockExpiryDate
 
 $result = $conn->query($sql);
 
@@ -149,7 +252,7 @@ if ($result->num_rows > 0) {
     // Output data of each row
     while($row = $result->fetch_assoc()) {
         echo "<tr>";
-        echo "<td class='px-3'><input type='checkbox' class='select-checkbox' name='selectedRows[]' value='" . $row['MedicineBrandID'] . "'></td>";
+        echo "<td class='px-3'><input type='checkbox' class='select-checkbox' name='selectedRows[]' value='" . $row['InventoryID'] . "'></td>";
         echo "<td>" . $row['BrandName'] . "</td>";
         echo "<td>" . ($row['TotalStockQuantity'] !== null ? $row['TotalStockQuantity'] : 'N/A') . "</td>";
         echo "<td>" . ($row['StockPrice'] !== null ? $row['StockPrice'] : 'N/A') . "</td>";
@@ -160,6 +263,36 @@ if ($result->num_rows > 0) {
 } else {
     echo "0 results";
 }
+
+$sql = "SELECT 
+            SUM(es.Quantity) AS TotalQuantity,
+            e.EquipmentID,
+            e.Name
+        FROM 
+            equipmentstock es
+        JOIN 
+            equipment e ON es.EquipmentID = e.EquipmentID
+        GROUP BY 
+            es.EquipmentID";
+
+$result = $conn->query($sql);
+
+// Check if the query was successful
+if ($result) {
+    // Initialize an empty array to store the query results
+    $equipmentStockData = array();
+
+    // Fetch the rows from the result set
+    while ($row = $result->fetch_assoc()) {
+        // Add each row to the equipment stock data array
+        $equipmentStockData[] = $row;
+    }
+
+    // Now $equipmentStockData contains the fetched data
+} else {
+    // Error executing the query
+    echo "Error: " . $conn->error;
+}
 ?>
 
 
@@ -169,66 +302,68 @@ if ($result->num_rows > 0) {
                     </table>
                     </div>
                 </div>
-            </div>
+           
        
         
 
     <div class="row justify-content-center">
-    <div class="col-md-5 col-lg-6 mt-2">
-        <div class="card table-card">     
-            <div class="card-body bg-main-color-2 p-5">
-                <div class="medicine-header">
-                    <h4 class="main-color"> Medicine List</h4>
+    <div class="col-md-6 col-lg-6 mt-2">
+        <div class="card table-card h-100">     
+            <div class="card-body bg-main-color-2 p-4">
+                <div class="medicine-header m-0">
+                    <h5 class="main-color"> <b>Total Medicine Stock</b> </h5>
                 </div>
               
-                <div class="table-responsive max-h-300">
-                    <table id="example" class="table table-striped">
-                    
-                        <tbody>
-                            <!-- Table rows -->
-                            <?php
-$sql = "SELECT 
-            m.MedicineID,
-            m.MedicineName,
-            mb.BrandName,
-            SUM(COALESCE(mi.StockQuantity, 0)) AS TotalStockQuantity
-        FROM 
-            medicinebrand mb
-        JOIN 
-            medicine m ON mb.MedicineID = m.MedicineID
-        LEFT JOIN
-            medicineinventory mi ON mb.MedicineBrandID = mi.MedicineBrandID
-        GROUP BY
-            m.MedicineID, mb.BrandName"; // Group by MedicineID and BrandName
+        
+                <table id="TotalStock" class="table table-with-spacing gfg w-100">
+    <thead>
+        <tr>
+            <!-- Empty header cells -->
+            <th class="d-none"></th>
+            <th class="d-none"></th>
+            <th class="d-none"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $sql = "SELECT 
+                    m.MedicineName,
+                    mb.BrandName,
+                    SUM(COALESCE(mi.StockQuantity, 0)) AS TotalStockQuantity
+                FROM 
+                    medicinebrand mb
+                JOIN 
+                    medicine m ON mb.MedicineID = m.MedicineID
+                LEFT JOIN
+                    medicineinventory mi ON mb.MedicineBrandID = mi.MedicineBrandID
+                GROUP BY
+                    m.MedicineName, mb.BrandName"; // Group by MedicineName and BrandName
 
-$result = $conn->query($sql);
+        $result = $conn->query($sql);
 
-if ($result === false) {
-    // Handle query execution error
-    echo "Error executing query: " . $conn->error;
-} else {
-    if ($result->num_rows > 0) {
-        // Output data of each row
-        while($row = $result->fetch_assoc()) {
-            echo "<tr>";
-            echo "<td>" . $row['MedicineName'] . "</td>";
-            echo "<td>" . $row['BrandName'] . "</td>";
-            echo "<td>" . $row['TotalStockQuantity'] . "</td>"; // Display total stock quantity
-            echo "</tr>";
+        if ($result === false) {
+            // Handle query execution error
+            echo "Error executing query: " . $conn->error;
+        } else {
+            if ($result->num_rows > 0) {
+                // Output data of each row
+                while($row = $result->fetch_assoc()) {
+                    echo "<tr class='row-spacing' style='background-color:#f5f5f5;'>";
+                    echo "<td>" . $row['MedicineName'] . "</td>";
+                    echo "<td>" . $row['BrandName'] . "</td>";
+                    echo "<td>" . $row['TotalStockQuantity'] . "</td>"; // Display total stock quantity
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='3'>No data available</td></tr>"; // Display message if no data found
+            }
         }
-    } else {
-        echo "<tr><td colspan='3'>No data available</td></tr>"; // Display message if no data found
-    }
-}
-?>
+        ?>
+    </tbody>
+</table>
 
 
-
-
-                            <!-- More rows here -->
-                        </tbody>
-                    </table>
-                </div>
+               
                 </div>
                 </div>
                 </div>
@@ -238,12 +373,12 @@ if ($result === false) {
             
  
     
-    <div class="col-md-5 col-lg-6 mt-2">
+    <div class="col-md-6 col-lg-6 mt-2">
         <div class="row">
             <div class="col-md-12">
                 <div class="card table-card"> 
                     <div class="card-header header-main">
-                        <h4 class="card-title text-left main-font-color mt-3 ml-2"><b>Medicine Stock Indicator 1</b></h4>
+                        <h5 class="card-title text-left gray mt-3 ml-2"><b>Medicine Stock Indicator </b></h5>
                     </div>    
                     <div class="card-body mx-h-400 bg-main-color-2 pb-2 m-0 p-0">
                         <div class="d-flex justify-content-center mx-h-300 align-items-center">
@@ -255,7 +390,7 @@ if ($result === false) {
             <div class="col-md-12 mt-2">
                 <div class="card table-card"> 
                     <div class="card-header header-main">
-                        <h4 class="card-title text-left main-font-color mt-3 ml-2"><b>Medicine Stock Indicator 2</b></h4>
+                        <h5 class="card-title text-left gray mt-3 ml-2"><b>Equipment Stock Indicator</b></h5>
                     </div>    
                     <div class="card-body mx-h-400 bg-main-color-2 pb-2 p-0">
                         <div class="d-flex justify-content-center mx-h-300  align-items-center" style="height:300px;">
@@ -269,7 +404,7 @@ if ($result === false) {
             </div>
        
         <div class="row">
-        <div class="  col-sm-12 col-md-10 col-lg-12 mt-2 mx-auto mb-4 ">
+        <div class="  col-sm-12 col-md-12 col-lg-12 mt-2 mx-auto mb-4 ">
             <div class="card mx-auto table-card p-5">
                
                 
@@ -279,75 +414,48 @@ if ($result === false) {
                             <h4 class="main-color"> <b>Medicine Usage History</b></h4>
                            
                         </div>
-                     
-                <div class="table-responsive">
-                    <table id="UsageTable" class="table table-striped">
-                        <thead class="table-header no-break text-center">
-                            <tr>
-                         
-                                <th>Product Name</th>
-                                <th>Quantity</th>
-                                <th>Price Sold</th>
-                                <th>Batch Date</th>
-                                <th>Expiry Date</th>
-                                <th>Price Bought</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Table rows -->
-                
-                            <tr style="background-color:white;">
-                          
-                                <td>Check</td>
-                                <td>Test</td>
-                                <td>Try</td>
-                                <td>Try</td>
-                                <td>Test</td>
-                                <td>Check</td>
-                            </tr>
-                            <tr style="background-color:white;">
-                            
-                                <td>Check</td>
-                                <td>Test</td>
-                                <td>Try</td>
-                                <td>Try</td>
-                                <td>Test</td>
-                                <td>Check</td>
-                            </tr>
-                            <tr style="background-color:white;">
-                              
-                                <td>Check</td>
-                                <td>Test</td>
-                                <td>Try</td>
-                                <td>Try</td>
-                                <td>Test</td>
-                                <td>Check</td>
-                            </tr>
-                            <tr style="background-color:white;">
-                               
-                                <td>Check</td>
-                                <td>Test</td>
-                                <td>Try</td>
-                                <td>Try</td>
-                                <td>Test</td>
-                                <td>Check</td>
-                            </tr>
-                            <!-- ... other rows ... -->
-                        </tbody>
-                    </table>
+          
+                <table id="UsageTable" class="table table-striped">
+    <thead class="table-header no-break text-center">
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Dosage</th>
+            <th>Date Used</th>
+            <th>Patient Involved</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Table rows -->
+        <?php
+        // Loop through the fetched medicine usage data and output each row as a table row
+        foreach ($medicineUsageData as $row) {
+            echo "<tr>";
+            echo "<td>" . $row['MedicineBrand'] . "</td>";
+            echo "<td>" . $row['Quantity'] . "</td>";
+            echo "<td>" . $row['Dosage'] . "</td>";
+            echo "<td>" . $row['UsageDate'] . "</td>";
+            echo "<td>" . $row['FirstName'] . " " . $row['LastName'] . "</td>";
+            echo "</tr>";
+        }
+        ?>
+        <!-- ... other rows ... -->
+    </tbody>
+</table>
+
                     </div>
                 </div>
-            </div>
+            
         </div>
    
     <div class="row justify-content-center">
-    <div class="col-md-5 col-lg-6 mt-2">
-        <div class="card table-card">     
+    <div class="col-md-6 col-lg-6 mt-2">
+        <div class="card table-card h-100">     
             <div class="card-body bg-main-color-2 p-5">
                 <div class="row">
                 <div class="col-md-12 col-lg-6 col-xl-6">
                 <div class="medicine-header">
-                    <h4 class="main-color">Equipment</h4>
+                    <h4 class="main-color"><b>Equipment </b></h4>
 </div>
 </div>
 <div class="col-md-12 col-lg-6 col-xl-6">
@@ -360,8 +468,8 @@ if ($result === false) {
                 <form id="deleteForm" action="delete_medicine.php" method="post">
     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
     </form>
-                <div class="table-responsive h-1000">
-                    <table id="example" class="table table-striped">
+              
+                    <table id="EquipmentTable" class="table table-striped">
                         <thead class="table-header">
                             <tr>
                                 <th></th>
@@ -382,7 +490,7 @@ if ($result->num_rows > 0) {
     // Output data of each row
     while($row = $result->fetch_assoc()) {
         echo "<tr>";
-        echo "<td class='px-3'><input type='checkbox' class='select-checkbox' name='selectedRows[]' value='" . $row['EquipmentID'] . "'></td>";
+        echo "<td class='px-3'><input type='checkbox' class='select-Equip' name='selectedRows[]' value='" . $row['EquipmentID'] . "'></td>";
         echo "<td>" . $row['EquipmentName'] . "</td>";
         echo "<td>" . $row['TotalQuantity'] . "</td>";
         echo "</tr>";
@@ -396,39 +504,50 @@ if ($result->num_rows > 0) {
                         </tbody>
                     </table>
                 </div>
-            </div>
+            
         </div>
     </div>
     
-    <div class="col-md-5 col-lg-6 mt-2">
-        <div class="card table-card">     
+    <div class="col-md-6 col-lg-6 mt-2">
+        <div class="card table-card h-100">     
             <div class="card-body bg-main-color-2 p-5">
                 <div class="medicine-header">
-                    <h4 class="main-color">Equipment Usage History</h4>
+                    <h4 class="main-color"><b>Equipment Usage History</b></h4>
                  
                 </div>
                
-                <div class="table-responsive max-h-300">
-                    <table id="example" class="table table-striped">
-                        <thead class="table-header">
-                            <tr>
-                                <th></th>
-                                <th>Product Name</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Table rows -->
-                            <tr style="background-color:white;">
-                                <td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['ApplicantID'] . '"></td>
-                                <td>Check</td>
-                                <td>Test</td>
-                            </tr>
-                            <!-- More rows here -->
-                        </tbody>
-                    </table>
+             
+         
+    <table id="EquipmentUsageTable" class="table table-striped">
+        <thead class="table-header">
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Usage Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Loop through each row of equipment usage data
+            foreach ($equipmentUsageData as $row) {
+                echo "<tr>";
+                echo "<td>" . $row['EquipmentName'] . "</td>";
+                echo "<td>" . $row['Quantity'] . "</td>";
+                echo "<td>" . $row['UsageDate'] . "</td>";
+                echo "</tr>";
+            }
+            
+            // Check if no data is available
+            if (empty($equipmentUsageData)) {
+                echo "<tr><td colspan='3'>No data available</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+
+
                 </div>
-                </div>
+              
                 </div>
                 </div>
                 </div>
@@ -458,12 +577,6 @@ if ($result->num_rows > 0) {
         if (isset($_SESSION['productBrandExists']) && $_SESSION['productBrandExists'] === true) {
             echo '<div class="alert alert-danger" role="alert">Product Brand already exists</div>';
             unset($_SESSION['productBrandExists']); // Clear the session variable
-        }
-        ?>
-        <?php
-        if (isset($_SESSION['successMessage'])) {
-            echo '<div class="alert alert-success" role="alert">' . $_SESSION['successMessage'] . '</div>';
-            unset($_SESSION['successMessage']); // Clear the session variable
         }
         ?>
             <label for="productName">Product Name</label>
@@ -644,7 +757,113 @@ if ($result->num_rows > 0) {
     </div>
   </div>
 </div>
+<div class="modal fade" id="addMedicineSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
 
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="check-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>MEDICINE</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Medicine has been added successfully.<br></small>
+
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="addStockSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="check-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>STOCK</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Stock has been added successfully.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="addEquipmentSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="check-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EQUIPMENT</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Equipment has been added successfully.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div class="modal fade" id="removalConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="caution-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>REMOVE</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ITEM</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to delete<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">the selected item/s?<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
+<button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Remove</b></button>
+</div>
+</div>  
+</div>
+</div>
+</div>
+ 
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
     
@@ -660,6 +879,42 @@ if ($result->num_rows > 0) {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+      feather.replace();
+    </script>
+    <script>
+    $(document).ready(function() {
+  $('#deleteButton').click(function() {
+    $('#removalConfirmationModal').modal('show');
+  });
+});
+    </script>
+<script>
+  $(document).ready(function() {
+    <?php if(isset($_SESSION['successMessage'])) { ?>
+      $('#addMedicineSuccessModal').modal('show');
+      <?php unset($_SESSION['successMessage']); ?> // Unset the session variable
+    <?php } ?>
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    <?php if(isset($_SESSION['successMessageStock'])) { ?>
+      $('#addStockSuccessModal').modal('show');
+      <?php unset($_SESSION['successMessageStock']); ?> // Unset the session variable
+    <?php } ?>
+  });
+</script>
+<script>
+  $(document).ready(function() {
+    <?php if(isset($_SESSION['successMessageEquipment'])) { ?>
+      $('#addEquipmentSuccessModal').modal('show');
+      <?php unset($_SESSION['successMessageEquipment']); ?> // Unset the session variable
+    <?php } ?>
+  });
+</script>
+
 
 <script>
 $(document).ready(function() {
@@ -681,16 +936,27 @@ $(document).ready(function() {
 });
 </script>
 
+<?php
+
+
+// Extract labels and data from the fetched data
+$labels = array_column($medicineInventoryData, 'BrandName'); // Extract BrandName as labels
+$data = array_column($medicineInventoryData, 'TotalQuantity'); // Extract TotalQuantity as data
+
+// Convert PHP arrays to JavaScript arrays
+$labels_js = json_encode($labels);
+$data_js = json_encode($data);
+?>
 <script>
   const ctx = document.getElementById('myChart1');
 
   new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      labels: <?php echo $labels_js; ?>,
       datasets: [{
         label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
+        data: <?php echo $data_js; ?>,
         borderWidth: 1
       }]
     },
@@ -706,9 +972,8 @@ $(document).ready(function() {
         }
     }
 }});
-
-     
 </script>
+
 
 
 <script>
@@ -734,30 +999,35 @@ $(document).ready(function() {
 <script>
   const ctx2 = document.getElementById('myChart2');
 
+  // Extracting data from PHP and formatting for the chart
+  const labels = <?php echo json_encode(array_column($equipmentStockData, 'Name')); ?>;
+  const data = <?php echo json_encode(array_column($equipmentStockData, 'TotalQuantity')); ?>;
+  
   new Chart(ctx2, {
     type: 'doughnut',
     data: {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      labels: labels, // Use equipment names as labels
       datasets: [{
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
+        label: 'Equipment Stock',
+        data: data, // Use equipment quantities as data
         borderWidth: 1
       }]
     },
     options: {
-    plugins: {
+      plugins: {
         legend: {
-            position: 'right', // Position the legend on the right side
-            labels: {
-                font: {
-                    size: 10 // Adjust font size as needed
-                }
+          position: 'right', // Position the legend on the right side
+          labels: {
+            font: {
+              size: 10 // Adjust font size as needed
             }
+          }
         }
-    },
+      }
     }
   });
 </script>
+
 <script>
   document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
@@ -944,7 +1214,7 @@ $(document).ready(function () {
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
         "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
-               "<'row'<'col-sm-12 ml-5 mt-3'l>><<'col-sm-12'p>>", // Place length menu and pagination in separate rows
+               "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
         buttons: [
             {
@@ -980,6 +1250,7 @@ $(document).ready(function () {
         language: { "lengthMenu": "Display _MENU_ "
           
         }
+       
        
     });
     function updatePageInfo() {
@@ -1027,11 +1298,213 @@ $(document).ready(function () {
 });
 
 
-
-
-
-
 });
+</script>
+<script>
+    
+$(document).ready(function () {
+    // DataTable initialization
+    var table = $('#UsageTable').DataTable({
+        paging: true,
+        responsive: true,
+        searching: true,
+        "pageLength": 5, // Set default page length
+        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
+        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+               "<'row'<'col-sm-12't>>" + // Place table in a row
+               "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
+       
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
+                titleAttr: 'Copy',
+                className: 'btn-img'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
+                titleAttr: 'Excel',
+                className: 'btn-img'
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
+                titleAttr: 'CSV',
+                className: 'btn-img'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
+                titleAttr: 'PDF',
+                className: 'btn-img'
+            }
+        ],
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
+        ],
+        pageLength: 5,
+        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
+        language: { "lengthMenu": "Display _MENU_ "
+          
+        }
+    });
+    }); 
+</script>
+<script>
+    
+$(document).ready(function () {
+    // DataTable initialization
+    var table = $('#TotalStock').DataTable({
+        paging: true,
+        
+        responsive: true,
+        searching: true,
+        "pageLength": 5, // Set default page length
+        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
+        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+               "<'row'<'col-sm-12't>>" + // Place table in a row
+               "<<'col-sm-12 justify-content-center d-flex mt-5 p-0'p>>", // Place length menu and pagination in separate rows
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
+                titleAttr: 'Copy',
+                className: 'btn-img'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
+                titleAttr: 'Excel',
+                className: 'btn-img'
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
+                titleAttr: 'CSV',
+                className: 'btn-img'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
+                titleAttr: 'PDF',
+                className: 'btn-img'
+            }
+        ],
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
+        ],
+        pageLength: 5,
+        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
+        language: { "lengthMenu": "Display _MENU_ "
+          
+        }
+    });
+    });
+</script>
+<script>
+    
+$(document).ready(function () {
+    // DataTable initialization
+    var table = $('#EquipmentTable').DataTable({
+        paging: true,
+        
+        responsive: true,
+        searching: true,
+        "pageLength": 5, // Set default page length
+        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
+        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+               "<'row'<'col-sm-12't>>" + // Place table in a row
+               "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
+       
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
+                titleAttr: 'Copy',
+                className: 'btn-img'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
+                titleAttr: 'Excel',
+                className: 'btn-img'
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
+                titleAttr: 'CSV',
+                className: 'btn-img'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
+                titleAttr: 'PDF',
+                className: 'btn-img'
+            }
+        ],
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
+        ],
+        pageLength: 5,
+        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
+        language: { "lengthMenu": "Display _MENU_ "
+          
+        }
+    });
+    });
+</script>
+<script>
+    
+$(document).ready(function () {
+    // DataTable initialization
+    var table = $('#EquipmentUsageTable').DataTable({
+        paging: true,
+        
+        responsive: true,
+        searching: true,
+        "pageLength": 5, // Set default page length
+        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
+        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+               "<'row'<'col-sm-12't>>" + // Place table in a row
+               "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
+       
+        buttons: [
+            {
+                extend: 'copyHtml5',
+                text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
+                titleAttr: 'Copy',
+                className: 'btn-img'
+            },
+            {
+                extend: 'excelHtml5',
+                text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
+                titleAttr: 'Excel',
+                className: 'btn-img'
+            },
+            {
+                extend: 'csvHtml5',
+                text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
+                titleAttr: 'CSV',
+                className: 'btn-img'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
+                titleAttr: 'PDF',
+                className: 'btn-img'
+            }
+        ],
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
+        ],
+        pageLength: 5,
+        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
+        language: { "lengthMenu": "Display _MENU_ "
+          
+        }
+    });
+    });
 </script>
 
 

@@ -22,46 +22,10 @@ if (isset($_POST['selectedRows']) && !empty($_POST['selectedRows'])) {
     // Loop through each selected MedicineBrandID
     foreach ($selectedRows as $medicineBrandID) {
         // Prepare and execute the SQL query to delete entries from medicineinventory table
-        $sql = "DELETE FROM medicineinventory WHERE MedicineBrandID = ?";
+        $sql = "DELETE FROM medicineinventory WHERE InventoryID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $medicineBrandID);
         $stmt->execute();
-        
-        // Store the associated MedicineID for later deletion check
-        $sql = "SELECT MedicineID FROM medicinebrand WHERE MedicineBrandID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $medicineBrandID);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $medicineID = $row['MedicineID'];
-        $medicineIDsToDelete[] = $medicineID;
-        
-        // Prepare and execute the SQL query to delete entries from medicinebrand table
-        $sql = "DELETE FROM medicinebrand WHERE MedicineBrandID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $medicineBrandID);
-        $stmt->execute();
-    }
-    
-    // Check if any MedicineIDs need to be checked for deletion
-    foreach ($medicineIDsToDelete as $medicineID) {
-        // Check if there are any remaining MedicineBrand entries for this MedicineID
-        $sql = "SELECT COUNT(*) AS brandCount FROM medicinebrand WHERE MedicineID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $medicineID);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $brandCount = $row['brandCount'];
-        
-        // If there are no more MedicineBrand entries, delete the associated Medicine entry
-        if ($brandCount == 0) {
-            $sql = "DELETE FROM medicine WHERE MedicineID = ?";
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $medicineID);
-            $stmt->execute();
-        }
     }
     
     // Redirect back to the inventory page

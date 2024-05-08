@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -22,6 +21,10 @@ mysqli_stmt_bind_param($stmt, "i", $adminID);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
+// Initialize empty arrays to store monthly data
+$monthly_labels = [];
+$monthly_patient_counts = [];
+
 // Check if there is a row returned
 if ($row = mysqli_fetch_assoc($result)) {
     // Admin information retrieved successfully
@@ -33,14 +36,154 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now you can use these variables to display the admin information in your HTML
+
+    // Modify the SQL query to retrieve monthly patient counts
+    $monthly_sql = "SELECT YEAR(DateAdded) AS Year, MONTH(DateAdded) AS Month, COUNT(*) AS PatientCount
+                    FROM patient
+                    GROUP BY YEAR(DateAdded), MONTH(DateAdded)
+                    ORDER BY YEAR(DateAdded), MONTH(DateAdded)";
+    $monthly_result = mysqli_query($conn, $monthly_sql);
+    if ($monthly_result) {
+        // Fetch monthly data and store them in the arrays
+        while ($monthly_row = mysqli_fetch_assoc($monthly_result)) {
+            $monthly_labels[] = date("F", mktime(0, 0, 0, $monthly_row['Month'], 1)); // Convert month number to month name
+            $monthly_patient_counts[] = $monthly_row['PatientCount'];
+        }
+    } else {
+        echo "Failed to fetch monthly data!";
+    }
+
 } else {
     // Admin information not found
     echo "Admin information not found!";
 }
+$sql = "SELECT SUM(mi.StockQuantity) AS TotalStockQuantity, mb.MedicineID, m.MedicineName
+        FROM medicineinventory mi
+        JOIN medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+        JOIN medicine m ON mb.MedicineID = m.MedicineID
+        GROUP BY m.MedicineID";
 
-// Close the database connection
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
+// Execute the SQL query
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Fetch the rows from the result set
+    $medicineData = array();
+    while ($row = mysqli_fetch_assoc($result)) {
+        $medicineData[] = $row;
+    }
+
+    // Now $medicineData contains the data you retrieved from the database
+} else {
+    // Error executing the query
+    echo "Error: " . mysqli_error($conn);
+}
+
+$sql = "SELECT mu.MedicineBrand, SUM(mu.Quantity) AS TotalQuantity
+        FROM medicineusage mu
+        GROUP BY mu.MedicineBrand
+        ORDER BY TotalQuantity DESC
+        LIMIT 1";
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Fetch the row with the highest total quantity
+    $row = mysqli_fetch_assoc($result);
+    // Check if a row was fetched
+    if ($row) {
+        // Extract the MedicineBrand and TotalQuantity
+        $medicineBrandName = $row['MedicineBrand'];
+        $totalQuantity = $row['TotalQuantity'];
+
+        // Now $medicineBrand contains the BrandName of the MedicineBrand with the highest total quantity
+    } else {
+        // No data found
+        $medicineBrand = "Unknown";
+        $totalQuantity = 0;
+    }
+} else {
+    // Error executing the query
+    $medicineBrand = "Unknown";
+    $totalQuantity = 0;
+}
+
+
+
+// Execute the SQL query
+$sql = "SELECT 
+            COUNT(*) AS TreatmentCount,
+            DATE_FORMAT(DateofTreatment, '%Y-%m') AS Month,
+            Category
+        FROM 
+            treatment
+        GROUP BY 
+            Month, Category";
+
+
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Initialize an array to store the treatment data
+    $treatmentData = array();
+
+    // Fetch the rows from the result set
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Add each row to the treatment data array
+        $treatmentData[] = $row;
+    }
+
+    // Now $treatmentData contains the treatment count for each category per month
+} else {
+    // Error executing the query
+    echo "Error: " . mysqli_error($conn);
+}
+
+
+$sql = "SELECT 
+            DATE_FORMAT(mu.UsageDate, '%Y-%m') AS Month,
+            mu.MedicineName,
+            SUM(mu.Quantity) AS TotalQuantity
+        FROM 
+            MedicineUsage mu
+        GROUP BY 
+            Month, mu.MedicineName
+        ORDER BY 
+            Month";
+
+
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Initialize an array to store the monthly medicine distribution data
+    $medicineDistribution = array();
+    
+    // Initialize an empty array to store medicine names
+    $medicineNames = array();
+
+    // Fetch the rows from the result set
+    while ($row = mysqli_fetch_assoc($result)) {
+        // Add each row to the medicine distribution array
+        $medicineDistribution[] = $row;
+        
+        // Add the medicine name to the medicine names array if it's not already there
+        if (!in_array($row['MedicineName'], $medicineNames)) {
+            $medicineNames[] = $row['MedicineName'];
+        }
+        
+    }
+
+    // Now $medicineDistribution contains the monthly medicine distribution data
+    // and $medicineNames contains the unique medicine names
+} else {
+    // Error executing the query
+    echo "Error: " . mysqli_error($conn);
+}
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -72,6 +215,7 @@ mysqli_close($conn);
         <div class="sidebar">
             <?php include 'sidebar.php'; ?>
         </div>
+        
 
 
 <!--Profile Picture and Details--><div class="content" id="content">
@@ -90,7 +234,28 @@ mysqli_close($conn);
           <div class="col-md-6 border-left pt-4">
             <div class="row">
               <div class="col-md-12 mb-3">
-                <h1 class="main-font-color pb-0 mb-0"><b>46</b></h1>
+                <h1 class="main-font-color pb-0 mb-0"><b>  <?php
+    // Define the start and end dates for the past 7 days
+    $startDate = date('Y-m-d', strtotime('-7 days'));
+    $endDate = date('Y-m-d');
+
+    // Prepare and execute the SQL query to get the count of treatments done in the past 7 days
+    $sql = "SELECT COUNT(*) AS TreatmentCount FROM treatment WHERE DateofTreatment BETWEEN ? AND ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "ss", $startDate, $endDate);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    // Fetch the treatment count from the result
+    if ($row = mysqli_fetch_assoc($result)) {
+        echo $row['TreatmentCount'];
+    } else {
+        echo '0'; // Default to 0 if no treatments were found
+    }
+
+    // Close the statement and database connection
+    
+    ?></b></h1>
                 <span class="pt-0 mb-0">Treatments done this week</span>
                 <h5 class="main-font-color"><b>Weekly Treatment Count</b></h5>
               </div>
@@ -98,9 +263,10 @@ mysqli_close($conn);
             <div class="col-md-10 mt-1 p-0">
               <div class="row border-top">
                 <div class="col-md-12 mt-4">
-                  <h1 class="main-font-color pb-0 mb-0"><b>46</b></h1>
-                  <span class="pt-0 mb-0">Treatments done this week</span>
-                  <h5 class="main-font-color"><b>Weekly Treatment Count</b></h5>
+                <h1 class="main-font-color pb-0 mb-0"><b><?php echo $totalQuantity; ?></b></h1>
+<span class="pt-0 mb-0"><?php echo $medicineBrandName; ?></span>
+
+                  <h5 class="main-font-color"><b>Most Used Medicine</b></h5>
                 </div>
               </div>
             </div>
@@ -154,80 +320,123 @@ mysqli_close($conn);
             <div class="col-lg-2 no-break m-0 p-0 align-items-center justify-content-center d-flex d-none d-sm-none d-md-none d-lg-none d-xl-block">
               <img src="green-plus.png">
             </div>
-            <div class="col-sm-12 col-lg-5 text-left ">
-              <h5 class="main-font-color "><b>Daily Predicted Medicine Usage</b></h5>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-              
-            </div>
-            <div class="col-sm-12 col-lg-5 text-left">
-              <h5 class="main-font-color "><b>Daily Predicted Medicine Usage</b></h5>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-              <div style="display: flex; align-items: center;">
-                <h5 class="gray mr-2">12</h5><h6>ERIG</h6>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            <div class="col-sm-12 col-lg-6 col-xl-5 text-left">
+            <?php
+// Execute the Python script and capture the JSON output
+$output = shell_exec('python linear-regression.py');
+
+// Find the start and end positions of the JSON object within the output
+$start_pos = strpos($output, '{');
+$end_pos = strrpos($output, '}');
+
+if ($start_pos !== false && $end_pos !== false) {
+    // Extract the JSON object from the output
+    $json_data = substr($output, $start_pos, $end_pos - $start_pos + 1);
+
+    // Parse the extracted JSON data
+    $parsed_data = json_decode($json_data, true);
+
+    // Check if JSON parsing was successful
+    if ($parsed_data !== null) {
+
+        // Display the daily predicted medicine usage
+        echo '<div class="col-sm-12 col-lg-7 text-left">';
+        echo '<h5 class="main-font-color"><b>Daily Predicted Medicine Usage</b></h5>';
+        foreach ($parsed_data['daily'] as $medicineName => $quantity) {
+            echo '<div style="display: flex; align-items: center;">';
+            echo '<h5 class="gray mr-2">' . $quantity . '</h5><h6>' . $medicineName . '</h6>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+        // Display the weekly predicted medicine usage
+        echo '<div class="col-sm-12 col-lg-5 text-left">';
+        echo '<h5 class="main-font-color"><b>Weekly Predicted Medicine Usage</b></h5>';
+        foreach ($parsed_data['weekly'] as $medicineName => $quantity) {
+            echo '<div style="display: flex; align-items: center;">';
+            echo '<h5 class="gray mr-2">' . $quantity . '</h5><h6>' . $medicineName . '</h6>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+    } else {
+        // JSON parsing failed
+        $error_code = json_last_error();
+        $error_message = json_last_error_msg();
+        echo "JSON parsing failed! Error code: $error_code, Error message: $error_message";
+    }
+} else {
+    echo "JSON object not found in the output!";
+}
+?>
+ </div>
+ 
+</div>
     </div>
   </div>
-  <div class="row mb-5">
+  <div class="row mb-5 mr-0 pr-0">
     <div class="col-md-6 mt-3">
-      <div class="card table-card" style="height: 325px;"> 
+      <div class="card table-card h-100"> 
         <div class="card-header header-main">
-          <h4 class="card-title text-left main-font-color mt-3 ml-2"><b>Medicine Stock Distribution</b></h4>
+          <h4 class="card-title text-left main-font-color mt-3 ml-2"><b>Monthly Patient Count</b></h4>
         </div>    
-        <div class="card-body bg-main-color-2 pb-2 m-0 p-0">
-          <div class="d-flex justify-content-center align-items-center">
-            <canvas id="monthlyPatientChart"width="400" style="max-height: 250px; min-height: 200px; height:250px; min-width:200px;"></canvas>    
-          </div>
+        <div class="card-body bg-main-color-2 pb-4 pt-4 px-2 m-0 p-0 d-flex justify-content-center align-items-center w-100 h-100">
+         
+            <canvas id="monthlyPatientChart"></canvas>    
+      
         </div>
         
       </div>
       
     </div>
-    <div class="col-md-6 mt-3">
-      <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
-                                    <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b>294</b></h1>
-                                        <p class="small-text mb-0">Patient Count</p>
-                                        <h5 class="text-font-medium main-font-color mb-0"><b>Total Number of Patients</b></h5>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="col-md-6 mt-3 pr-0">
+    <?php
+// Execute the Python script and capture the JSON output
+$output = shell_exec('python linear-regression-patient.py');
+
+// Decode the JSON data
+$parsed_data = json_decode($output, true);
+
+// Check if JSON decoding was successful
+if ($parsed_data !== null) {
+    // Display the daily predicted patient count
+    $daily_prediction = number_format($parsed_data["next_day_prediction"], 2);
+    echo '<div class="col-md-12 pr-0">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                        <div>
+                            <h1 class="text-font-big main-font-color mb-0"><b>' . $daily_prediction . '</b></h1>
+                            <p class="small-text mb-0">Patients</p>
+                            <h5 class="text-font-medium main-font-color mb-0"><b>Daily Predicted Patient Count</b></h5>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
+
+        $weekly_prediction = number_format($parsed_data["weekly_prediction"], 2);
+    echo '<div class="col-md-12 mt-5 pr-0">
+            <div class="card pr-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                        <div> 
+                            <h1 class="text-font-big main-font-color mb-0"><b>' . $weekly_prediction . '</b></h1>
+                            <p class="small-text mb-0">Patients</p>
+                            <h5 class="text-font-medium main-font-color mb-0"><b>Weekly Predicted Patient Count</b></h5>
                         </div>
-                        <div class="col-md-12 mt-5">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
-                                    <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b>294</b></h1>
-                                        <p class="small-text mb-0">Patient Count</p>
-                                        <h5 class="text-font-medium main-font-color mb-0"><b>Total Number of Patients</b></h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>';
+} else {
+    // JSON parsing failed
+    echo "Failed to parse JSON data!";
+}
+?>
+     </div>
                         
     </div>
 </div>
@@ -359,28 +568,61 @@ $(document).ready(function () {
         $('#content').toggleClass('collapsed'); // Toggle 'collapsed' class on #content
     });
 });
-
-
-</script>
-<script>
     // Define chart configuration
+ // Define chart configuration
+ <?php
+$datasets = [];
+$colors = ['#FF0000', '#00FF00', '#0000FF'];
+
+// Initialize an associative array to store treatment counts indexed by category and month
+$treatmentCountsByCategory = [];
+
+// Loop through the treatment data to organize treatment counts by category and month
+foreach ($treatmentData as $data) {
+    $month = $data['Month'];
+    $category = $data['Category'];
+    $treatmentCount = $data['TreatmentCount'];
+    
+    // Check if the category already exists in the array
+    if (!isset($treatmentCountsByCategory[$category])) {
+        // If not, initialize an array for the category
+        $treatmentCountsByCategory[$category] = [];
+    }
+    
+    // Set the treatment count for the category and month
+    $treatmentCountsByCategory[$category][$month] = $treatmentCount;
+}
+
+// Loop through the treatment counts to generate datasets
+foreach ($treatmentCountsByCategory as $category => $counts) {
+    $data = [];
+    foreach ($counts as $month => $count) {
+        $data[] = $count;
+    }
+    
+    // Add the dataset for the current category
+    $datasets[] = [
+        'label' => $category,
+        'data' => $data,
+        'borderColor' => $colors[count($datasets) % count($colors)], // Use modulo to cycle through colors
+        'backgroundColor' => $colors[count($datasets) % count($colors)] // Use modulo to cycle through colors
+    ];
+}
+?>
+
 const monthlyTreatmentChartConfig = {
   type: 'bar',
   data: {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: <?php echo json_encode(array_keys($treatmentCountsByCategory[array_key_first($treatmentCountsByCategory)])); ?>,
     datasets: [
+      <?php foreach ($datasets as $index => $dataset): ?>
       {
-        label: 'Dataset 1',
-        data: [20, 30, 40, 50, 60, 70, 80], // Sample data, replace with actual data
-        borderColor: 'red',
-        backgroundColor: 'rgba(255, 0, 0, 0.5)',
-      },
-      {
-        label: 'Dataset 2',
-        data: [10, 30, 40, 50, 60, 70, 80], // Sample data, replace with actual data
-        borderColor: 'blue',
-        backgroundColor: 'rgba(0, 0, 255, 0.5)',
-      }
+        label: '<?php echo $dataset['label']; ?>', // Using category as the label
+        data: <?php echo json_encode($dataset['data']); ?>,
+        borderColor: '<?php echo $dataset['borderColor']; ?>',
+        backgroundColor: '<?php echo $dataset['backgroundColor']; ?>'
+      }<?php if ($index < count($datasets) - 1): ?>,<?php endif; ?>
+      <?php endforeach; ?>
     ]
   },
   options: {
@@ -394,22 +636,25 @@ const monthlyTreatmentChartConfig = {
         text: 'Monthly Treatment Chart'
       }
     }
-  },
+  }
 };
 
 // Create the chart
 const ctx3 = document.getElementById('monthlyTreatmentChart').getContext('2d');
 const monthlyTreatmentChart = new Chart(ctx3, monthlyTreatmentChartConfig);
 
+</script>
+<script>
+
    // Define chart configuration
    const monthlyPatientCountConfig = {
   type: 'bar',
   data: {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: <?php echo json_encode($monthly_labels); ?>,
     datasets: [
       {
-        label: 'Dataset 2',
-        data: [10, 30, 40, 50, 60, 70, 80], // Sample data, replace with actual data
+        label: 'Patient Count',
+        data: <?php echo json_encode($monthly_patient_counts); ?>,
         borderColor: 'blue',
         backgroundColor: 'rgba(0, 0, 255, 0.5)',
       }
@@ -419,7 +664,7 @@ const monthlyTreatmentChart = new Chart(ctx3, monthlyTreatmentChartConfig);
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'bottom', // Change legend position to bottom
       },
       title: {
         display: true,
@@ -428,6 +673,10 @@ const monthlyTreatmentChart = new Chart(ctx3, monthlyTreatmentChartConfig);
     }
   },
 };
+function getRandomColor() {
+  // Generate a random hexadecimal color
+  return '#' + Math.floor(Math.random()*16777215).toString(16);
+}
 
 // Create the chart
 const ctx5 = document.getElementById('monthlyPatientChart').getContext('2d');
@@ -436,28 +685,32 @@ const monthlyPatientChart = new Chart(ctx5, monthlyPatientCountConfig);
 const monthlyMedicineUsageChartConfig = {
   type: 'bar',
   data: {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: <?php echo json_encode(array_unique(array_column($medicineDistribution, 'Month'))); ?>,
     datasets: [
+      <?php foreach ($medicineNames as $medicineName): ?>
       {
-        label: 'Medicine A',
-        data: [30, 40, 50, 60, 70, 80, 90], // Sample data for Medicine A, replace with actual data
-        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Red color with transparency
-        borderColor: 'rgba(255, 99, 132, 1)', // Solid red border
+        label: '<?php echo $medicineName; ?>',
+        data: <?php
+  $data = array();
+  foreach ($medicineDistribution as $entry) {
+    if ($entry['MedicineName'] === $medicineName) {
+      $data[] = (int)$entry['TotalQuantity']; // Ensure TotalQuantity is converted to integer
+    }
+  }
+  echo json_encode($data);
+?>,
+
+        backgroundColor: getRandomColor(),
+        borderColor: getRandomColor(),
         borderWidth: 1,
       },
-      {
-        label: 'Medicine B',
-        data: [20, 35, 45, 55, 65, 75, 85], // Sample data for Medicine B, replace with actual data
-        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blue color with transparency
-        borderColor: 'rgba(54, 162, 235, 1)', // Solid blue border
-        borderWidth: 1,
-      }
+      <?php endforeach; ?>
     ]
   },
   options: {
-    indexAxis: 'y', // Use y-axis as the primary axis for a horizontal bar chart
+    indexAxis: 'y',
     responsive: true,
-    maintainAspectRatio: false, // Try adjusting this option
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
@@ -471,13 +724,13 @@ const monthlyMedicineUsageChartConfig = {
       x: {
         title: {
           display: true,
-          text: 'Number of Uses'
+          text: 'Date'
         }
       },
       y: {
         title: {
           display: true,
-          text: 'Month'
+          text: 'Number of Uses'
         }
       }
     }
@@ -488,13 +741,13 @@ const monthlyMedicineUsageChartConfig = {
 const ctxMedicineUsage = document.getElementById('monthlyMedicineUsageChart').getContext('2d');
 const monthlyMedicineUsageChart = new Chart(ctxMedicineUsage, monthlyMedicineUsageChartConfig);
 
-    </script>
+</script>
  <script>
     // Data for the pie chart
     const data = {
-      labels: ['ERIG', 'Anti-Rabies', 'Anti-Tetanus'],
+      labels: <?php echo json_encode(array_column($medicineData, 'MedicineName')); ?>,
       datasets: [{
-        data: [300, 500, 200], // Sample data, replace with actual stock quantities
+        data: <?php echo json_encode(array_column($medicineData, 'TotalStockQuantity')); ?>,
         backgroundColor: [
           'rgba(255, 99, 132, 0.7)', // Red for ERIG
           'rgba(54, 162, 235, 0.7)', // Blue for Anti-Rabies
@@ -530,6 +783,8 @@ const monthlyMedicineUsageChart = new Chart(ctxMedicineUsage, monthlyMedicineUsa
     // Create the pie chart
     const ctx4 = document.getElementById('medicineStockChart').getContext('2d');
     const myPieChart = new Chart(ctx4, config);
+</script>
+
   </script>
 
 <script>

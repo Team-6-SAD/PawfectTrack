@@ -1,4 +1,5 @@
 <?php
+session_start();
 // Include your database connection file
 require_once 'pawfect_connect.php';
 
@@ -26,9 +27,13 @@ if (mysqli_stmt_execute($stmt)) {
     
     // Check if the query was executed successfully
     if (mysqli_stmt_execute($stmtStock)) {
-        // Data inserted successfully
+        $_SESSION['successMessageEquipment'] = "Equipment added successfully!";
         $response = array('success' => true, 'message' => 'Equipment added successfully.');
         echo json_encode($response);
+
+        // Redirect to inventory.php
+        header("Location: inventory.php");
+        exit();
     } else {
         // Error occurred while inserting into equipmentstock
         $response = array('success' => false, 'message' => 'Error adding equipment stock: ' . mysqli_error($conn));

@@ -37,10 +37,44 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
-// Close the database connection
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
+// Check if the patientID is set in the URL
+if(isset($_GET['patientID'])) {
+    // Retrieve the patientID from the URL
+    $patientID = $_GET['patientID'];
+
+    // Query to fetch data from multiple tables using JOIN
+    $sql = "SELECT p.LastName, p.FirstName, p.MiddleName, p.Age, p.BirthDate, p.Weight, p.Sex,
+                   c.LineNumber AS ContactLineNumber, c.EmailAddress,
+                   a.Address, a.City, a.Province,
+                   ec.FullName AS EmergencyContactFullName, ec.Relationship, ec.LineNumber AS EmergencyContactLineNumber,
+                   t.Recommendation
+            FROM patient AS p
+            LEFT JOIN contactinformation AS c ON p.PatientID = c.PatientID
+            LEFT JOIN patientaddress AS a ON p.PatientID = a.PatientID
+            LEFT JOIN emergencycontact AS ec ON p.PatientID = ec.PatientID
+            LEFT JOIN treatment AS t ON p.PatientID = t.PatientID
+            WHERE p.PatientID = ?";
+
+    // Prepare and execute the SQL query
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $patientID);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    // Check if there are any rows returned
+    if(mysqli_num_rows($result) > 0) {
+        // Fetch the data
+        $row = mysqli_fetch_assoc($result);
+
+        // Close the statement
+        mysqli_stmt_close($stmt);
+
+        // Close the database connection
+        mysqli_close($conn);
+    }
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -81,30 +115,30 @@ mysqli_close($conn);
         <div class="col-md-12"> 
         <h3 class="text-center main-font-color mt-2"><b>PATIENT DETAILS</b></h3>
 </div>
-<div class="col-md-12">
+<div class="col-sm-12">
        <div class="row justify-content-center d-flex">
         <div class="col-md-11 justify-content-center">
         <div class="row mt-4">
     <div class="col-md-3 patient-navigation-active text-center">
-        <a href="patientdetails-profile.php" class="text-center link-text-active">
+        <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text-active">
             <img src="Frame 156.png" class="mr-3 nav-logo">Profile
             <hr class="profile-nav-active">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-bitedetails.php" class="text-center link-text">
+        <a href="patientdetails-bitedetails.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Bite Exposure Details
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-treatmenthistory.php" class="text-center link-text">
+        <a href="patientdetails-treatmenthistory.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Treatment History
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-appointments.php" class="text-center link-text">
+        <a href="patientdetails-appointments.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Appointments
             <hr class="profile-nav">
         </a>
@@ -116,72 +150,75 @@ mysqli_close($conn);
 </div>
 
 <div class="col-md-12 d-flex align-items-end justify-content-end pr-5">
-            <button id="editButton" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2"><b>Create Patient Account</b></button>
+<button id="editButton" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2" style="color: #FFFFFF;">
+    <a href="create-account.php?patientID=<?php echo $patientID; ?>" style="color:inherit; text-decoration:none;">
+        <b>Create Patient Account</b>
+    </a>
+</button>
+
         </div>
     
         <div class="row justify-content-center  align-items-center d-flex">
-        <div class="col-md-11  ">
+        <div class="col-sm-11 col-md-11  ">
             <div class="card mt-4">
          
                 <div class="card-body p-5">
                         <h5 class="main-font-color"><b> Personal Information</b> </h5> 
                     
 
-<div class="profile-content-container mb-4"> 
-    <div class= "mr-0 col-md-2">
+<div class="row d-flex mb-4"> 
+    <div class= "mr-0 pl-0 col-md-2">
         <div class="profile-category">First Name</div>
-        <div class="profile-category-content">Juan Anthony</div>
+        <div class="profile-category-content"><?php echo $row['FirstName']; ?></div>
     </div>
     <div class= "m-0 col-md-2 p-0">
     <div class="profile-category">Middle Name</div>
-        <div class="profile-category-content">Juan Anthony</div>
+        <div class="profile-category-content"><?php echo $row['MiddleName']; ?></div>
     </div>
 
     <div class= "mr-0 col-md-2 p-0">
     <div class="profile-category">Last Name</div>
-        <div class="profile-category-content">Juan Anthony</div>
+        <div class="profile-category-content"><?php echo $row['LastName']; ?></div>
     </div>
     <div class= " col-md-2 p-0">
     <div class="profile-category">Birth Date</div>
-        <div class="profile-category-content">December 29,2002</div>
+        <div class="profile-category-content"><?php echo $row['BirthDate']; ?></div>
     </div>
     <div class= "col-md-1 p-0">
     <div class="profile-category">Age</div>
-        <div class="profile-category-content">23</div>
+        <div class="profile-category-content"><?php echo $row['Age']; ?></div>
     </div>
-    <div class= "col-md-1 p-0">
+    <div class= "col-md-2 p-0">
     <div class="profile-category">Sex</div>
-        <div class="profile-category-content">Male</div>
+        <div class="profile-category-content"><?php echo $row['Sex']; ?></div>
     </div>
     <div class= "col-md-1 p-0">
     <div class="profile-category">Weight</div>
-        <div class="profile-category-content">70kg</div>
+        <div class="profile-category-content"><?php echo $row['Weight']; ?></div>
     </div>
 </div>
-<div class="profile-content-container">
-   <div class= "mr-0 col-md-2 pr-0">
+<div class="row d-flex">
+   <div class= "mr-0 col-md-2 pr-0 pl-0">
         <div class="profile-category">Phone Number</div>
-        <div class="profile-category-content">New Content</div>
+        <div class="profile-category-content"><?php echo $row['ContactLineNumber']; ?></div>
     </div>
-    <div class="col-md-2 p-0">
+    <div class="col-md-4 p-0">
         <div class="profile-category">Email Address</div>
-        <div class="profile-category-content">peterwilrexexdhuwawlol@gmail.com</div>
+        <div class="profile-category-content"><?php echo $row['EmailAddress']; ?></div>
     </div> 
-    <div class="col-md-2 p-0 m-0">
-       
-    </div>       
+
      
     <div class="col-md-3 p-0">
         <div class="profile-category">Address</div>
-        <div class="profile-category-content">BLK 1 LOT 29 PHASE 1A-ANNEX SAN LORENZO SOUTH</div>
+        <div class="profile-category-content"><?php echo $row['Address']; ?></div>
     </div>
-    <div class="col-md-1 m-0 p-0">
+    <div class="col-md-2 m-0 p-0">
         <div class="profile-category">City</div>
-        <div class="profile-category-content">Santa Rosa</div>
+        <div class="profile-category-content"><?php echo $row['City']; ?> </div>
     </div>
     <div class="col-md-1 m-0 p-0">
         <div class="profile-category">Province</div>
-        <div class="profile-category-content">Laguna</div>
+        <div class="profile-category-content"><?php echo $row['Province']; ?></div>
     </div>
 </div>
 </div>
@@ -202,19 +239,19 @@ mysqli_close($conn);
                             <div class="row">
                                 <div class="col-md-6 d-flex">
                                     <span class="emergency-contact">Full Name:</span>
-                                    <span class="emergency-contact-content ml-auto">Peter Wilrexe</span>
+                                    <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactFullName']; ?></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 d-flex">
                                     <span class="emergency-contact">Relationship:</span>
-                                    <span class="emergency-contact-content ml-auto">Mother</span>
+                                    <span class="emergency-contact-content ml-auto"><?php echo $row['Relationship']; ?></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 d-flex">
                                     <span class="emergency-contact">Phone Number:</span>
-                                    <span class="emergency-contact-content ml-auto">09198892344</span>
+                                    <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactLineNumber']; ?></span>
                                 </div>
                             </div>
                         </div>
@@ -232,12 +269,12 @@ mysqli_close($conn);
     
       
     <div class="col-md-6">
-        <div class="card pl-5 pr-5 pt-4 pb-4">
+        <div class="card pl-5 pr-5 pt-4 pb-4 h-100">
             <h5 class="main-font-color"><b>Doctor Remarks</b></h5>
             <div class="row">
                 <div class="col-md-12">
                             
-                            <span> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Molestias voluptates dolorum at eveniet adipisci voluptatibus impedit, voluptatem officia commodi mollitia reiciendis fugiat a, recusandae aliquid corrupti quibusdam? Dolores, sequi molestias.</span>
+                            <span> <?php echo $row['Recommendation']; ?></span>
                        
                             </div>
                         </div>
@@ -246,7 +283,53 @@ mysqli_close($conn);
                 </div>
                 </div>
 
+                <div class="modal fade" id="addEquipmentSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
 
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>PATIENT ACCOUNT</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>CREATED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Username and password has been<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">sent via email of the patient.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal fade" id="addEquipmentFailureModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ACCOUNT CREATION</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>FAILED</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">An account already exists for the patient.<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+</div>
+</div>
+</div>
+</div>
+</div>
 
 
 
@@ -270,7 +353,20 @@ mysqli_close($conn);
 
 <!-- Include jQuery -->
 
-
+<script>
+  $(document).ready(function() {
+    <?php if(isset($_SESSION['success_message'])) { ?>
+      $('#addEquipmentSuccessModal').modal('show');
+      <?php unset($_SESSION['success_message']); ?> // Unset the session variable
+    <?php } ?>
+  });
+  $(document).ready(function() {
+    <?php if(isset($_SESSION['account-exists'])) { ?>
+      $('#addEquipmentFailureModal').modal('show');
+      <?php unset($_SESSION['account-exists']); ?> // Unset the session variable
+    <?php } ?>
+  });
+</script>
 
 <script>
    document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
@@ -331,149 +427,6 @@ $(document).ready(function () {
 
 </script>
 <script>
-
-$(document).ready(function () {
-
-    $(".select-checkbox").change(function () {
-        var selectedCheckboxValue = $(this).val();
-        var dropdown1 = $("select[name='statusUpdate[" + selectedCheckboxValue + "]']");
-        if ($(this).prop('checked')) {
-            // Add more options to the dropdown dynamically using JavaScript
-            dropdown1.append('<option value="Accepted">Accepted</option>');
-            dropdown1.append('<option value="Rejected">Rejected</option>');
-            // Add more options as needed
-        } else {
-            // If checkbox is unchecked, remove the added options
-            dropdown1.find("option[value='Accepted']").remove();
-            dropdown1.find("option[value='Rejected']").remove();
-            // Remove more options as needed
-        }
-    
-
-            var checkboxId = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + checkboxId + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"))
-            
-            
-            
-        });
-        
-    // Function to toggle checkbox visibility
-    function toggleCheckboxesVisibility() {
-        var checkboxes = $('.select-checkbox');
-        checkboxes.toggle();
-
-        // If the checkboxes are being hidden, uncheck all of them
-        if (!checkboxes.is(':visible')) {
-            checkboxes.prop('checked', false);
-        }
-    }
-    
-
-
-    // Function to toggle buttons visibility based on the number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton').show();
-            $('#deleteButton').show();
-            $('#viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton').show();
-            $('#viewButton').hide();
-            $('#deleteButton').show();
-        } else {
-            $('#updateButton, #deleteButton,#viewButton ').hide();
-        }
-    }
-
-    // Initially hide the Delete and Update buttons
-    $('#deleteButton, #updateButton, #selectAllButton,#viewButton ').hide();
-
-    // Handle "Edit" button click
-    $('#editButton').on('click', function () {
-        toggleCheckboxesVisibility();
-        toggleButtonsVisibility(); 
-
-    
-        
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllButton').toggle();
-        $('#selectAllButton').data('checked', false);
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllButton').hide();
-        }
-    });
-
-    $("#updateButton").on("click", function () {
-        var updates = {};
-        $(".select-checkbox:checked").each(function () {
-            var applicantID = $(this).val();
-            var newStatus = $("select[name='statusUpdate[" + applicantID + "]']").val();
-            updates["statusUpdate[" + applicantID + "]"] = newStatus;
-        });
-
-        // Set the updates directly as form parameters
-        $("#updateForm").find(":input[name^='statusUpdate']").remove();
-        $.each(updates, function (name, value) {
-            $("#updateForm").append('<input type="hidden" name="' + name + '" value="' + value + '">');
-        });
-
-        // Submit the form
-        $("#updateForm").submit();
-    });
-    // Handle "Select All" button click
-    $('#selectAllButton').on('click', function () {
-        var checkboxes = $('.select-checkbox');
-        var allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-        // Toggle the state of all checkboxes
-        checkboxes.prop('checked', !allChecked);
-        checkboxes.trigger('change');
-        checkboxes.each(function () {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function () {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-
-
-
-        // Implement your update logic here
-        $('#viewButton').on('click', function () {
-    var selectedCheckbox = $('.select-checkbox:checked');
-
-    // Check if exactly one checkbox is checked
-    if (selectedCheckbox.length === 1) {
-        var applicantID = selectedCheckbox.val();
-
-        // Redirect to the view profile page with the selected Applicant ID
-        window.location.href = 'viewprofile.php?ApplicantID=' + applicantID;
-    } else {
-        // If no checkbox or more than one checkbox is checked, show an alert
-        alert('Please select exactly one row to view.');
-    }
-});
-
-  
-
-
 
 
   // DataTable initialization
@@ -553,7 +506,7 @@ $('#toggleButtons').on('click', function () {
 
     // Toggle sidebar functionality
   
-});
+
 </script>
 </body>
 </html>

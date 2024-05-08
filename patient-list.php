@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 // Include your database connection file
 require_once 'pawfect_connect.php';
 
-// Get the AdminID from the sessionw
+// Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
 
 // Prepare and execute the SQL query to fetch admin information
@@ -25,11 +25,31 @@ $result = mysqli_stmt_get_result($stmt);
 if ($row = mysqli_fetch_assoc($result)) {
     // Admin information retrieved successfully
     $firstName = $row['firstname'];
- 
     $lastName = $row['lastname'];
     $adminPhoto = $row['adminphoto'];
 
-    // Now you can use these variables to display the admin information in your HTML
+    // Now fetch one appointment per patient
+    $sql = "SELECT 
+    p.PatientID, 
+    CONCAT(p.FirstName, ' ', p.LastName) AS FullName, 
+    ai.SessionDays AS CurrentSession, 
+    ai.AppointmentDate, 
+    ai.Status,
+    bd.ExposureType
+FROM 
+    patient p
+INNER JOIN 
+    appointmentinformation ai ON p.PatientID = ai.PatientID
+INNER JOIN 
+    bitedetails bd ON ai.PatientID = bd.PatientID
+WHERE 
+    p.ActiveStatus = 'Active' 
+    AND ai.Status = 'Pending'
+ORDER BY 
+    ai.AppointmentDate ASC;;
+"; // Fetch the nearest appointment first
+
+    $patients_result = mysqli_query($conn, $sql);
 } else {
     // Admin information not found
     echo "Admin information not found!";
@@ -80,7 +100,7 @@ mysqli_close($conn);
         <div class="content" id="content">
         <div class="row  mr-5 ml-3 ">
         <div class="col-md-12">
-                    <div class="card mx-auto  table-card">
+                    <div class="card mx-auto  table-card p-3">
                         <div class="table-header-1">
                         <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>LIST OF PATIENTS</b></h3>
 </div>
@@ -88,8 +108,8 @@ mysqli_close($conn);
 
                         <div id="buttonContainer" class="d-flex flex-column flex-md-row align-items-center mb-2 ml-2 mt-1">
     <!-- Edit button on the left -->
-    <button id="toggleButtons" class="btn btn-edit btn-outline-info mr-2">Save Table</button>
-    <button id="editButton" class="btn btn-gray-color btn-custom mb-2 mb-sm-0 mr-sm-2" style="color:white">Action</button>
+   
+    <button id="editButton" class="btn btn-gray-color btn-custom ml-3 mb-2 mb-sm-0 mr-sm-2" style="color:white">Action</button>
 
     <!-- Additional buttons next to Edit -->
     <div class="d-flex flex-row flex-wrap align-items-center">
@@ -120,67 +140,54 @@ mysqli_close($conn);
 
 
 
-                    <form id="deleteForm" action="deletetenant.php" method="post">
+                    <form id="deleteForm" action="archive-patients.php" method="post">
     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
 
          
                 <div class="card-body">
-    <table class="table" id="example">
-  <thead class="table-header">
-    <tr>
-      <th scope="col" class="pl-3"><input type="checkbox" id="selectAllCheckbox"> </th>
-      <th scope="col">Patient ID</th>
-      <th scope="col">Full Name</th>
-      <th scope="col">Current Session</th>
-      <th scope="col">Appointment Date</th>
-      <th scope="col">Type of Exposure</th>
-    </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td scope="row" class="pl-3"><input type="checkbox" class="select-checkbox "></td>
-    <td>0001</td>
-    <td>Emily Johnson</td>
-    <td>Day 14</td>
-    <td>03/28/2024</td>
-    <td>Category I</td>
-</tr>
-<tr>
-    <td scope="row" class="pl-3"><input type="checkbox" class="select-checkbox"></td>
-    <td>0002</td>
-    <td>John Doe</td>
-    <td>Day 7</td>
-    <td>04/01/2024</td>
-    <td>Category II</td>
-</tr>
-<tr>
-    <td scope="row" class="pl-3"><input type="checkbox" class="select-checkbox"></td>
-    <td>0003</td>
-    <td>Jane Smith</td>
-    <td>Day 21</td>
-    <td>03/25/2024</td>
-    <td>Category III</td>
-</tr>
-<tr>
-    <td scope="row" class="pl-3"><input type="checkbox" class="select-checkbox"></td>
-    <td>0004</td>
-    <td>Michael Johnson</td>
-    <td>Day 10</td>
-    <td>03/30/2024</td>
-    <td>Category II</td>
-</tr>
-<tr>
-    <td scope="row" class="pl-3"><input type="checkbox" class="select-checkbox"></td>
-    <td>0005</td>
-    <td>Sarah Williams</td>
-    <td>Day 5</td>
-    <td>04/05/2024</td>
-    <td>Category I</td>
-</tr>
+                <?php // Check if there are any patients fetched from the database
+if (mysqli_num_rows($patients_result) > 0) {
+    // Output the table only if there are patients
+    echo '<table class="table" id="example">';
+    echo '<thead class="table-header">';
+    echo '<tr>';
+    echo '<th scope="col" class="pl-3"><input type="checkbox" id="selectAllCheckbox"> </th>';
+    echo '<th scope="col">Patient ID</th>';
+    echo '<th scope="col">Full Name</th>';
+    echo '<th scope="col">Current Session</th>';
+    echo '<th scope="col">Appointment Date</th>';
+    echo '<th scope="col">Type of Exposure</th>';
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
+    
+    // Loop through each patient and insert data into table rows
+    while ($patient = mysqli_fetch_assoc($patients_result)) {
+        echo "<tr>";
+        echo "<td scope='row' class='pl-3'><input type='checkbox' class='select-checkbox' value='" . $patient['PatientID'] . "'></td>";
+        echo "<td class='pl-3'>" . $patient['PatientID'] . "</td>";
+        echo "<td class='pl-3'>" . $patient['FullName'] . "</td>";
+        if ($patient['Status'] === 'Done') {
+            echo "<td class='pl-3'>Completed</td>"; // Display "Completed" if status is "Done"
+        } else {
+        echo "<td class='pl-3'>" . 'Day' . " " .  $patient['CurrentSession'] . "</td>";
+    }
+       
+        
+            echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>"; // Otherwise, display the appointment date
+        echo "<td class='pl-3'>" . $patient['ExposureType'] . "</td>";
+        echo "</tr>";
+    }
+    
+    echo '</tbody>';
+    echo '</table>';
+} else {
+    // Output a message if there are no patients
+    echo 'No patients found.';
+}
 
-  
-  </tbody>
-</table>
+?>
+
                 
 </div>
                 
@@ -214,15 +221,42 @@ mysqli_close($conn);
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
+         function deleteSelectedRows() {
+    var selectedRows = $('.select-checkbox:checked').map(function () {
+        return $(this).val();
+    }).get();
+
+    // You may want to perform additional validation or confirmation here
+    if (selectedRows.length === 0) {
+        alert('No rows selected for deletion.');
+        return;
+    }
+
+    // Assuming you have a form with id "deleteForm"
+    // Set the selected rows in the hidden input field
+    $('#selectedRowsInput').val(selectedRows);
+
+    // Submit the form
+    $('#deleteForm').submit();
+}
+  
+</script>
+<script>
+  document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
     var dropdownContent = document.getElementById("dropdownContent");
-    if (dropdownContent.style.display === "block") {
-        dropdownContent.style.display = "none";
-    } else {
-        dropdownContent.style.display = "block";
+
+    // Check if the clicked element is within the dropdown content
+    if (!dropdownContent.contains(event.target)) {
+        // Clicked outside the dropdown content, toggle its visibility
+        if (dropdownContent.style.display === "block") {
+            dropdownContent.style.display = "none";
+        } else {
+            dropdownContent.style.display = "block";
+        }
     }
 });
+
 </script>
 
 
@@ -263,9 +297,9 @@ $(document).ready(function () {
 
 </script>
 <script>
+    
     function redirectToEdit() {
         // Assuming PatientID is stored in a variable called patientID
-        var patientID = "your_patient_id_here";
         // Redirect to Edit Patient.php with the PatientID parameter
         window.location.href = "Edit Patient.php?PatientID=" + patientID;
     }
@@ -461,10 +495,10 @@ $(document).ready(function () {
 
     // Check if exactly one checkbox is checked
     if (selectedCheckbox.length === 1) {
-        var applicantID = selectedCheckbox.val();
+        var patientID = selectedCheckbox.val();
 
         // Redirect to the view profile page with the selected Applicant ID
-        window.location.href = 'patientdetails-profile.php?ApplicantID=' + applicantID;
+        window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
     } else {
         // If no checkbox or more than one checkbox is checked, show an alert
         alert('Please select exactly one row to view.');
@@ -480,7 +514,7 @@ $(document).ready(function () {
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
         "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
-               "<'row'<'col-sm-12 ml-5 mt-3'l>><<'col-sm-12'p>>", // Place length menu and pagination in separate rows
+               "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
         buttons: [
             {
@@ -574,6 +608,7 @@ $(document).ready(function () {
 });
 </script>
 <script>
+
     document.getElementById("addPatient").addEventListener("click", function() {
         // Redirect to Add Patient.php
         window.location.href = "Add Patient.php";

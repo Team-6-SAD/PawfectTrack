@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -38,6 +37,52 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
+// Check if the patientID is set in the URL
+if(isset($_GET['patientID'])) {
+    $patientID = $_GET['patientID'];
+
+    // Prepare and execute the SQL query to fetch patient and bite details
+    $sqlPatientBite = "SELECT p.FirstName, p.MiddleName, p.LastName, p.Sex,
+                              c.LineNumber, c.EmailAddress,
+                              b.AnimalType, b.ExposureType, b.ExposureDate, b.BiteLocation, b.ExposureMethod, b.BitePicture,
+                              t.DateofTreatment
+                       FROM patient AS p
+                       LEFT JOIN contactinformation AS c ON p.PatientID = c.PatientID
+                       LEFT JOIN bitedetails AS b ON p.PatientID = b.PatientID
+                       LEFT JOIN treatment AS t ON p.PatientID = t.PatientID
+                       WHERE p.PatientID = ?";
+    
+    $stmtPatientBite = mysqli_prepare($conn, $sqlPatientBite);
+    mysqli_stmt_bind_param($stmtPatientBite, "i", $patientID);
+    mysqli_stmt_execute($stmtPatientBite);
+    $resultPatientBite = mysqli_stmt_get_result($stmtPatientBite);
+
+    // Check if there is a row returned for patient and bite details
+    if ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
+        // Patient and bite details retrieved successfully
+        $pfirstName = $rowPatientBite['FirstName'];
+        $pmiddleName = $rowPatientBite['MiddleName'];
+        $plastName = $rowPatientBite['LastName'];
+        $sex = $rowPatientBite['Sex'];
+        $lineNumber = $rowPatientBite['LineNumber'];
+        $emailAddress = $rowPatientBite['EmailAddress'];
+        $animalType = $rowPatientBite['AnimalType'];
+        $exposureType = $rowPatientBite['ExposureType'];
+        $exposureDate = $rowPatientBite['ExposureDate'];
+        $biteLocation = $rowPatientBite['BiteLocation'];
+        $exposureMethod = $rowPatientBite['ExposureMethod'];
+        $bitePicture = $rowPatientBite['BitePicture'];
+        $dateofTreatment = $rowPatientBite['DateofTreatment'];
+
+        // Now you can use these variables to display the patient and bite details in your HTML
+    } else {
+        // Patient and bite details not found
+        echo "Patient and bite details not found!";
+    }
+    
+    // Close the statement for patient and bite details
+    mysqli_stmt_close($stmtPatientBite);
+}
 // Close the database connection
 mysqli_stmt_close($stmt);
 mysqli_close($conn);
@@ -77,32 +122,31 @@ mysqli_close($conn);
 <!--Profile Picture and Details-->
         <div class="content" id="content">
     <div class="row mt-4">
-
         <div class="col-md-12"> 
         <h3 class="text-center main-font-color mt-2"><b>PATIENT DETAILS</b></h3>
        <div class="row justify-content-center d-flex">
         <div class="col-md-11">
         <div class="row mt-4">
     <div class="col-md-3 patient-navigation-active text-center">
-        <a href="patientdetails-profile.php" class="text-center link-text">
+        <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Profile
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-    <a href="patientdetails-bitedetails.php" class="text-center link-text-active">
+    <a href="patientdetails-bitedetails.php?patientID=<?php echo $patientID?>" class="text-center link-text-active">
             <img src="Frame 156.png" class="mr-3 nav-logo">Bite Exposure Details
             <hr class="profile-nav-active">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-treatmenthistory.php" class="text-center link-text">
+        <a href="patientdetails-treatmenthistory.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Treatment History
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-3 patient-navigation text-center">
-        <a href="patientdetails-appointments.php" class="text-center link-text">
+        <a href="patientdetails-appointments.php?patientID=<?php echo $patientID?>" class="text-center link-text">
             <img src="Frame 156.png" class="mr-3 nav-logo">Appointments
             <hr class="profile-nav">
         </a>
@@ -118,69 +162,82 @@ mysqli_close($conn);
             <div class="card-body p-5">
                 <h5 class="main-font-color"><b> Bite Exposure Details</b> </h5>
                 <div class="profile-content-container mb-4">
-                    <div class="col-md-4">
-                        <div class="profile-category">First Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                    <div class="col-sm-6 col-md-4">
+                        <div class="profile-category">Type of Animal</div>
+                        <div class="profile-category-content"><?php echo $animalType ?></div>
                     </div>
                     <div class="col-md-4">
-                        <div class="profile-category">Middle Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                        <div class="profile-category">Type of Exposure</div>
+                        <div class="profile-category-content"><?php echo $exposureType ?></div>
                     </div>
                     <div class="col-md-4">
-                        <div class="profile-category">Last Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                        <div class="profile-category">Date of Exposure</div>
+                        <div class="profile-category-content"><?php echo $exposureDate ?></div>
                     </div>
                 </div>
                 <div class="profile-content-container">
                     <div class="col-md-4">
-                        <div class="profile-category">Phone Number</div>
-                        <div class="profile-category-content">New Content</div>
+                        <div class="profile-category">Bite Location</div>
+                        <div class="profile-category-content"><?php echo $biteLocation ?></div>
                     </div>
                     <div class="col-md-4">
-                        <div class="profile-category">Email Address</div>
-                        <div class="profile-category-content">peterwilrexexdhuwawlol@gmail.com</div>
+                        <div class="profile-category">Exposure by</div>
+                        <div class="profile-category-content"><?php echo $exposureMethod?></div>
                     </div>
                     <div class="col-md-4">
-                        <div class="profile-category">Address</div>
-                        <div class="profile-category-content">BLK 1 LOT 29 PHASE 1A-ANNEX SAN LORENZO SOUTH</div>
+                        <div class="profile-category">Date of Treatment</div>
+                        <div class="profile-category-content"><?php echo $dateofTreatment ?></div>
                     </div>
                 </div>
             </div>
         </div>
         </div>
      
-        <div class="col-md-5 pt-4 d-flex justify-content-center">
-    <div class="card">
-        <img src="manager.png" alt="Placeholder Image" class="img-fluidity">
+        <div class="col-md-5 pt-4 d-flex justify-content-center" style="height: 340px; width:450px;">
+        <?php
+// Check if $bitePicture is empty
+if ($bitePicture === "uploads/") {
+    // If empty, set the path to the placeholder image
+    $placeholderImagePath = "uploads/placeholder.png";
+} else {
+    // If not empty, use the value of $bitePicture
+    $placeholderImagePath = $bitePicture;
+}
+?>
+
+<img src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
+
     </div>
 </div>
 </div>
 </div>
 
-<div class="col-md-11 mt-4">
+<div class="col-md-11 mt-4 pl-0">
+
 <div class="card">
     <div class="card-body">
 <div class="profile-content-container  p-3">
-                    <div class="col-md-2">
-                        <div class="profile-category">First Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                    <div class="col-md-3">
+                        <div class="profile-category">Fulll Name</div>
+                        <div class="profile-category-content"><?php echo $pfirstName . ' ' . $pmiddleName . ' ' . $plastName ?></div>
                     </div>
                     <div class="col-md-2">
-                        <div class="profile-category">Middle Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                        <div class="profile-category">Patient ID</div>
+                        <div class="profile-category-content">000-001</div>
                     </div>
                     <div class="col-md-2">
-                        <div class="profile-category">Last Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                        <div class="profile-category">Gender</div>
+                        <div class="profile-category-content">Male</div>
                     </div>
                     <div class="col-md-2">
-                        <div class="profile-category">Last Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                        <div class="profile-category">Contact Number</div>
+                        <div class="profile-category-content">09898761521</div>
                     </div>
-                    <div class="col-md-2">
-                        <div class="profile-category">Last Name</div>
-                        <div class="profile-category-content">Juan Anthony</div>
+                    <div class="col-md-3">
+                        <div class="profile-category">Email Address</div>
+                        <div class="profile-category-content">peterwilrexewow0968@gmail.com</div>
                     </div>
+              
                 </div>
 </div>
 </div>    

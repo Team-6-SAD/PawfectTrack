@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,40 +6,34 @@
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="hamburgers.css" rel="stylesheet">
   <link href="patient.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
- <title>Admin Dashboard</title>
-<style>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Admin Dashboard</title>
+  <style>
     table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
         content: "\e5d8" !important; /* Font Awesome icon for ascending sort */
         font-family: 'Material Icons';
         right: 1em !important;
-}
+    }
 
-table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
-    
-    content: "\e5db" !important; /* Font Awesome icon for descending sort */
-    font-family: 'Material Icons';
+    table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+        content: "\e5db" !important; /* Font Awesome icon for descending sort */
+        font-family: 'Material Icons';
         right: 0.5em !important;
-}
-</style>
+    }
+  </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="main-container">
             <!-- Header and Sidebar -->
             <?php include 'patient_header.php'; ?>
-           
-            
             <!-- Content -->
             <div class="content" id="content">
                 <div class="row justify-content-center d-flex">
@@ -52,139 +44,115 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                                     <h4><b>Welcome, Patient!</b></h4>
                                     <p><i>We prioritized your well-being and the safety of your dear ones.</i></p>
                                 </div>
-                                <div class="col-md-6 text-right mt-3 pr-5">
+                                <div class="col-md-6 text-right mt-3 pr-5 d-none d-lg-block" >
                                     <img src="Frame 154.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div class="row justify-content-center d-flex mt-5">
-    <div class="col-md-10 m-0 p-0">
-        <div class="row justify-content-center align-items-center d-flex mr-2 ml-3">
-            <div class="col-md-6 mt-2 mx-auto px-0">
-                <div class="card mx-auto table-card">
-                    <div class="table-header-1 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mt-5 ml-4"><b>List of Upcoming Vaccine Sessions</b></h5>
-                        <div class="flex-grow-1"></div>
-                        <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-4 mt-1 mr-5 mt-4">
-                            <button id="editButton" class="btn btn-gray-color btn-custom mb-2 mb-sm-0 mr-sm-2" style="color:white">Action</button>
-                            <!-- Additional buttons next to Edit -->
-                            <div class="d-flex flex-row flex-wrap align-items-center">
-                                <button id="viewButton" style="white-space: nowrap; color: white;" class="btn btn-custom btn-blue-color btn-outline-info mr-2" >View Profile</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive"> <!-- Added this div for responsiveness -->
-                        <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
-                        <div class="card-body">
-                            <table id="example" class="table">
-                                <thead class="table-header-alt">
-                                    <tr>
-                                        <th>Sessions</th>
-                                        <th>Schedules</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style="background-color:white;">
-                                        <td>Sessions</td>
-                                        <td>Schedules</td>
-                                        <td>Status</td>
-                                    </tr>
-                                    <tr style="background-color:white;">
-                                        <td>Sessions</td>
-                                        <td>Schedules</td>
-                                        <td>Status</td>
-                                    </tr>
-                                    <tr style="background-color:white;">
-                                        <td>Sessions</td>
-                                        <td>Schedules</td>
-                                        <td>Status</td>
-                                    </tr>
+                    <div class="col-md-10 m-0 p-0">
+                        <div class="row justify-content-center d-flex mr-2 ml-3">
+                            <div class="col-md-12 col-lg-6 mt-2 mx-auto px-0">
+                                <div class="card p-3 pt-5 mx-auto table-card h-100">
+                                    <div class="table-header-1 d-flex justify-content-between align-items-center">
+                                        <div class="col-md-6">
+                                        <h6 class="card-title"><b>My Vaccination:</b></h6>
+                                        <h6 class="card-title">Anti-Rabies</h6>
+                                        </div>
+                                        <div class="col-md-6  px-3 justify-content-end d-flex ">
+                                        
+                                            <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;">View History</button>
+                                            <!-- Additional buttons next to Edit -->
                                     
-                                    <!-- ... other rows ... -->
-                                </tbody>
-                            </table>
+                                    </div>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
+                                        <div class="card-body">
+                                            <table id="example" class="table">
+                                                <thead class="table-header-alt">
+                                                    <tr>
+                                                        <th>Sessions</th>
+                                                        <th>Schedules</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr style="background-color:white;">
+                                                        <td>Sessions</td>
+                                                        <td>Schedules</td>
+                                                        <td>Status</td>
+                                                    </tr>
+                                                    <!-- ... other rows ... -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12 col-lg-6 mt-2 h-100 px-0 px-lg-2">
+                                <div id="carouselExampleSlidesOnly" class="carousel slide h-100" data-ride="carousel">
+                                    <!-- Carousel Indicators -->
+                                    <ol class="carousel-indicators">
+                                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="0" class="active"></li>
+                                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="1"></li>
+                                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="2"></li>
+                                    </ol>
+                                    <!-- Carousel Slides -->
+                                    <div class="carousel-inner h-100">
+                                        <div class="carousel-item active h-100">
+                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 1">
+                                            <div class="carousel-caption">
+                                                <h5>Slide 1</h5>
+                                                <p>This is the first slide.</p>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item h-100">
+                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 2">
+                                            <div class="carousel-caption">
+                                                <h5>Slide 2</h5>
+                                                <p>This is the second slide.</p>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item h-100">
+                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 3">
+                                            <div class="carousel-caption">
+                                                <h5>Slide 3</h5>
+                                                <p>This is the third slide.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Carousel Controls -->
+                                    <a class="carousel-control-prev" href="#carouselExampleSlidesOnly" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#carouselExampleSlidesOnly" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-6 mt-3">
-                <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel" style="width: 100%;">
-                    <!-- Carousel Indicators -->
-                    <ol class="carousel-indicators">
-                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="0" class="active"></li>
-                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="1"></li>
-                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="2"></li>
-                    </ol>
-                    <!-- Carousel Slides -->
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="https://via.placeholder.com/1200x800" class="d-block w-100" alt="Slide 1">
-                            <div class="carousel-caption">
-                                <h5>Slide 1</h5>
-                                <p>This is the first slide.</p>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://via.placeholder.com/1200x800" class="d-block w-100" alt="Slide 2">
-                            <div class="carousel-caption">
-                                <h5>Slide 2</h5>
-                                <p>This is the second slide.</p>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://via.placeholder.com/1200x800" class="d-block w-100" alt="Slide 3">
-                            <div class="carousel-caption">
-                                <h5>Slide 3</h5>
-                                <p>This is the third slide.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Carousel Controls -->
-                    <a class="carousel-control-prev" href="#carouselExampleSlidesOnly" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#carouselExampleSlidesOnly" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
                 </div>
             </div> <!-- End of content -->
         </div> <!-- End of main-container -->
     </div> <!-- End of container-fluid -->
-    </div>
 
+    <!-- Your script tags here -->
 
-
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    
-    <!-- Data Table JS -->
-<script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
-<script src='https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js'></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
+    <script src='https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js'></script>
     <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
- 
-  
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-
-<!-- Include jQuery -->
 
 
 
@@ -468,6 +436,14 @@ $('#toggleButtons').on('click', function () {
     // Toggle sidebar functionality
   
 });
+</script>
+
+<script>
+    $(document).ready(function(){
+        $('.navbar-toggler').on('click', function () {
+            $('.navbar').toggleClass('navbar-collapsed', $('.collapse').hasClass('show'));
+        });
+    });
 </script>
 </body>
 </html>

@@ -21,9 +21,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         } else {
             $_SESSION['error'] = "Invalid username or password";
+            header("Location: Admin Login.php");
+            exit();
         }
     } else {
         $_SESSION['error'] = "Invalid username or password";
+        header("Location: Admin Login.php");
+        exit();
     }
     mysqli_close($conn);
 }

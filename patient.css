@@ -9,6 +9,9 @@ body {
   background-color: #EAEFF6;
 
 }
+.images-card{
+  height: 100%;
+}
 #content{
   overflow-x: hidden !important;
 }
@@ -299,7 +302,12 @@ background: #003D8F;
 
   }
 
+  .navbar-show {
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
 
+/* Show the collapsed navbar when toggled */
 
 
 /* Other styles for sidebar content */

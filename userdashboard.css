@@ -51,7 +51,7 @@ body {
 
 }
 .dataTables_paginate .paginate_button.previous {
-  background-color: #FFFFFF;
+ 
   color: white;
   font-weight: normal;
 }
@@ -255,6 +255,12 @@ border-radius: 11px !important;
   margin-left:2rem;
   margin-right:2rem;
 }
+.featherer{
+  width: 35px;
+  height: 35px;
+  color: red;
+  cursor: pointer;
+}
 .nav-logo{
   width: 20px;
   height: 20px;
@@ -355,7 +361,7 @@ width: 80px !important;
   display: block;
   width: 100%;
   text-align: center;
-  color: #FCA311;
+  color: #003D8F;
   text-decoration: none;
 }
 .table-striped > tbody > tr:nth-of-type(odd) {
@@ -629,6 +635,7 @@ overflow: hidden;
 .form-group label {
   display: block; /* Make the label a block element */
   margin-bottom: 5px; /* Adjust margin as needed */
+  font-size: 14px !important; 
 }
 .profile-icon{
   height:40px;

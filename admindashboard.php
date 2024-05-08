@@ -37,9 +37,27 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
+$sql = "SELECT 
+            ai.AppointmentDate, 
+            ai.SessionDays, 
+            ai.PatientID, 
+            CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
+            bd.ExposureType
+        FROM 
+            appointmentinformation AS ai
+        JOIN 
+            patient AS p ON ai.PatientID = p.PatientID
+        JOIN 
+            bitedetails AS bd ON ai.PatientID = bd.PatientID
+        WHERE 
+            ai.Status = 'Pending'
+        ORDER BY 
+            ABS(DATEDIFF(NOW(), ai.AppointmentDate))
+        LIMIT 5";
+
+// Execute the SQL query
+$result = mysqli_query($conn, $sql);
 // Close the database connection
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -111,7 +129,24 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                                 <div class="d-flex align-items-center">
                                     <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
                                     <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b>294</b></h1>
+                                        <h1 class="text-font-big main-font-color mb-0"><b><?php $sql = "SELECT COUNT(*) AS TotalPatients FROM patient WHERE ActiveStatus = 'Active'";
+
+// Execute the query
+$result = mysqli_query($conn, $sql);
+// Check if the query was successful
+if ($result) {
+    // Fetch the result as an associative array
+    $row = mysqli_fetch_assoc($result);
+
+    // Get the total patient count from the result
+    $totalPatients = $row['TotalPatients'];
+
+    // Output the total patient count
+
+} else {
+    // Query failed, handle the error
+
+}echo $totalPatients ?></b></h1>
                                         <p class="small-text mb-0">Patient Count</p>
                                         <h5 class="text-font-medium main-font-color mb-0"><b>Total Number of Patients</b></h5>
                                     </div>
@@ -125,7 +160,33 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                                 <div class="d-flex align-items-center">
                                     <img src="bxs-coin.png" alt="Logo" class="img-card-icons-1 mr-3">
                                     <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b>294</b></h1>
+                                        <h1 class="text-font-big main-font-color mb-0"><b><?php
+// Assuming you have already established a database connection
+
+// SQL query to get the total count of treatments
+$sql = "SELECT COUNT(*) AS TotalTreatments FROM treatment";
+
+// Execute the query
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Fetch the result as an associative array
+    $row = mysqli_fetch_assoc($result);
+
+    // Get the total count of treatments from the result
+    $totalTreatments = $row['TotalTreatments'];
+
+    // Output the total count of treatments
+    echo $totalTreatments;
+} else {
+    // Query failed, handle the error
+   
+}
+
+// Close the database connection
+
+?></b></h1>
                                         <p class="small-text mb-0">Treatment Count</p>
                                         <h5 class="text-font-medium main-font-color mb-0"><b>Total Number of Treatments</b></h5>
                                     </div>
@@ -159,29 +220,67 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                                 <form id="deleteForm" action="delete.php" method="post">
                                     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
                                     <div class="card-body">
-                                    <table id="example" class="table">
-                                            <thead class="table-header-alt">
-                                                <tr>
-                                                    <th></th>
-                                                    <th>Patient ID</th>
-                                                    <th>Full Name</th>
-                                                    <th>Current Session</th>
-                                                    <th>Appointment Date</th>
-                                                    <th>Type of Exposure</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr style="background-color:white;">
-                                                    <td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['ApplicantID'] . '"></td>
-                                                    <td>Patient ID</td>
-                                                    <td>Full Name</td>
-                                                    <td>Current Session</td>
-                                                    <td>Appointment Date</td>
-                                                    <td>Type of Exposure</td>
-                                                </tr>
-                                                <!-- ... other rows ... -->
-                                            </tbody>
-                                        </table>
+                                 <?php   $sql = "SELECT 
+            ai.AppointmentDate, 
+            ai.SessionDays, 
+            ai.PatientID, 
+            CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
+            bd.ExposureType
+        FROM 
+            appointmentinformation AS ai
+        JOIN 
+            patient AS p ON ai.PatientID = p.PatientID
+        JOIN 
+            bitedetails AS bd ON ai.PatientID = bd.PatientID
+        WHERE 
+            ai.Status = 'Pending'
+        ORDER BY 
+            ABS(DATEDIFF(NOW(), ai.AppointmentDate))
+        LIMIT 5";
+
+// Execute the SQL query
+$result = mysqli_query($conn, $sql);
+
+// Check if there are any results
+if (mysqli_num_rows($result) > 0) {
+    ?>
+    <table id="example" class="table">
+        <thead class="table-header-alt">
+            <tr>
+                <th></th>
+                <th>Patient ID</th>
+                <th>Full Name</th>
+                <th>Current Session</th>
+                <th>Appointment Date</th>
+                <th>Type of Exposure</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Output data of each row
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo '<tr style="background-color:white;">';
+                echo '<td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['PatientID'] . '"></td>';
+                echo '<td>' . $row['PatientID'] . '</td>';
+                echo '<td>' . $row['FullName'] . '</td>';
+                echo '<td>' . $row['SessionDays'] . '</td>';
+                echo '<td>' . $row['AppointmentDate'] . '</td>';
+                echo '<td>' . $row['ExposureType'] . '</td>';
+                echo '</tr>';
+            }
+            ?>
+        </tbody>
+    </table>
+    <?php
+} else {
+    echo '<p>No pending appointments found.</p>';
+}
+
+        ?>
+        <!-- ... other rows ... -->
+    </tbody>
+</table>
+
                                     </div>
                                 </form>
                             </div>
@@ -406,7 +505,7 @@ $(document).ready(function () {
         var applicantID = selectedCheckbox.val();
 
         // Redirect to the view profile page with the selected Applicant ID
-        window.location.href = 'patientdetails-appointments.php?PatientID=' + applicantID;
+        window.location.href = 'patientdetails-appointments.php?patientID=' + applicantID;
     } else {
         // If no checkbox or more than one checkbox is checked, show an alert
         alert('Please select exactly one row to view.');

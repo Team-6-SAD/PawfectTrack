@@ -213,7 +213,7 @@ $provincesAndCities = array(
 
 
 
-<form id="multi-step-form">
+<form id="multi-step-form" enctype="multipart/form-data">
   <div class="step active" id="step1">
     <div class="row justify-content-center mt-3 mb-0 px-3">
       <div class="col-lg-4 form-group px-4 mb-0">
@@ -468,18 +468,32 @@ $provincesAndCities = array(
 
 
     <div class="row justify-content-center mx-auto pt-4 pb-0 mb-0">
+    <div class="col-lg-4 form-group mx-auto p-0 mb-0 pb-0">
+    <label for="treatmentCategory">Treatment Category</label>
+    <select id="treatmentCategory" name="treatmentCategory" class="form-control" required>
+        <option value="">Select Treatment Category</option>
+        <option value="pre-exposure">Pre Exposure</option>
+        <option value="post-exposure">Post Exposure</option>
+    </select>
+</div>
+
         <div class="col-lg-4 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="treatmentCategory">Treatment Category</label>
-            <input type="text" id="treatmentCategory" name="treatmentCategory" placeholder="Treatment Category" class="form-control" required>
-        </div>
-        <div class="col-lg-4 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="sessions">Sessions</label>
-            <input type="number" id="sessions" name="sessions" placeholder="Sessions" class="form-control" required>
-        </div>
+    <label for="sessions">Sessions</label>
+    <select id="sessions" name="sessions" class="form-control" required>
+    <option value="">Select Session</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+</div>
+
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="treatmentDate">Date of Treatment</label>
-            <input type="date" id="treatmentDate" name="treatmentDate" placeholder="Date of Treatment" class="form-control" required>
-        </div>
+    <label for="treatmentDate">Date of Treatment</label>
+    <input type="date" id="treatmentDate" name="treatmentDate" value="<?php echo date('Y-m-d'); ?>" placeholder="Date of Treatment" class="form-control" required readonly>
+</div>
+
     </div>
 
     <div class="row align-items-end justify-content-center mx-auto pt-4 pb-0 mb-0 ml-1">
@@ -558,9 +572,7 @@ document.addEventListener("DOMContentLoaded", function() {
     validateInput(animalTypeInput);
     validateInput(biteLocationInput);
 });
-</script>
 
-<script>
     document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
     var dropdownContent = document.getElementById("dropdownContent");
@@ -570,14 +582,7 @@ document.addEventListener("DOMContentLoaded", function() {
         dropdownContent.style.display = "block";
     }
 });
-</script>
 
-
-
-</body>
-</html>
-
-<script>
  // Get all sidebar items
 const sidebarItems = document.querySelectorAll('.sidebar-item');
 
@@ -611,9 +616,7 @@ $(document).ready(function () {
 });
 
 
-</script>
 
-<script>
   const inputFields = document.querySelectorAll('input, select');
 inputFields.forEach(function(field) {
   field.addEventListener('input', function() {
@@ -629,7 +632,7 @@ const lines = document.querySelectorAll('.lines');
 const textindicator = document.querySelectorAll('.text-indicator');
 // Function to validate required fields in the current step
 function validateStep(step) {
-  const fields = formSteps[step - 1].querySelectorAll('input[required], select[required], textarea[required]');
+  const fields = formSteps[step -1].querySelectorAll('input[required], select[required], textarea[required]');
   for (let i = 0; i < fields.length; i++) {
     if (!fields[i].value) {
       alert('Please fill in all required fields before proceeding.');
@@ -638,6 +641,8 @@ function validateStep(step) {
   }
   return true; // Validation passed
 }
+
+
 
 // Modify nextStep function to include validation
 function nextStep(step) {
@@ -709,49 +714,62 @@ function prevStep(step) {
     }
   }
 }
+function showErrorBorder(field) {
+  field.classList.add('error-border');
+}
 
-// Submit handler with validation for the last step
+// Function to remove error border
+function removeErrorBorder(field) {
+  field.classList.remove('error-border');
+}
 document.getElementById('multi-step-form').addEventListener('submit', function(e) {
     e.preventDefault();
 
-    // Validate fields in the last step before submitting
-    if (validateStep(currentStep)) {
-        // Serialize form data
-        var formData = $(this).serialize();
+    // Check if all input fields have a value
+   const inputFields = document.querySelectorAll('input[required], select[required], textarea[required]');
 
-        // Perform AJAX submission or any other custom logic
-        $.ajax({
-            url: 'submit.php', // Replace 'submit.php' with your actual form submission endpoint
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                // Handle success response
-                console.log(response);
-                // Optionally, you can reset the form after successful submission
-                document.getElementById('multi-step-form').reset();
-            },
-            error: function(xhr, status, error) {
-                // Handle error response
-                console.error(error);
-            }
-        });
+    let allFieldsFilled = true;
+    inputFields.forEach(function(field) {
+        if (!field.value.trim()) {
+            showError(field, 'This field is required.');
+            allFieldsFilled = false;
+        } else {
+            removeError(field);
+        }
+    });
+
+    // If any field is empty, stop and show error messages
+    if (!allFieldsFilled) {
+        return;
     }
-});
 
+    // Perform AJAX submission or other actions
+    // Create FormData object
+    var formData = new FormData(this);
 
-
-</script>
-<script>
-
-$(document).ready(function() {
-    $('#sidebarCollapse1').on('click', function() {
-        $('#content').toggleClass('active');
+    // Perform AJAX submission or other actions
+    $.ajax({
+        url: 'submit.php', // Replace 'submit.php' with your actual form submission endpoint
+        method: 'POST',
+        data: formData,
+        contentType: false, // Important for file uploads
+        processData: false, // Important for file uploads
+        success: function(response) {
+            // Handle success response
+            console.log(response);
+            // Optionally, you can reset the form after successful submission
+            window.location.href = 'patient-list.php'; // Replace 'PatientList.php' with the actual URL of your Patient List page
+        },
+        error: function(xhr, status, error) {
+            // Handle error response
+            console.error(error);
+        }
     });
 });
 
 
-</script>
-<script>
+
+
 // Define JavaScript variable to hold PHP-generated data
 var provincesAndCities = <?php echo json_encode($provincesAndCities); ?>;
 
@@ -780,11 +798,7 @@ provinceSelect.addEventListener("change", function() {
         });
     }
 });
-</script>
 
-<!-- Your existing HTML content -->
-
-<script>
   // Function to validate birth date
   function validateBirthDate(birthDate) {
     const currentDate = new Date();
@@ -918,8 +932,8 @@ function removeError(field) {
   document.getElementById('emergencyPhoneNumber').addEventListener('input', validateEmergencyPhoneNumberField);
   document.getElementById('weight').addEventListener('input', validateWeightField);
   document.getElementById('email').addEventListener('input', validateEmailField);
-</script>
-<script>$(document).ready(function() {
+
+  $(document).ready(function() {
     // Function to fetch brands based on selected medicine type
     function fetchBrands($medicineTypeDropdown, $medicineGivenDropdown, $routeInput) {
     var medicineId = $medicineTypeDropdown.val();
@@ -931,7 +945,9 @@ function removeError(field) {
         dataType: 'json',
         success: function(response) {
             $medicineGivenDropdown.empty(); // Clear previous options
+            $medicineGivenDropdown.append('<option value="">Select Brand</option>'); // Add the default option
             $.each(response, function(index, value) {
+                
                 $medicineGivenDropdown.append('<option value="' + value.MedicineBrandID + '">' + value.BrandName + '</option>');
                 // Autofill the readonly route input field with the route of the selected brand
                 $('.route').val(value.Route);
@@ -952,17 +968,21 @@ function removeError(field) {
         fetchBrands($(this), $medicineGivenDropdown);
     });
 
-    // Function to add a new medicine item
     function addMedicineItem() {
-        // Clone the template of the medicine item
-        var $newMedicineItem = $('#medicineItems .medicine-item').first().clone();
+    // Clone the template of the medicine item
+    var $newMedicineItem = $('#medicineItems .medicine-item').first().clone();
 
-        // Clear the values of input fields in the cloned item
-        $newMedicineItem.find('input').val('');
+    // Clear the values of input fields in the cloned item
+    $newMedicineItem.find('input').val('');
 
-        // Append the cloned item to the container
-        $('#medicineItems').append($newMedicineItem);
-    }
+    // Append the cloned item to the container
+    $('#medicineItems').append($newMedicineItem);
+
+    // Trigger the change event on the medicine type dropdown in the cloned item
+    $newMedicineItem.find('.medicineType').trigger('change');
+}
+
+
 
     // Event listener for the "Add Medicine" button
     $(document).on('click', '.addMedicineItem', function() {
