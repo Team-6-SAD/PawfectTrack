@@ -17,22 +17,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($password, $hashedPassword)) {
             $_SESSION['admin'] = true;
             $_SESSION['adminID'] = $adminID;
-            header("Location: admindashboard.php");
+            header("Location: ../admindashboard.php");
             exit();
         } else {
             $_SESSION['error'] = "Invalid username or password";
-            header("Location: Admin Login.php");
+            header("Location: ../Admin Login.php");
             exit();
         }
     } else {
         $_SESSION['error'] = "Invalid username or password";
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     }
     mysqli_close($conn);
 }
 
 // Redirect back to the login page
-header("Location: Admin Login.php");
+header("Location: ../Admin Login.php");
 exit();
 ?>

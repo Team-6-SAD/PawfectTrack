@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
@@ -65,7 +65,7 @@ $result = mysqli_query($conn, $sql);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -76,8 +76,8 @@ $result = mysqli_query($conn, $sql);
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
-  <link href="userdashboard.css" rel="stylesheet">
+<link href="css/hamburgers.css" rel="stylesheet">
+  <link href="css/userdashboard.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
  <title>Admin Dashboard</title>
@@ -100,9 +100,9 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
     <div class="container-fluid">
         <div class="main-container">
             <!-- Header and Sidebar -->
-            <?php include 'admin_header.php'; ?>
+            <?php include 'includes/admin_header.php'; ?>
             <div class="sidebar">
-                <?php include 'sidebar.php'; ?>
+                <?php include 'includes/sidebar.php'; ?>
             </div>
             
             <!-- Content -->
@@ -116,7 +116,7 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                                     <p><i>We prioritized your well-being and the safety of your dear ones.</i></p>
                                 </div>
                                 <div class="col-md-6 text-right mt-3 pr-5">
-                                    <img src="Frame 154.png" alt="Description of the image" class="img-logo ml-auto">
+                                    <img src="img/img-dashboard/ABC-Sign-White.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
                             </div>
                         </div>
@@ -128,7 +128,7 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                                    <img src="img/img-dashboard/ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
                                     <div>
                                         <h1 class="text-font-big main-font-color mb-0"><b><?php $sql = "SELECT COUNT(*) AS TotalPatients FROM patient WHERE ActiveStatus = 'Active'";
 
@@ -159,7 +159,7 @@ if ($result) {
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <img src="bxs-coin.png" alt="Logo" class="img-card-icons-1 mr-3">
+                                    <img src="img/img-dashboard/injection-blue-db.png" alt="Logo" class="img-card-icons-1 mr-3">
                                     <div>
                                         <h1 class="text-font-big main-font-color mb-0"><b><?php
 // Assuming you have already established a database connection

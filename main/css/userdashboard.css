@@ -211,7 +211,7 @@ background-color: #2e86DE;
 
 .card-image {
   height: 150px;
-  background-image: url('Group 2310.png');
+  background-image: url('../img/img-dashboard/welcome-image.png');
   background-repeat: no-repeat !important; /* Added no-repeat */
   background-size: cover;
   background-position:  center;
@@ -799,7 +799,6 @@ margin-bottom: 5px;
   color: #FFFFFF; /* Change font color on hover */
 }
 .sidebar-item:hover .sidebar-text {
-  background-color: #5E6E82; /* Change background color of sidebar text on hover */
   color: #FFFFFF; /* Change font color of sidebar text on hover */
 }
 

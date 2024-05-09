@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Check if the new password matches the confirmation
     if ($newPassword != $confirmNewPassword) {
         $_SESSION['error_no_match'] = "Passwords do not match.";
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     }
 
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!$adminID) {
         // Email not found in admininformation table
         $_SESSION['error'] = "Email not found.";
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     }
 
@@ -47,12 +47,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mysqli_stmt_affected_rows($stmt) > 0) {
         // Password updated successfully
         $_SESSION['success_message_password'] = "Password updated successfully.";
-        header("Location: Admin Login.php"); // Redirect to login page or wherever appropriate
+        header("Location: ../Admin Login.php"); // Redirect to login page or wherever appropriate
         exit();
     } else {
         // Failed to update password
         $_SESSION['error'] = "Failed to update password.";
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     }
 }

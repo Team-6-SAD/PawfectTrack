@@ -29,7 +29,7 @@ session_start();
     mysqli_close($conn);
 
     // Redirect the user to a relevant page after deactivation
-    header("Location: Admin Login.php");
+    header("Location: ../Admin Login.php");
     exit(); // Terminate the script
 
 ?>

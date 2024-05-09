@@ -69,18 +69,18 @@ if(isset($_POST['email'])) {
         }
 
         $_SESSION['reset_email'] = $email;
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     } else {
         // Email does not exist
         $_SESSION['error_message'] = 'Email does not exist.';
-        header("Location: Admin Login.php");
+        header("Location: ../Admin Login.php");
         exit();
     }
 } else {
     $_SESSION['error_message'] = 'Email not provided.';
     // Redirect back to the previous page
-    header("Location: Admin Login.php");
+    header("Location: ../Admin Login.php");
     exit();
 }
 ?>

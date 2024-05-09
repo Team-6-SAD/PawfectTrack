@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
-    <link rel="icon" href="Favicon 2.png" type="image/png">
+    <link rel="icon" href="img/Favicon 2.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -91,7 +91,7 @@
                 <div class="row">
                 <div class="col-md-4 p-3" style="background-color: #0449A6;">
                  <div class="col-md-12 mt-5 align-items-center justify-content-center d-flex mb-2">
-                    <img src="Login Logo.png" width="90px" height="78px">
+                    <img src="img/img-login-register/Login Logo.png" width="90px" height="78px">
                 </div>
                 <div class="col-md-12 align-items-center justify-content-center d-flex">
                  <h4 style="color: white; white-space:nowrap;"> <b>Pawfect Track </b></h4>
@@ -103,7 +103,7 @@
                    <div class="justify-content-center d-none align-items-center d-sm-none d-md-flex d-lg-flex d-xl-flex padding-top">
                     <div class="card mt-5 px-2 py-1" style="border-radius: 20px;" >
                     <div class="col-md-12 align-items-center justify-content-center d-flex mb-3" >
-                     <img src="Group 2312.png" width="150" height="90" style="min-height: 100;min-width:170; ">
+                     <img src="img/img-dashboard/ABC-Sign.png" width="150" height="90" style="min-height: 100;min-width:170; ">
                      </div>
                  </div>
           
@@ -120,7 +120,7 @@
                     <div class="pl-4 pr-4">
                         <h4 class="text-center pb-4" style="color:#5E6E82;"><b> Register</b></h4>
                         <div id="alertMessages" class="mt-1"> </div>
-                        <form id="registrationForm" method="post" action="pawfectRegistration.php">
+                        <form id="registrationForm" method="post" action="backend/pawfectRegistration.php">
                     <div class="row mt-4">
                         <div class="col-md-6">
                             <div class="form-group">

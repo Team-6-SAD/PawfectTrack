@@ -16,17 +16,17 @@ $adminID = $_SESSION['adminID'];
 // Check if a picture file is uploaded
 if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
     // Define a directory to store uploaded files
-    $uploadDirectory = 'uploads/';
+    $uploadDirectory = '../uploads/';
 
     // Generate a unique filename for the uploaded picture
-    $targetFilePath = $uploadDirectory . basename($_FILES['profile_picture']['name']);
-
+    $fileName = basename($_FILES['profile_picture']['name']);
+    $targetFilePath = $uploadDirectory . $fileName;
     // Move the uploaded file to the specified directory
     if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
         // File upload successful, update the picture path in the database
         $sqlUpdatePicture = "UPDATE admininformation SET adminphoto = ? WHERE AdminID = ?";
         $stmtUpdatePicture = mysqli_prepare($conn, $sqlUpdatePicture);
-        mysqli_stmt_bind_param($stmtUpdatePicture, "si", $targetFilePath, $adminID);
+        mysqli_stmt_bind_param($stmtUpdatePicture, "si", $fileName, $adminID);
         
         if (mysqli_stmt_execute($stmtUpdatePicture)) {
             $_SESSION['success_message'] = "Profile picture updated successfully!";
@@ -128,11 +128,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_close($conn);
 
     // Redirect back to admin-settings page
-    header("Location: admin-settings.php");
+    header("Location: ../admin-settings.php");
     exit();
 } else {
     // If form data is not received via POST method, redirect back to admin-settings page
-    header("Location: admin-settings.php");
+    header("Location: ../admin-settings.php");
     exit();
 }
 ?>

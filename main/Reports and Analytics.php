@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
@@ -201,8 +201,8 @@ if ($result) {
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
-  <link href="userdashboard.css" rel="stylesheet">
+<link href="css/hamburgers.css" rel="stylesheet">
+  <link href="css/userdashboard.css" rel="stylesheet">
   <title>Tenant Dashboard</title>
   
 </head>
@@ -210,9 +210,9 @@ if ($result) {
 <div class="container-fluid">
     <div class="main-container">
         <!-- Header and Sidebar -->
-        <?php include 'admin_header.php'; ?>
+        <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
-            <?php include 'sidebar.php'; ?>
+            <?php include 'includes/sidebar.php'; ?>
         </div>
         
 
@@ -230,9 +230,14 @@ if ($result) {
             <h5 class="main-font-color"><b>Monthly Treatment Distribution</b></h5>
             <canvas id="monthlyTreatmentChart"></canvas>
           </div>
+      
           <div class="col-md-6 border-left pt-4">
+            <div class="col-md-10">
             <div class="row">
-              <div class="col-md-12 mb-3">
+            <div class="col-md-3 align-items-center justify-content-center d-flex">
+                <img src="img/img-dashboard/injection-blue-db.png" height="55px">
+              </div>
+              <div class="col-md-9 mb-3 pl-0">
                 <h1 class="main-font-color pb-0 mb-0"><b>  <?php
     // Define the start and end dates for the past 7 days
     $startDate = date('Y-m-d', strtotime('-7 days'));
@@ -259,9 +264,13 @@ if ($result) {
                 <h5 class="main-font-color"><b>Weekly Treatment Count</b></h5>
               </div>
             </div>
+            </div>
             <div class="col-md-10 mt-1 p-0">
               <div class="row border-top">
-                <div class="col-md-12 mt-4">
+              <div class="col-md-3 align-items-center justify-content-center d-flex">
+                <img src="img/img-dashboard/medicine-bag-blue.png" height="55px">
+              </div>
+                <div class="col-md-9 pl-0 mt-2">
                 <h1 class="main-font-color pb-0 mb-0"><b><?php echo $totalQuantity; ?></b></h1>
 <span class="pt-0 mb-0"><?php echo $medicineBrandName; ?></span>
 
@@ -317,12 +326,12 @@ if ($result) {
         <div class="card-body p-5">
           <div class="row">
             <div class="col-lg-2 no-break m-0 p-0 align-items-center justify-content-center d-flex d-none d-sm-none d-md-none d-lg-none d-xl-block">
-              <img src="green-plus.png">
+              <img src="img/img-dashboard/green-plus.png">
             </div>
             <div class="col-sm-12 col-lg-6 col-xl-5 text-left">
             <?php
 // Execute the Python script and capture the JSON output
-$output = shell_exec('python linear-regression.py');
+$output = shell_exec('python backend/machinelearning/linear-regression.py');
 
 // Find the start and end positions of the JSON object within the output
 $start_pos = strpos($output, '{');
@@ -391,7 +400,7 @@ if ($start_pos !== false && $end_pos !== false) {
     <div class="col-md-6 mt-3 pr-0">
     <?php
 // Execute the Python script and capture the JSON output
-$output = shell_exec('python linear-regression-patient.py');
+$output = shell_exec('python backend/machinelearning/linear-regression-patient.py');
 
 // Decode the JSON data
 $parsed_data = json_decode($output, true);
@@ -404,7 +413,7 @@ if ($parsed_data !== null) {
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                        <img src="img/img-dashboard/ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
                         <div>
                             <h1 class="text-font-big main-font-color mb-0"><b>' . $daily_prediction . '</b></h1>
                             <p class="small-text mb-0">Patients</p>
@@ -420,7 +429,7 @@ if ($parsed_data !== null) {
             <div class="card pr-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <img src="ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                        <img src="img/img-dashboard/ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
                         <div> 
                             <h1 class="text-font-big main-font-color mb-0"><b>' . $weekly_prediction . '</b></h1>
                             <p class="small-text mb-0">Patients</p>

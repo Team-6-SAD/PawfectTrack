@@ -29,6 +29,6 @@ mysqli_stmt_close($insertStmt);
 mysqli_close($conn);
 
 // Redirect to inventory.php
-header("Location: inventory.php");
+header("Location: ../inventory.php");
 exit();
 ?>

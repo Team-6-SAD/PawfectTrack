@@ -47,7 +47,7 @@ if (isset($_POST['selectedRows'])) {
 
 // Close the database connection
 $conn->close();
-header("Location: Archival.php");
+header("Location: ../Archival.php");
 exit();
 
 ?>

@@ -4,7 +4,7 @@ session_start();
 // Check if the user is logged in as admin
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSION['adminID'])) {
     // Redirect the user to the login page
-    header("Location: Admin Login.php");
+    header("Location: ../Admin Login.php");
     exit(); // Terminate the script
 }
 
@@ -30,7 +30,7 @@ if ($result->num_rows > 0) {
         $medicineID = $conn->insert_id; // Get the ID of the last inserted row
     } else {
         $_SESSION['errorMessage'] = "Error: " . $sql . "<br>" . $conn->error;
-        header("Location: inventory.php");
+        header("Location: ../inventory.php");
         exit(); // Terminate the script
     }
 }
@@ -41,7 +41,7 @@ $result = $conn->query($sql);
 if ($result->num_rows > 0) {
     // Product Brand already exists for this Medicine, redirect back to the modal page
     $_SESSION['alreadyExists'] = true;
-    header("Location: inventory.php");
+    header("Location: ../inventory.php");
     exit();
 }
 
@@ -50,11 +50,11 @@ $sql = "INSERT INTO medicinebrand (MedicineID, BrandName, Route)
         VALUES ($medicineID, '$productBrand', '$route')";
 if ($conn->query($sql) === TRUE) {
     $_SESSION['successMessage'] = "Medicine added successfully!";
-    header("Location: inventory.php"); // Redirect back to the inventory page
+    header("Location: ../inventory.php"); // Redirect back to the inventory page
     exit();
 } else {
     $_SESSION['errorMessage'] = "Error: " . $sql . "<br>" . $conn->error;
-    header("Location: inventory.php");
+    header("Location: ../inventory.php");
     exit(); // Terminate the script
 }
 

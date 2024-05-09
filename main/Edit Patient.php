@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the sessionw
 $adminID = $_SESSION['adminID'];
@@ -159,9 +159,9 @@ $provincesAndCities = array(
 <div class="container-fluid">
     <div class="main-container">
         <!-- Header and Sidebar -->
-        <?php include 'admin_header.php'; ?>
+        <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
-            <?php include 'sidebar.php'; ?>
+            <?php include 'includes/sidebar.php'; ?>
         </div>
 
 

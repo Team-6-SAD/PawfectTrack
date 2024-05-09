@@ -47,7 +47,7 @@ if (isset($_POST['selectedRows'])) {
 
 // Close the database connection
 $conn->close();
-header("Location: patient-list.php");
+header("Location: ../patient-list.php");
 exit();
 
 ?>

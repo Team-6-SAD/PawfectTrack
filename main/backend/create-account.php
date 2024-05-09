@@ -33,7 +33,7 @@ if(isset($_GET['patientID'])) {
     // If an account already exists, redirect back to the patient details page
     if(mysqli_num_rows($result_check) > 0) {
         $_SESSION['account-exists'] = 'Account creation failed.';
-        header("Location: patientdetails-profile.php?patientID=$patientID");
+        header("Location: ../patientdetails-profile.php?patientID=$patientID");
         exit();
     }
 
@@ -89,7 +89,7 @@ if(isset($_GET['patientID'])) {
                 $_SESSION['success_message'] = 'Account created successfully. Email sent with account details.';
                 
                 // Redirect to the patient details page
-                header("Location: patientdetails-profile.php?patientID=$patientID");
+                header("Location: ../patientdetails-profile.php?patientID=$patientID");
             } catch (Exception $e) {
                 echo "Account created successfully, but email could not be sent. Mailer Error: {$mail->ErrorInfo}";
             }

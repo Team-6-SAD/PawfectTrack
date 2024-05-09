@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
@@ -152,8 +152,8 @@ if ($result) {
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
-  <link href="userdashboard.css" rel="stylesheet">
+<link href="css/hamburgers.css" rel="stylesheet">
+  <link href="css/userdashboard.css" rel="stylesheet">
   <script src="https://unpkg.com/feather-icons"></script>
   <title>Inventory</title>
   <style>
@@ -172,9 +172,9 @@ table.dataTable.no-footer {
 <div class="container-fluid">
     <div class="main-container">
         <!-- Header and Sidebar -->
-        <?php include 'admin_header.php'; ?>
+        <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
-            <?php include 'sidebar.php'; ?>
+            <?php include 'includes/sidebar.php'; ?>
         </div>
 
 
@@ -211,7 +211,7 @@ table.dataTable.no-footer {
 
                             </div>
                         </div>
-                        <form id="deleteForm" action="remove_medicine.php" method="post">
+                        <form id="deleteForm" action="backend/remove_medicine.php" method="post">
                         <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
                 </form>
               
@@ -465,7 +465,7 @@ if ($result) {
                     </div>
                 </div>
                 </div>
-                <form id="deleteForm" action="delete_medicine.php" method="post">
+                <form id="deleteForm" action="backend/delete_medicine.php" method="post">
     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
     </form>
               
@@ -565,7 +565,7 @@ if ($result->num_rows > 0) {
       </div>
       <div class="modal-body">
         <!-- Form for adding medicine -->
-        <form id="addMedicineForm" action="add_medicine.php" method="post">
+        <form id="addMedicineForm" action="backend/add_medicine.php" method="post">
           <div class="form-group">
           <?php
         if (isset($_SESSION['productNameExists']) && $_SESSION['productNameExists'] === true) {
@@ -645,7 +645,7 @@ if ($result->num_rows > 0) {
 <div class="modal fade" id="addStockModal" tabindex="-1" role="dialog"  aria-labelledby="addStockModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-    <form id="addStockForm" method="post" action="add_stock.php">
+    <form id="addStockForm" method="post" action="backend/add_stock.php">
       <div class="modal-header">
         <h5 class="modal-title" id="addStockModalLabel">Add Stock</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -725,7 +725,7 @@ if ($result->num_rows > 0) {
 <div class="modal fade" id="addEquipmentModal" tabindex="-1" role="dialog" aria-labelledby="addEquipmentModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <form id="addEquipmentForm" method="post" action="add_equipment.php"> <!-- Form starts here -->
+      <form id="addEquipmentForm" method="post" action="backend/add_equipment.php"> <!-- Form starts here -->
         <div class="modal-header">
           <h5 class="modal-title" id="addEquipmentModalLabel">Add Equipment</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -768,7 +768,7 @@ if ($result->num_rows > 0) {
       </div>
       <div class="modal-body">
 <div class="justify-content-center d-flex">
-<img src="check-mark.png">
+<img src="img/img-alerts/check-mark.png">
 </div>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>MEDICINE</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
@@ -794,7 +794,7 @@ if ($result->num_rows > 0) {
       </div>
       <div class="modal-body">
 <div class="justify-content-center d-flex">
-<img src="check-mark.png">
+<img src="img/img-alerts/check-mark.png">
 </div>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>STOCK</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
@@ -820,7 +820,7 @@ if ($result->num_rows > 0) {
       </div>
       <div class="modal-body">
 <div class="justify-content-center d-flex">
-<img src="check-mark.png">
+<img src="img/img-alerts/check-mark.png">
 </div>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EQUIPMENT</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ADDED</b></h2>
@@ -847,7 +847,7 @@ if ($result->num_rows > 0) {
       </div>
       <div class="modal-body">
 <div class="justify-content-center d-flex">
-<img src="caution-mark.png">
+<img src="img/img-alerts/caution-mark.png">
 </div>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>REMOVE</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ITEM</b></h2>

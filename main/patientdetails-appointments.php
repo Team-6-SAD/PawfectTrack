@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
@@ -66,7 +66,7 @@ $result = mysqli_stmt_get_result($stmt);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -77,8 +77,8 @@ $result = mysqli_stmt_get_result($stmt);
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
-  <link href="userdashboard.css" rel="stylesheet">
+<link href="css/hamburgers.css" rel="stylesheet">
+  <link href="css/userdashboard.css" rel="stylesheet">
   <title>Patient Details - Appointments</title>
   
 </head>
@@ -86,9 +86,9 @@ $result = mysqli_stmt_get_result($stmt);
 <div class="container-fluid">
     <div class="main-container">
         <!-- Header and Sidebar -->
-        <?php include 'admin_header.php'; ?>
+        <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
-            <?php include 'sidebar.php'; ?>
+            <?php include 'includes/sidebar.php'; ?>
         </div>
 
 
@@ -104,25 +104,25 @@ $result = mysqli_stmt_get_result($stmt);
         <div class="row mt-4">
     <div class=" col-md-12 col-lg-3 no-break patient-navigation-active text-center">
         <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text">
-            <img src="Frame 156.png" class="mr-3 nav-logo">Profile
+            <img src="img/img-patient-details/profile-gray.png" class="mr-3 nav-logo">Profile
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
         <a href="patientdetails-bitedetails.php?patientID=<?php echo $patientID?>" class="text-center link-text">
-            <img src="Frame 156.png" class="mr-3 nav-logo">Bite Exposure Details
+            <img src="img/img-patient-details/paw-gray.png" class="mr-3 nav-logo">Bite Exposure Details
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
         <a href="patientdetails-treatmenthistory.php?patientID=<?php echo $patientID?>" class="text-center link-text">
-            <img src="Frame 156.png" class="mr-3 nav-logo">Treatment History
+            <img src="img/img-patient-details/injection-gray.png" class="mr-3 nav-logo">Treatment History
             <hr class="profile-nav">
         </a>
     </div>
     <div class="col-md-12 col-lg-3 no-break patient-navigation text-center">
         <a href="patientdetails-appointments.php?patientID=<?php echo $patientID?>" class="text-center link-text-active">
-            <img src="Frame 156.png" class="mr-3 nav-logo">Appointments
+            <img src="img/img-patient-details/calendar-blue.png" class="mr-3 nav-logo">Appointments
             <hr class="profile-nav-active">
         </a>
     </div>
@@ -248,10 +248,11 @@ $(document).ready(function() {
         // Submit the form data via AJAX
         $.ajax({
             type: 'POST',
-            url: 'update_status.php',
+            url: 'backend/update_status.php',
             data: formData,
             success: function(response) {
                 // Handle success response
+                location.reload();
             },
             error: function(xhr, status, error) {
                 // Handle error response
@@ -282,7 +283,7 @@ $(document).ready(function() {
             // Fetch medical details via AJAX
             $.ajax({
                 type: 'POST',
-                url: 'fetch_medical_details.php',
+                url: 'backend/fetch_medical_details.php',
                 data: { appointmentID: appointmentID },
                 dataType: 'json',
                 success: function(response) {

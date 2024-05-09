@@ -32,7 +32,7 @@ if (mysqli_stmt_execute($stmt)) {
         echo json_encode($response);
 
         // Redirect to inventory.php
-        header("Location: inventory.php");
+        header("Location: ../inventory.php");
         exit();
     } else {
         // Error occurred while inserting into equipmentstock

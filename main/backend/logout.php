@@ -11,6 +11,6 @@ $_SESSION['message'] = "You are now logged out";
 
 session_destroy();
 
-header("location: Admin Login.php");
+header("location: ../Admin Login.php");
 exit(); // Ensure that no code is executed after the header redirect
 ?>

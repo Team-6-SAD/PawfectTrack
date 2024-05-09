@@ -21,6 +21,6 @@ if(isset($_POST['resetCode']) && isset($_SESSION['reset_code'])) {
 }
 
 // Redirect back to the previous page
-header("Location: Admin Login.php");
+header("Location: ../Admin Login.php");
 exit();
 ?>

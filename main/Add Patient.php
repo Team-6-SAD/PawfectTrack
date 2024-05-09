@@ -9,7 +9,7 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 }
 
 // Include your database connection file
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 
 // Get the AdminID from the sessionw
 $adminID = $_SESSION['adminID'];
@@ -126,7 +126,7 @@ $provincesAndCities = array(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -137,8 +137,8 @@ $provincesAndCities = array(
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="hamburgers.css" rel="stylesheet">
-  <link href="userdashboard.css" rel="stylesheet">
+<link href="css/hamburgers.css" rel="stylesheet">
+  <link href="css/userdashboard.css" rel="stylesheet">
   <title>Add Patient</title>
 <style>
   .red{
@@ -158,9 +158,9 @@ $provincesAndCities = array(
 <div class="container-fluid">
     <div class="main-container">
         <!-- Header and Sidebar -->
-        <?php include 'admin_header.php'; ?>
+        <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
-            <?php include 'sidebar.php'; ?>
+            <?php include 'includes/sidebar.php'; ?>
         </div>
 
 
@@ -748,7 +748,7 @@ document.getElementById('multi-step-form').addEventListener('submit', function(e
 
     // Perform AJAX submission or other actions
     $.ajax({
-        url: 'submit.php', // Replace 'submit.php' with your actual form submission endpoint
+        url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
         method: 'POST',
         data: formData,
         contentType: false, // Important for file uploads
@@ -938,7 +938,7 @@ function removeError(field) {
     var medicineId = $medicineTypeDropdown.val();
     console.log("Sending AJAX request with medicineType:", medicineId);
     $.ajax({
-        url: 'fetch-brands.php', // Change this to the path of your PHP script
+        url: 'backend/fetch-brands.php', // Change this to the path of your PHP script
         method: 'POST',
         data: { medicineType: medicineId },
         dataType: 'json',

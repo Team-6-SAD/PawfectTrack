@@ -1,5 +1,5 @@
 <?php
-require_once 'pawfect_connect.php';
+require_once 'backend/pawfect_connect.php';
 session_start(); // Start the session
 if (isset($_SESSION['error'])) {
     $errorMessage = $_SESSION['error'];
@@ -12,7 +12,7 @@ if (isset($_SESSION['error'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="icon" href="Favicon 2.png" type="image/png">
+    <link rel="icon" href="img/Favicon 2.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@ if (isset($_SESSION['error'])) {
      
      }
      .container{
-        background-image: url('Registration-bg.png');
+        background-image: url('img/img-login-register/Registration-bg.png');
         background-size:cover;
         background-position:center;
         background-attachment: scroll;
@@ -55,7 +55,7 @@ if (isset($_SESSION['error'])) {
      }
      @media screen and (max-width: 768px) {
         .container{
-            background-image: url('Registration-bg.png');
+        background-image: url('img/img-login-register/Registration-bg.png');
         background-size:contain;
         background-repeat:repeat-y;
         background-position:  left center;
@@ -117,7 +117,7 @@ if (isset($_SESSION['error'])) {
                 <div class="row">
                 <div class="col-md-4 p-3" style="background-color: #0449A6;">
                  <div class="col-md-12 mt-5 align-items-center justify-content-center d-flex mb-2">
-                    <img src="Login Logo.png" width="90px" height="78px">
+                    <img src="img/img-login-register/Login Logo.png" width="90px" height="78px">
                 </div>
                 <div class="col-md-12 align-items-center justify-content-center d-flex">
                  <h4 style="color: white; white-space:nowrap;"> <b>Pawfect Track </b></h4>
@@ -129,7 +129,7 @@ if (isset($_SESSION['error'])) {
               <div class="justify-content-center d-none align-items-center d-sm-none d-md-flex d-lg-flex d-xl-flex">
                    <div class="card mt-5 px-2 py-1" style="border-radius: 20px;" >
                    <div class="col-md-12 align-items-center justify-content-center d-flex mb-3" >
-                    <img src="Group 2312.png" width="150" height="90" style="min-height: 100;min-width:170; ">
+                    <img src="img/img-dashboard/ABC-Sign.png" width="150" height="90" style="min-height: 100;min-width:170; ">
                     </div>
                 </div>
           
@@ -145,7 +145,7 @@ if (isset($_SESSION['error'])) {
                 <div class="col-md-8 px-3 py-3 mt-5">
                     <div class="pl-4 pr-4">
                     <h4 class="text-center pb-4" style="color:#5E6E82;"><b>Account Login</b></h4>
-                    <form method="post" action="Login-backend.php" id="loginForm">
+                    <form method="post" action="backend/Login-backend.php" id="loginForm">
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="last-name"><b>Username</b><span class="red">*</span></label>
@@ -265,7 +265,7 @@ if (isset($_SESSION['error'])) {
         <small style="letter-spacing: -1px; color:#5e6e82;">Enter your email address</small>
     </div>
     <div class="col-md-12 w-100 px-5">
-        <form action="forgot_password.php" method="post"> <!-- Change the action to your PHP script -->
+        <form action="backend/forgot_password.php" method="post"> <!-- Change the action to your PHP script -->
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
                 <label for="inputEmail" class="d-block mb-1"><b>Email<span style="color:red;">*</span></b></label>
                 <input type="email" name="email" id="inputEmail" class="form-control" placeholder="@gmail.com">
@@ -299,7 +299,7 @@ if (isset($_SESSION['error'])) {
         <small style="letter-spacing: -1px; color:#5e6e82;">Enter reset code</small>
     </div>
     <div class="col-md-12 w-100 px-5">
-    <form action="verify_reset_code.php" method="post">
+    <form action="backend/verify_reset_code.php" method="post">
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
                 <label for="resetCode" class="d-block mb-1"><b>Reset Code:<span style="color:red;">*</span></b></label>
                 <input type="text" name="resetCode" id="resetCode" class="form-control" placeholder="Reset Code">
@@ -332,7 +332,7 @@ if (isset($_SESSION['error'])) {
         <small style="letter-spacing: -1px; color:#5e6e82;">don't use on any other site. </small>
     </div>
     <div class="col-md-12 w-100 px-5">
-    <form action="update_password.php" method="post">
+    <form action="backend/update_password.php" method="post">
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
             <div class="password-input-container">
                 <label for="newPassword" class="d-block mb-1"><b>New Password:<span style="color:red;">*</span></b></label>

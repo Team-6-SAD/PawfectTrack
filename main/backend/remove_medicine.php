@@ -4,7 +4,7 @@ session_start();
 // Check if the 'admin' session variable is not set or is false (user not logged in)
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSION['adminID'])) {
     // Redirect the user to the login page
-    header("Location: Admin Login.php");
+    header("Location: ../Admin Login.php");
     exit(); // Terminate the script
 }
 
@@ -29,7 +29,7 @@ if (isset($_POST['selectedRows']) && !empty($_POST['selectedRows'])) {
     }
     
     // Redirect back to the inventory page
-    header("Location: inventory.php");
+    header("Location: ../inventory.php");
     exit();
 } else {
     // No medicine brands selected for removal
