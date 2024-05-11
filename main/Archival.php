@@ -63,7 +63,7 @@ mysqli_close($conn);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -108,7 +108,7 @@ mysqli_close($conn);
     <div class="d-flex flex-row flex-wrap align-items-center">
      
         <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;">View </button>
-        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;"  onclick="deleteSelectedRows()">Restore</button>
+        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;"  >Restore</button>
 
     </div>
 
@@ -190,6 +190,33 @@ if (mysqli_num_rows($patients_result) > 0) {
        
 </div>
 
+<div class="modal fade" id="removalConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="img/img-alerts/caution-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>RESTORE</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>RECORDS</b></h2>
+<div class="text-center">
+<small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to restore<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">the selected record/s?<br></small>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
+<button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Restore</b></button>
+</div>
+</div>  
+</div>
+</div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
@@ -206,6 +233,13 @@ if (mysqli_num_rows($patients_result) > 0) {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+<script>
+    $(document).ready(function() {
+  $('#deleteButton').click(function() {
+    $('#removalConfirmationModal').modal('show');
+  });
+});
+    </script>
 <script>
          function deleteSelectedRows() {
     var selectedRows = $('.select-checkbox:checked').map(function () {

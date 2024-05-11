@@ -21,10 +21,14 @@
         color: red;
      }
     
-     
+     .error-border {
+    border-color: red !important; /* Change border color to red */
+    /* Add any other styling for error indication */
+}
+
      
      .container{
-        background-image: url('Group 2313.png');
+        background-image: url('img/img-login-register/Group 2313.png');
         background-size:contain;
         background-position:top;
         background-repeat: no-repeat;
@@ -32,7 +36,7 @@
      }
      @media screen and (max-width: 768px) {
         .container{
-        background-image: url('Group 2313.png');
+        background-image: url('img/img-login-register/Group 2313.png');
         background-size:cover;
         background-repeat:repeat-y;
         background-position:  left center;
@@ -83,6 +87,7 @@
     </style>
 </head>
 <body>
+    
     <div class="container d-flex justify-content-center align-items-center margin-bottom">
     
         <div class="row justify-content-center ">
@@ -125,14 +130,14 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="first-name"><b>First Name</b><span class="red">*</span></label>
-                                <input type="text" id="first-name" name="first-name" class="form-control" placeholder="First Name" >
+                                <input type="text" id="first-name" name="first-name" class="form-control" placeholder="First Name" oninput="preventLeadingSpace(event)" maxlength="50">
                                 <small id="first-name-error" class="text-danger"></small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="middle-name"><b>Middle Name</b></label>
-                                <input type="text" id="middle-name" name="middle-name" class="form-control" placeholder="Middle Name">
+                                <input type="text" id="middle-name" name="middle-name" class="form-control" placeholder="Middle Name" oninput="preventLeadingSpace(event)" maxlength="50">
                                 <small id="middle-name-error" class="text-danger"></small>
                             </div>
                         </div>
@@ -141,14 +146,14 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="last-name"><b>Last Name</b><span class="red">*</span></label>
-                                <input type="text" id="last-name" name="last-name" class="form-control" placeholder="Last Name" >
+                                <input type="text" id="last-name" name="last-name" class="form-control" placeholder="Last Name" oninput="preventLeadingSpace(event)" maxlength="50">
                                 <small id="last-name-error" class="text-danger"></small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="username"><b>Username</b><span class="red">*</span></label>
-                                <input type="text" id="username" name ="username" class="form-control" placeholder="Username" >
+                                <input type="text" id="username" name ="username" class="form-control" placeholder="Username"   oninput="preventSpaces(event)" maxlength="16">
                                 <small id="username-error" class="text-danger"></small>                            
                             </div>
                         </div>
@@ -182,7 +187,7 @@
                             <div class="form-group">
                               <label for="password"><b>Password</b><span class="red">*</span></label>
                               <div class="password-input-container">
-                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" >
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" oninput="preventSpaces(event)" maxlength="16">
                                 <i class="toggle-password fas fa-eye"></i>
                 
                             </div>
@@ -194,7 +199,7 @@
                         <div class="form-group">
                             <label for="password"><b>Confirm Password</b><span class="red">*</span></label>
                             <div class="password-input-container">
-                              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" >
+                              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" oninput="preventSpaces(event)" maxlength="16">
                               <i class="toggle-confirm-password fas fa-eye"></i>
                             </div>
                             <small id="confirmPassword-error" class="text-danger"></small>
@@ -277,59 +282,8 @@
                 });
             });
             </script>
-<script>$(document).ready(function() {
-    // Submit form via AJAX
-    $('#registrationForm').submit(function(event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // AJAX request to register.php
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(), // Serialize form data
-            success: function(response) {
-                console.log(response);
-                try {
-                    var result = JSON.parse(response);
-                    $('#alertMessages').html('');
-                    if (result.status === 'success') {
-                        window.location.href = 'Admin Login.php'; // Redirect on success
-                    } else if (result.status === 'error') {
-                        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                            result.message +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                            '<span aria-hidden="true">&times;</span>' +
-                            '</button>' +
-                            '</div>');
-                    }
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    // Handle parsing error here, maybe display a generic error message
-                }
-            }
-        });
-    });
-});
-
-
-</script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const registrationForm = document.getElementById('registrationForm');
-
-        // Create an object to track the touched state of each input field
-        const touchedFields = {
-            'first-name': false,
-            'middle-name': false,
-            'last-name': false,
-            'username': false,
-            'phone-number': false,
-            'email': false,
-            'password': false,
-            'confirmPassword': false
-        };
-
-        // Define a function to handle form validation
+         document.addEventListener('DOMContentLoaded', function() {
         function validateForm() {
             // Get form inputs
             const firstName = document.getElementById('first-name');
@@ -360,13 +314,17 @@
             }
 
             // Validate Username
-            if (username.value.trim() === '' && touchedFields['username']) {
-                isValid = false;
-                showError(username, 'Please enter a Username.');
-            } else if (username.value.trim().length > 16) {
-                isValid = false;
-                showError(username, 'Username cannot be more than 16 characters.');
-            }
+// Validate Username
+// Validate Username
+if (username.value.trim() === '' && touchedFields['username']) {
+    isValid = false;
+    showError(username, 'Please enter a Username.');
+} else if ((username.value.trim().length < 8 || username.value.trim().length > 16) && touchedFields['username'])  {
+    isValid = false;
+    showError(username, 'Username must be between 8 and 16 characters.');
+}
+
+
 
             // Validate Phone Number
             if ((phoneNumber.value.trim() === '' || !validatePhoneNumber(phoneNumber.value.trim())) && touchedFields['phone-number']) {
@@ -389,10 +347,14 @@
             }
 
             // Validate Password
-            if (password.value.trim() === '' && touchedFields['password']) {
-                isValid = false;
-                showError(password, 'Please enter a Password.');
-            }
+            if ((password.value.trim() === '' || !validatePassword(password.value.trim())) && touchedFields['password']) {
+    isValid = false;
+    if (password.value.trim() === '') {
+        showError(password, 'Please enter a Password.');
+    } else {
+        showError(password, 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).');
+    }
+}
 
             // Validate Confirm Password
             if (confirmPassword.value.trim() === '' && touchedFields['confirmPassword']) {
@@ -405,6 +367,22 @@
 
             return isValid;
         }
+        const registrationForm = document.getElementById('registrationForm');
+
+        // Create an object to track the touched state of each input field
+        const touchedFields = {
+            'first-name': false,
+            'middle-name': false,
+            'last-name': false,
+            'username': false,
+            'phone-number': false,
+            'email': false,
+            'password': false,
+            'confirmPassword': false
+        };
+
+        // Define a function to handle form validation
+       
 
         // Add event listeners for real-time validation
         const formFields = document.querySelectorAll('input, select, textarea');
@@ -428,28 +406,84 @@
                 event.preventDefault();
             }
         });
-    });
+    
 
     // Function to validate email format
     function validateEmail(email) {
-        const re = /\S+@\S+\.\S+/;
-        return re.test(email);
-    }
+    const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
+    return re.test(email);
+}
+
 
     // Function to validate phone number format
     function validatePhoneNumber(phoneNumber) {
         const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
         return re.test(phoneNumber);
     }
+    function validatePassword(password) {
+    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    return re.test(password);
+}
+
+$(document).ready(function() {
+    // Submit form via AJAX
+    $('#registrationForm').submit(function(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Validate form
+        if (!validateForm()) {
+            return; // Exit if validation fails
+        }
+
+        // AJAX request to register.php
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(), // Serialize form data
+            success: function(response) {
+                console.log(response);
+                try {
+                    var result = JSON.parse(response);
+                    $('#alertMessages').html('');
+                    if (result.status === 'success') {
+                        // Redirect on success
+                        window.location.href = 'Admin Login.php';
+                    } else if (result.status === 'error') {
+                        // Display error message
+                        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                            result.message +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">&times;</span>' +
+                            '</button>' +
+                            '</div>');
+                    }
+                } catch (error) {
+                    // Handle parsing error here, maybe display a generic error message
+                    console.error('Error parsing JSON:', error);
+                }
+            }
+        });
+    });
+});
+
+
+
+  
 
     // Function to show error message and apply error styles
     function showError(input, message) {
-        const errorElement = document.getElementById(input.id + '-error');
-        if (errorElement) {
-            errorElement.textContent = message;
-            input.classList.add('is-invalid');
+    const errorElement = document.getElementById(input.id + '-error');
+    if (errorElement) {
+        errorElement.textContent = message;
+        if (input.id === 'password' || input.id === 'confirmPassword') {
+            input.classList.add('error-border'); // Add error-border class for password fields
+        } else {
+            input.classList.add('is-invalid'); // Add is-invalid class for other fields
         }
     }
+}
+
 
     // Function to remove error styles
     function removeError(inputs) {
@@ -460,15 +494,142 @@
 
         inputs.forEach(function (input) {
             input.classList.remove('is-invalid');
-
+            input.classList.remove('error-border');
             const errorElement = document.getElementById(input.id + '-error');
             if (errorElement) {
                 errorElement.textContent = '';
             }
         });
     }
-</script>
 
+$(document).ready(function() {
+    
+    // Submit form via AJAX
+    $('#registrationForm').submit(function(event) {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Validate form
+        if (!validateForm()) {
+            return; // Exit if validation fails
+        }
+
+        // AJAX request to register.php
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: $(this).serialize(), // Serialize form data
+            success: function(response) {
+                console.log(response);
+                try {
+                    var result = JSON.parse(response);
+                    $('#alertMessages').html('');
+                    if (result.status === 'success') {
+                        // Redirect on success
+                        window.location.href = 'Admin Login.php';
+                    } else if (result.status === 'error') {
+                        // Display error message
+                        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                            result.message +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">&times;</span>' +
+                            '</button>' +
+                            '</div>');
+                    }
+                } catch (error) {
+                    // Handle parsing error here, maybe display a generic error message
+                    console.error('Error parsing JSON:', error);
+                }
+            }
+        });
+    });
+});
+});
+
+</script>
+<script>
+  
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var phoneNumberInput = document.getElementById("phone-number");
+        var phoneNumberError = document.getElementById("phone-number-error");
+
+        phoneNumberInput.addEventListener("keypress", function(event) {
+            var key = event.key;
+            if (!/^\d$/.test(key)) {
+                event.preventDefault();
+                phoneNumberError.textContent = "Please enter numbers only.";
+            } else {
+                phoneNumberError.textContent = "";
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var emailInput = document.getElementById("email");
+        var emailError = document.getElementById("email-error");
+
+        emailInput.addEventListener("keypress", function(event) {
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        });
+
+        emailInput.addEventListener("input", function() {
+            var inputValue = emailInput.value.trim(); // Remove leading and trailing spaces
+            var atIndex = inputValue.indexOf('@');
+            var domainPart = atIndex !== -1 ? inputValue.substring(atIndex) : "";
+
+            var allowedDomains = ["@gmail.com", "@yahoo.com", "@outlook.com"];
+            var isValid = atIndex > 0 && allowedDomains.includes(domainPart);
+
+            if (!isValid) {
+                emailError.textContent = "Please enter a valid email address with @gmail.com, @yahoo.com, or @outlook.com domain.";
+            } else {
+                emailError.textContent = "";
+            }
+        });
+    });
+    
+</script>
+<script>
+function preventLeadingSpace(event) {
+    const input = event.target;
+    if (input.value.startsWith(' ')) {
+        input.value = input.value.trim(); // Remove leading space
+    }
+    // Replace multiple consecutive spaces with a single space
+    input.value = input.value.replace(/\s{2,}/g, ' ');
+}
+
+
+
+
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const phoneNumberInput = document.getElementById('phone-number');
+
+    phoneNumberInput.addEventListener('input', function(event) {
+        const input = event.target;
+        const maxLength = 11; // Maximum allowed length
+
+        if (input.value.length > maxLength) {
+            input.value = input.value.slice(0, maxLength); // Truncate input if it exceeds maxLength
+        }
+    });
+});
+
+    function preventSpaces(event) {
+        const input = event.target;
+        if (input.value.includes(' ')) {
+            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        }
+    }
+</script>
 
 </body>
 </html>

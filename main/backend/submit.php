@@ -3,7 +3,23 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Include database connection
     include_once 'pawfect_connect.php';
+    $targetDir = "uploads/";
+    $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
 
+    // Check if the uploaded file is an image
+    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+    $allowedExtensions = array("jpg", "jpeg", "png");
+    if (!in_array($imageFileType, $allowedExtensions)) {
+        echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+        exit(); // Stop further execution
+    }
+
+    // Move the uploaded file to the target directory
+    if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
+        echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
+    } else {
+        echo "Sorry, there was an error uploading your file.";
+    }
     // Extract patient data from the form
     $fName = $_POST['fName'];
     $mName = $_POST['mName'];
@@ -50,9 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $emergencyId = mysqli_insert_id($conn); // Get the last inserted emergency contact ID
 
     // Handle uploaded image
-    $targetDir = "uploads/";
-    $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
-    move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile);
     $bitePicture = $targetFile;
 
     // Extract exposure data from the form

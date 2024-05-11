@@ -147,10 +147,12 @@ $provincesAndCities = array(
   .error-message{
     color:red;
     font-size: 11px;
+    font-weight: bold;
   }
   .error-border {
   border: 1px solid red !important;
 }
+
   </style>
 
 </head>
@@ -214,58 +216,70 @@ $provincesAndCities = array(
 
 <form id="multi-step-form" enctype="multipart/form-data">
   <div class="step active" id="step1">
-    <div class="row justify-content-center mt-3 mb-0 px-3">
-      <div class="col-lg-4 form-group px-4 mb-0">
+    <div class="row justify-content-center mt-3 px-3 ">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="fName">First Name<span class="red">*</span></label>
-        <input type="text" id="fName" name="fName" placeholder="First Name" class="form-control" required><br><br>
+        <input type="text" id="fName" name="fName" placeholder="First Name" class="form-control" oninput="preventLeadingSpace(event)" required>
       </div>
-      <div class="col-lg-4 form-group px-4 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="mName">Middle Name</label>
-        <input type="text" id="mName" name="mName" placeholder="Middle Name" class="form-control" ><br><br>
+        <input type="text" id="mName" name="mName" placeholder="Middle Name" class="form-control" oninput="preventLeadingSpace(event)" >
       </div>
-      <div class="col-lg-4 form-group px-4 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="lName">Last Name<span class="red">*</span></label>
-        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control"  required><br><br>
+        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" oninput="preventLeadingSpace(event)" required>
       </div>
     </div>
     <div class="row justify-content-center px-3">
-      <div class="col-lg-4 form-group px-4 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="birthDate">Birth Date<span class="red">*</span></label>
-        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year')); ?>"onkeydown="return false"><br><br>
+        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year')); ?>"onkeydown="return false">
 
       </div>
   
-      <div class="col-lg-4 form-group px-4 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="age">Age<span class="red">*</span></label>
-        <input type="number" id="age" name="age" placeholder="Age" class="form-control"required ><br><br>
+        <input type="tel" id="age" name="age" placeholder="Age" class="form-control"required >
       </div>
    
-      <div class="col-lg-4 form-group px-4 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="sex">Sex<span class="red">*</span></label>
         <select id="sex" name="sex" class="form-control" required >
           <option value="">Select Sex</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
           <option value="other">Other</option>
-        </select><br><br>
+        </select>
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-0">
-      <div class="col-lg-4 form-group px-4">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="weight">Weight (kg)<span class="red">*</span></label>
-        <input type="number" id="weight" name="weight" placeholder="Weight (kg)" class="form-control"  required><br><br>
+        <input type="tel" id="weight" name="weight" placeholder="Weight (kg)" class="form-control"  required>
       </div>
-      <div class="col-lg-4 form-group px-4">
-        <label for="phoneNumber">Phone Number<span class="red">*</span></label>
-        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Phone Number" class="form-control" required><br><br>
-      </div>
-      <div class="col-lg-4 form-group px-4">
+         <div class="col-lg-4 form-group px-4 mb-3">
+                                <label for="phoneNumber">Phone Number<span class="red">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
+                                    </div>
+
+                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                   <div>
+
+                                   </div>
+                                </div>
+                                <small id="phone-number-error" class="error-message"></small>
+                            
+                            </div>
+                            
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="email">Email Address<span class="red">*</span></label>
-        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" required><br><br>
+        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" required>
       </div>
     </div>
-    <div class="row justify-content-center px-3">
-      <div class="col-lg-4 form-group px-4">
+    <div class="row justify-content-center px-3 mb-0">
+      <div class="col-lg-4 form-group px-4 mb-3">
       <label for="province">Province<span class="red">*</span></label>
       <select id="provinceSelect" name="province" class="form-control" required >
     <option value="">Select Province</option>
@@ -274,24 +288,24 @@ $provincesAndCities = array(
     <?php endforeach; ?>
 </select>
       </div>
-      <div class="col-lg-4 form-group px-4">
+      <div class="col-lg-4 form-group px-4 mb-3">
       <label for="city">City<span class="red">*</span></label>
       <select id="citySelect" name="city" class="form-control" required >
     <option value="">Select City</option>
 </select>
 
       </div>
-      <div class="col-lg-4 form-group px-4">
+      <div class="col-lg-4 form-group px-4 mb-3">
       <label for="address">Address<span class="red">*</span></label>
-        <input type="text" id="address" name="address" class="form-control" placeholder="Address" required ><br><br>
+        <input type="text" id="address" name="address" class="form-control" placeholder="Address" required >
       </div>
     </div>
-    <div class="row justify-content-center px-3">
+    <div class="row justify-content-center px-3 mb-3">
       <div class="col-lg-4 form-group px-4">
         <label for="emergencyContact">In case of Emergency, notify<span class="red">*</span></label>
-        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" required ><br><br>
+        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" required oninput="preventLeadingSpace(event)" >
       </div>
-      <div class="col-lg-4 form-group px-4">
+      <div class="col-lg-4 form-group px-4 mb-3">
         <label for="relationship">Relationship<span class="red">*</span></label>
         <select id="emergencyContactRelationship" name="emergency_contact_relationship" class="form-control" required >
     <option value="">Select Relationship</option>
@@ -312,16 +326,26 @@ $provincesAndCities = array(
 </select>
 
       </div>
-      <div class="col-lg-4 form-group px-4">
-        <label for="emergencyPhoneNumber">Emergency Phone Number<span class="red">*</span></label>
-        <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" placeholder="Emergency Phone Number" class="form-control" required ><br><br>
-      </div>
-    </div>
+      <div class="col-lg-4 form-group px-4 mb-3">
+                                <label for="emergencyPhoneNumber">Phone Number<span class="red">*</span></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
+                                    </div>
+
+                                    <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                   <div>
+
+                                   </div>
+                                </div>
+                                <small id="emergency-phone-number-error" class="error-message"></small>
+                            
+                            </div>
     <div class="row justify-content-center">
-    <button class="btn-customized" onclick="nextStep(1)">Next</button>
+    <button type="button" class="btn-customized" onclick="nextStep(1)">Next</button>
 </div>
   </div>
-
+  </div>
 
 
   <div class="step" id="step2">
@@ -356,30 +380,32 @@ $provincesAndCities = array(
         </div>
         <div class="col-lg-3 form-group mx-auto mb-0 p-0">
             <label for="animalType">Type of Animal</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" required><br><br>
+            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" oninput="preventLeadingSpace(event)" required>
         </div>
         <div class="col-lg-3 form-group mx-auto mb-0 p-0">
             <label for="biteLocation">Bite Location</label>
-            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" required><br><br>
+            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" oninput="preventLeadingSpace(event)" required>
         </div>
         </div>
         <div class="row justify-content-center mt-0">
     <div class="col-lg-11 form-group patient-form mx-auto p-0">
             <label for="uploadImage">Upload Image</label>
-            <input type="file" id="uploadImage" name="uploadImage" class="form-control" accept="image/jpeg, image/png"><br><br>
+            <input type="file" id="uploadImage" name="uploadImage" class="form-control" accept="image/jpeg, image/png">
         </div>
 
         </div>
         <div class="row mt-0 mx-auto justify-content-center">
-    <button class="prev mr-5 btn btn-outline-custom" onclick="prevStep(2)">Previous</button>
-    <button onclick="nextStep(2)" class="btn-customized">Next</button>
+    <button type="button" class="prev mr-5 btn btn-outline-custom" onclick="prevStep(2)">Previous</button>
+    <button type="button" onclick="nextStep(2)" class="btn-customized">Next</button>
     </div>
 </div>
 <div class="step" id="step3">
+<div class="step3-error-messages"></div>
   <div class="step3-container">
-  <div id="medicineItems">
+  <div id="medicineItems" >
     <!-- Initial medicine item -->
     <div class="row justify-content-center align-items-end mx-auto pt-4 pb-0 mb-3 medicine-item">
+
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
             <label for="medicineType">Type of Medicine</label>
             <select name="medicineType[]" class="form-control medicineType" required>
@@ -402,16 +428,19 @@ $provincesAndCities = array(
             <label for="medicineGiven">Medicine Given</label>
             <select name="medicineGiven[]" class="form-control medicineGiven" required>
             </select>
+            <span class="total-quantity" style="color: gray; position: absolute;
+    top: 20;
+    right: 0; "></span>
         </div>
 
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
             <label for="dosageQuantity">Dosage</label>
-            <input type="text" name="dosageQuantity[]" class="form-control" placeholder="Dosage Quantity" required>
+            <input type="number" name="dosageQuantity[]" class="form-control" placeholder="Dosage Quantity" required>
         </div>
         
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
     <label for="route">Route</label>
-    <input type="text" name="route[]" placeholder="Route" class="form-control route" readonly required>
+    <input type="text" name="route[]" placeholder="Route" class="form-control route" readonly>
 </div>
 
         
@@ -451,7 +480,7 @@ $provincesAndCities = array(
         </div>
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
             <label for="equipmentAmount">Equipment Amount</label>
-            <input type="text" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount" required>
+            <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount" required>
         </div>
         <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">
             <div class="d-flex justify-content-center">
@@ -504,8 +533,8 @@ $provincesAndCities = array(
 
     
     <div class="row justify-content-center mt-5">
-        <button class="prev mr-5 btn btn-outline-custom" onclick="prevStep(3)">Previous</button>
-        <button type="submit" class="btn-customized">Submit</button>
+        <button type="button" class="prev mr-5 btn btn-outline-custom" onclick="prevStep(3)">Previous</button>
+        <button type="button" class="btn-customized" id="submit-button">Submit</button>
     </div>
 </div>
 </div>
@@ -542,10 +571,140 @@ $provincesAndCities = array(
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+  document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
+    event.preventDefault(); // Prevent the default action of the mousedown event
+    var dropdownContent = document.getElementById("dropdownContent");
 
+    // Check if the clicked element is within the dropdown content
+    if (!dropdownContent.contains(event.target)) {
+        // Clicked outside the dropdown content, toggle its visibility
+        if (dropdownContent.style.display === "block") {
+            dropdownContent.style.display = "none";
+        } else {
+            dropdownContent.style.display = "block";
+        }
+    }
+});
+</script>
 
 
 <script>
+  // Select all number input fields
+const numberInputs = document.querySelectorAll('input[type="number"]');
+
+// Loop through each number input field
+numberInputs.forEach(function(input) {
+    // Add an event listener for the input event
+    input.addEventListener('input', function() {
+        // Get the current value of the input field
+        let value = parseFloat(this.value);
+
+        // If the value is negative, set it to 0
+        if (value < 0 || isNaN(value)) {
+            this.value = 0;
+        }
+    });
+});
+
+  // Get the weight input element
+const weightInput = document.getElementById('weight');
+
+// Add an event listener for the keydown event
+weightInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    if (
+        [8, 9, 27, 13].includes(keyCode) || // Allow: backspace, delete, tab, escape, enter
+        (keyCode === 65 && event.ctrlKey === true) || // Allow: Ctrl+A
+        (keyCode >= 35 && keyCode <= 40) // Allow: home, end, left, right, down, up
+    ) {
+        return;
+    }
+
+    if ((event.shiftKey || (keyCode < 48 || keyCode > 57)) && (keyCode < 96 || keyCode > 105)) {
+        event.preventDefault();
+    }
+});
+
+// Get the email input element
+const emailInput = document.getElementById('email');
+
+// Add an event listener for the keydown event
+emailInput.addEventListener('keydown', function(event) {
+    // Get the key code of the pressed key
+    const keyCode = event.keyCode;
+
+    // If the pressed key is the spacebar, prevent the default behavior
+    if (keyCode === 32) {
+        event.preventDefault();
+    }
+});
+
+// Get the age input element
+const ageInput = document.getElementById('age');
+
+// Add an event listener for the keydown event
+ageInput.addEventListener('keydown', function(event) {
+    // Get the key code of the pressed key
+    const keyCode = event.keyCode;
+
+    // Allow special keys like backspace, delete, arrow keys, etc.
+    if (
+        // Allow: backspace, delete, tab, escape, enter
+        [8, 9, 27, 13].includes(keyCode) ||
+        // Allow: Ctrl+A
+        (keyCode === 65 && event.ctrlKey === true) ||
+        // Allow: home, end, left, right, down, up
+        (keyCode >= 35 && keyCode <= 40)
+    ) {
+        // Let it happen, don't do anything
+        return;
+    }
+
+    // Ensure that it is a number and stop the keypress if it isn't
+    if ((event.shiftKey || (keyCode < 48 || keyCode > 57)) && (keyCode < 96 || keyCode > 105)) {
+        event.preventDefault();
+    }
+});
+// Get the phoneNumber and emergencyPhoneNumber input elements
+const phoneNumberInput = document.getElementById('phoneNumber');
+const emergencyPhoneNumberInput = document.getElementById('emergencyPhoneNumber');
+
+// Add an event listener for the keydown event on phoneNumber input
+phoneNumberInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    if (
+        [8, 9, 27, 13].includes(keyCode) || // Allow: backspace, delete, tab, escape, enter
+        (keyCode === 65 && event.ctrlKey === true) || // Allow: Ctrl+A
+        (keyCode >= 35 && keyCode <= 40) // Allow: home, end, left, right, down, up
+    ) {
+        return;
+    }
+
+    if ((event.shiftKey || (keyCode < 48 || keyCode > 57)) && (keyCode < 96 || keyCode > 105)) {
+        event.preventDefault();
+    }
+});
+
+// Add an event listener for the keydown event on emergencyPhoneNumber input
+emergencyPhoneNumberInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    if (
+        [8, 9, 27, 13].includes(keyCode) || // Allow: backspace, delete, tab, escape, enter
+        (keyCode === 65 && event.ctrlKey === true) || // Allow: Ctrl+A
+        (keyCode >= 35 && keyCode <= 40) // Allow: home, end, left, right, down, up
+    ) {
+        return;
+    }
+
+    if ((event.shiftKey || (keyCode < 48 || keyCode > 57)) && (keyCode < 96 || keyCode > 105)) {
+        event.preventDefault();
+    }
+});
+
 
 
 
@@ -572,15 +731,7 @@ document.addEventListener("DOMContentLoaded", function() {
     validateInput(biteLocationInput);
 });
 
-    document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
-    event.preventDefault(); // Prevent the default action of the mousedown event
-    var dropdownContent = document.getElementById("dropdownContent");
-    if (dropdownContent.style.display === "block") {
-        dropdownContent.style.display = "none";
-    } else {
-        dropdownContent.style.display = "block";
-    }
-});
+
 
  // Get all sidebar items
 const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -721,50 +872,80 @@ function showErrorBorder(field) {
 function removeErrorBorder(field) {
   field.classList.remove('error-border');
 }
-document.getElementById('multi-step-form').addEventListener('submit', function(e) {
+// Function to validate Step 3 fields
+function validateStep3Fields() {
+    // Remove previous error messages and borders
+    const errorContainer = document.querySelector('.step3-error-messages');
+    errorContainer.innerHTML = '';
+
+    const inputFields = document.querySelectorAll('.step3-container input, .step3-container select, .step3-container textarea');
+    inputFields.forEach(function(field) {
+        field.classList.remove('error-border');
+    });
+
+    // Check if all required input fields have a value
+    const requiredFields = document.querySelectorAll('.step3-container input[required], .step3-container select[required], .step3-container textarea[required]');
+    const missingFields = [];
+
+    requiredFields.forEach(function(field) {
+        if (!field.value.trim()) {
+            missingFields.push(field);
+        }
+    });
+
+    // Display error messages and add error borders
+    if (missingFields.length > 0) {
+        const errorMessage = document.createElement('div');
+        errorMessage.classList.add('error-message');
+        errorMessage.textContent = 'Incorrect field(s): ' + missingFields.map(field => field.name).join(', ');
+        errorContainer.appendChild(errorMessage);
+        
+        // Add error border to missing fields
+        missingFields.forEach(function(field) {
+            field.classList.add('error-border');
+        });
+    }
+}
+
+
+// Add event listener to submit button
+document.getElementById('submit-button').addEventListener('click', function(e) {
     e.preventDefault();
 
-    // Check if all input fields have a value
-   const inputFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+    // Validate Step 3 fields
+    validateStep3Fields();
 
-    let allFieldsFilled = true;
-    inputFields.forEach(function(field) {
-        if (!field.value.trim()) {
-            showError(field, 'This field is required.');
-            allFieldsFilled = false;
-        } else {
-            removeError(field);
-        }
-    });
+    // Check if there are still errors
+    const errorMessages = document.querySelectorAll('.step3-error-messages .error-message');
+    if (errorMessages.length === 0) {
+        // If no errors, proceed with form submission using AJAX
+        const formData = new FormData(document.getElementById('multi-step-form'));
 
-    // If any field is empty, stop and show error messages
-    if (!allFieldsFilled) {
-        return;
+        $.ajax({
+            url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
+            method: 'POST',
+            data: formData,
+            contentType: false, // Important for file uploads
+            processData: false, // Important for file uploads
+            success: function(response) {
+                // Handle success response
+                console.log(response);
+                // Optionally, you can reset the form after successful submission
+                window.location.href = 'patient-list.php'; // Replace 'patient-list.php' with the actual URL of your Patient List page
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error(error);
+            }
+        });
+    } else {
+        // If there are errors, prevent form submission
+        console.log('Please fill in all required fields correctly.');
     }
-
-    // Perform AJAX submission or other actions
-    // Create FormData object
-    var formData = new FormData(this);
-
-    // Perform AJAX submission or other actions
-    $.ajax({
-        url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
-        method: 'POST',
-        data: formData,
-        contentType: false, // Important for file uploads
-        processData: false, // Important for file uploads
-        success: function(response) {
-            // Handle success response
-            console.log(response);
-            // Optionally, you can reset the form after successful submission
-            window.location.href = 'patient-list.php'; // Replace 'PatientList.php' with the actual URL of your Patient List page
-        },
-        error: function(xhr, status, error) {
-            // Handle error response
-            console.error(error);
-        }
-    });
 });
+
+
+
 
 
 
@@ -827,38 +1008,66 @@ provinceSelect.addEventListener("change", function() {
     return weight >= 0 && weight <= 650;
   }
 
-  // Function to validate email address format
   function validateEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook)\.com$/;
     return emailRegex.test(email);
-  }
+}
+
+
+
+
+
+// Get the email input element
 
   // Function to display error message and apply red border
 // Function to display error message and apply red border
 function showError(field, message) {
-  const errorContainer = field.nextElementSibling;
-  if (!errorContainer || !errorContainer.classList.contains('error-message')) {
+  if (field.id === 'phoneNumber' || field.id === 'emergencyPhoneNumber') {
+    const errorElementId = field.id === 'phoneNumber' ? 'phone-number-error' : 'emergency-phone-number-error';
+    const errorElement = document.getElementById(errorElementId);
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
     field.classList.add('error-border');
-    const errorMessage = document.createElement('div');
-    errorMessage.classList.add('error-message');
-    errorMessage.textContent = message;
-    field.parentNode.insertBefore(errorMessage, field.nextElementSibling);
   } else {
-    errorContainer.textContent = message;
+    const errorContainer = field.nextElementSibling;
+    if (!errorContainer || !errorContainer.classList.contains('error-message')) {
+      field.classList.add('error-border');
+      const errorMessage = document.createElement('div');
+      errorMessage.classList.add('error-message');
+      errorMessage.textContent = message;
+      field.parentNode.insertBefore(errorMessage, field.nextElementSibling);
+    } else {
+      errorContainer.textContent = message;
+    }
+    field.classList.add('error');
   }
-  field.classList.add('error');
 }
+
+
+
 
 // Function to remove error message and red border
 function removeError(field) {
-  const errorContainer = field.nextElementSibling;
-  if (errorContainer && errorContainer.classList.contains('error-message')) {
-    field.parentNode.removeChild(errorContainer);
-    field.classList.remove('error');
-    field.classList.remove('error-border'); // Remove this line
+  if (field.id === 'phoneNumber') {
+    const errorContainer = document.getElementById('phone-number-error');
+    if (errorContainer) {
+      errorContainer.textContent = '';
+    }
+  } else if (field.id === 'emergencyPhoneNumber') {
+    const errorContainer = document.getElementById('emergency-phone-number-error');
+    if (errorContainer) {
+      errorContainer.textContent = '';
+    }
+  } else {
+    const errorContainer = field.nextElementSibling;
+    if (errorContainer && errorContainer.classList.contains('error-message')) {
+      field.parentNode.removeChild(errorContainer);
+    }
   }
+  field.classList.remove('error');
+  field.classList.remove('error-border');
 }
-
 
   // Function to validate birth date field
   function validateBirthDateField() {
@@ -933,76 +1142,125 @@ function removeError(field) {
   document.getElementById('email').addEventListener('input', validateEmailField);
 
   $(document).ready(function() {
-    // Function to fetch brands based on selected medicine type
-    function fetchBrands($medicineTypeDropdown, $medicineGivenDropdown, $routeInput) {
-    var medicineId = $medicineTypeDropdown.val();
-    console.log("Sending AJAX request with medicineType:", medicineId);
-    $.ajax({
-        url: 'backend/fetch-brands.php', // Change this to the path of your PHP script
-        method: 'POST',
-        data: { medicineType: medicineId },
-        dataType: 'json',
-        success: function(response) {
-            $medicineGivenDropdown.empty(); // Clear previous options
-            $medicineGivenDropdown.append('<option value="">Select Brand</option>'); // Add the default option
-            $.each(response, function(index, value) {
-                
-                $medicineGivenDropdown.append('<option value="' + value.MedicineBrandID + '">' + value.BrandName + '</option>');
-                // Autofill the readonly route input field with the route of the selected brand
-                $('.route').val(value.Route);
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error(xhr.responseText);
-            console.log(`Response Text: ${xhr.responseText}`);
-            // Handle errors
-        }
+    // Function to fetch brands and quantity based on selected medicine type
+    function fetchBrandsAndQuantity($medicineTypeDropdown, $medicineGivenDropdown, $totalQuantityContainer) {
+        var medicineId = $medicineTypeDropdown.val();
+        console.log("Sending AJAX request with medicineType:", medicineId);
+        $.ajax({
+            url: 'backend/fetch-brands.php', // Path to your PHP script to fetch brands
+            method: 'POST',
+            data: { medicineType: medicineId },
+            dataType: 'json',
+            success: function(response) {
+                $medicineGivenDropdown.empty(); // Clear previous options
+                $medicineGivenDropdown.append('<option value="">Select Brand</option>'); // Add the default option
+                $.each(response, function(index, value) {
+                    // Check if the option is already selected in other fields
+                    var isDuplicate = $medicineGivenDropdown.find('option[value="' + value.MedicineBrandID + '"]').length > 0;
+                    if (!isDuplicate) {
+                        $medicineGivenDropdown.append('<option value="' + value.MedicineBrandID + '">' + value.BrandName + '</option>');
+                    }
+                   
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                console.log(`Response Text: ${xhr.responseText}`);
+                // Handle errors
+            }
+        });
+
+        // Event listener for the change event on medicine given dropdown
+        $medicineGivenDropdown.on('change', function() {
+          var $routeInput = $(this).closest('.medicine-item').find('.route');
+            var selectedBrandID = $(this).val();
+            fetchQuantity(selectedBrandID, $totalQuantityContainer, $routeInput);
+        });
+    }
+
+    // Function to fetch quantity based on selected brand
+    function fetchQuantity(medicineBrandID, $totalQuantityContainer, $routeInput) {
+        $.ajax({
+            url: 'backend/fetch-quantity.php', // Path to your PHP script to fetch quantity
+            method: 'POST',
+            data: { medicineBrandID: medicineBrandID },
+            dataType: 'json',
+            success: function(response) {
+                // Update the UI to display the fetched total quantity
+                $totalQuantityContainer.text('Total Quantity: ' + response.TotalQuantity);
+                $routeInput.val(response.Route);
+                // Validate the quantity input
+                validateQuantity($totalQuantityContainer);
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+                console.log(`Response Text: ${xhr.responseText}`);
+                // Handle errors
+            }
+        });
+    }
+
+   // Function to validate quantity input for a specific medicine item
+function validateQuantity($inputField, totalQuantity) {
+    var enteredQuantity = parseInt($inputField.val());
+    if (isNaN(enteredQuantity) || enteredQuantity < 0 || enteredQuantity > totalQuantity) {
+        $inputField.addClass('is-invalid');
+        $inputField.closest('.form-group').find('.invalid-feedback').text('Quantity must be between 0 and ' + totalQuantity);
+    } else {
+        $inputField.removeClass('is-invalid');
+        $inputField.closest('.form-group').find('.invalid-feedback').text('');
+    }
+}
+
+// Event listener for the change event on medicine type dropdown
+$(document).on('change', '.medicineType', function() {
+    var $medicineItem = $(this).closest('.medicine-item');
+    var $medicineGivenDropdown = $medicineItem.find('.medicineGiven');
+    var $totalQuantityContainer = $medicineItem.find('.total-quantity');
+    fetchBrandsAndQuantity($(this), $medicineGivenDropdown, $totalQuantityContainer);
+});
+
+// Event listener for the input event on quantity input
+$(document).on('input', 'input[name="quantity[]"]', function() {
+    var $inputField = $(this);
+    var $medicineItem = $inputField.closest('.medicine-item');
+    var $totalQuantityContainer = $medicineItem.find('.total-quantity');
+    var totalQuantity = parseInt($totalQuantityContainer.text().replace('Total Quantity: ', ''));
+    validateQuantity($inputField, totalQuantity);
+});
+
+// Function to apply input validation to a specific medicine item
+function applyInputValidation($medicineItem) {
+    $medicineItem.find('input[name="quantity[]"]').each(function() {
+        var $inputField = $(this);
+        var $totalQuantityContainer = $medicineItem.find('.total-quantity');
+        var totalQuantity = parseInt($totalQuantityContainer.text().replace('Total Quantity: ', ''));
+        validateQuantity($inputField, totalQuantity);
     });
 }
 
+var totalQuantityCounter = 1;
 
-    // Event listener for the change event on medicine type dropdown
-    $(document).on('change', '.medicineType', function() {
-        var $medicineGivenDropdown = $(this).closest('.medicine-item').find('.medicineGiven');
-        fetchBrands($(this), $medicineGivenDropdown);
-    });
-
-    function addMedicineItem() {
-    // Clone the template of the medicine item
+// Function to add a new medicine item
+function addMedicineItem() {
     var $newMedicineItem = $('#medicineItems .medicine-item').first().clone();
-
-    // Clear the values of input fields in the cloned item
     $newMedicineItem.find('input').val('');
 
-    // Append the cloned item to the container
-    $('#medicineItems').append($newMedicineItem);
+    // Clear the total quantity text of the cloned item
+    $newMedicineItem.find('.total-quantity').text('Total Quantity: ');
 
-    // Trigger the change event on the medicine type dropdown in the cloned item
+    var uniqueIdentifier = 'total-quantity-' + totalQuantityCounter;
+    $newMedicineItem.find('.total-quantity').attr('id', uniqueIdentifier);
+    totalQuantityCounter++;
+
+    $('#medicineItems').append($newMedicineItem);
     $newMedicineItem.find('.medicineType').trigger('change');
+    applyInputValidation($newMedicineItem);
 }
 
 
 
-    // Event listener for the "Add Medicine" button
-    $(document).on('click', '.addMedicineItem', function() {
-        addMedicineItem();
-    });
-
-    // Event listener for the "Remove Medicine" button
-    $(document).on('click', '.removeMedicineItem', function() {
-    // Check if there's more than one medicine item
-    if ($('.medicine-item').length > 1) {
-        // Remove the clicked medicine item
-        $(this).closest('.medicine-item').remove();
-    } else {
-        // Alert the user or perform any other action indicating that there must be at least one item
-        alert("At least one medicine item is required.");
-    }
-});
-});
-$(document).ready(function() {
-    // Function to add a new equipment row
- // Function to add a new equipment item
+// Function to add a new equipment item
 function addEquipmentItem() {
     // Clone the template of the equipment item
     var $newEquipmentItem = $('#equipmentItems .equipment-item').first().clone();
@@ -1012,7 +1270,60 @@ function addEquipmentItem() {
 
     // Append the cloned item to the container
     $('#equipmentItems').append($newEquipmentItem);
+
+    // Reapply the event listeners for input validation on the cloned item
+    applyInputValidation($newEquipmentItem);
 }
+
+// Function to apply input validation event listeners
+function applyInputValidation($element) {
+    // Event listener for the "keydown" event on dosage quantity input
+    $element.find('input[name="dosageQuantity[]"]').on('keydown', function(event) {
+        const key = event.key;
+        // Allow only numbers and dot
+        if (!/[0-9.]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+            event.preventDefault();
+        }
+    });
+
+    // Event listener for the "keydown" event on quantity input
+    $element.find('input[name="quantity[]"]').on('keydown', function(event) {
+        const key = event.key;
+        // Allow only numbers
+        if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+            event.preventDefault();
+        }
+    });
+
+    // Event listener for the "keydown" event on equipment amount input
+    $element.find('input[name="equipmentAmount[]"]').on('keydown', function(event) {
+        const key = event.key;
+        // Allow only numbers
+        if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
+            event.preventDefault();
+        }
+    });
+    const numberInputs = document.querySelectorAll('input[type="number"]');
+
+// Loop through each number input field
+numberInputs.forEach(function(input) {
+    // Add an event listener for the input event
+    input.addEventListener('input', function() {
+        // Get the current value of the input field
+        let value = parseFloat(this.value);
+
+        // If the value is negative, set it to 0
+        if (value < 0 || isNaN(value)) {
+            this.value = 0;
+        }
+    });
+});
+}
+
+// Event listener for the "Add Medicine" button
+$(document).on('click', '.addMedicineItem', function() {
+    addMedicineItem();
+});
 
 // Event listener for the "Add Equipment" button
 $(document).on('click', '.addEquipmentItem', function() {
@@ -1030,12 +1341,92 @@ $(document).on('click', '.removeEquipmentItem', function() {
         alert("At least one equipment item is required.");
     }
 });
+$(document).on('click', '.removeMedicineItem', function() {
+    // Check if there's more than one medicine item
+    if ($('.medicine-item').length > 1) {
+        // Remove the clicked medicine item
+        $(this).closest('.medicine-item').remove();
+    } else {
+        // Alert the user or perform any other action indicating that there must be at least one item
+        alert("At least one medicine item is required.");
+    }
+});
+});
 
+// Get the dosage quantity input element
+const dosageQuantityInput = document.querySelector('input[name="dosageQuantity[]"]');
+
+// Add an event listener for the keydown event
+dosageQuantityInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    // Allow numbers, dot, backspace, delete, arrow keys, and decimal point (if not already present)
+    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 190 || keyCode === 110 || keyCode === 8 || keyCode === 46 || (keyCode >= 37 && keyCode <= 40))) {
+        // Prevent "@" symbol
+        if (event.key === '@') {
+            event.preventDefault();
+        }
+        else {
+            event.preventDefault();
+        }
+    }
+
+    // Prevent entering more than one dot
+    const currentValue = event.target.value;
+    if ((keyCode === 190 || keyCode === 110) && currentValue.includes('.')) {
+        event.preventDefault();
+    }
 });
 
 
-</script>
+// Get the quantity input element
+const quantityInput = document.querySelector('input[name="quantity[]"]');
 
+// Add an event listener for the keydown event
+quantityInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    // Allow only numbers, backspace, and delete
+    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 8 || keyCode === 46)) {
+        event.preventDefault();
+    }
+});
+
+// Get the equipment amount input element
+const equipmentAmountInput = document.querySelector('input[name="equipmentAmount[]"]');
+
+// Add an event listener for the keydown event
+equipmentAmountInput.addEventListener('keydown', function(event) {
+    const keyCode = event.keyCode;
+
+    // Allow only numbers, backspace, and delete
+    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 8 || keyCode === 46)) {
+        event.preventDefault();
+    }
+});
+
+</script>
+<script>
+function preventLeadingSpace(event) {
+    const input = event.target;
+    if (input.value.startsWith(' ')) {
+        input.value = input.value.trim(); // Remove leading space
+    }
+    // Replace multiple consecutive spaces with a single space
+    input.value = input.value.replace(/\s{2,}/g, ' ');
+}
+
+function preventSpaces(event) {
+        const input = event.target;
+        if (input.value.includes(' ')) {
+            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        }
+    }
+
+
+
+
+</script>
 <!-- Existing JavaScript and closing body tag -->
 
 

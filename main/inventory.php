@@ -141,7 +141,7 @@ if ($result) {
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -580,11 +580,11 @@ if ($result->num_rows > 0) {
         }
         ?>
             <label for="productName">Product Name</label>
-            <input type="text" class="form-control" id="productName" name="productName" required>
+            <input type="text" class="form-control" id="productName" name="productName" required oninput="preventLeadingSpace(event)">
           </div>
           <div class="form-group">
             <label for="productBrand">Product Brand</label>
-            <input type="text" class="form-control" id="productBrand" name="productBrand" required>
+            <input type="text" class="form-control" id="productBrand" name="productBrand" required oninput="prevenLeadingtSpace(event)">
           </div>
           <div class="form-group">
             <label for="route">Route</label>
@@ -689,7 +689,7 @@ if ($result->num_rows > 0) {
         <div class="col-md-6">
         <div class="form-group">
           <label for="stockPrice">Stock Price:</label>
-          <input type="number" class="form-control" id="stockPrice" name="stockPrice"required>
+          <input type="number" class="form-control" id="stockPrice" name="stockPrice"required  max="1000000">
         </div>
         </div>
         <div class="col-md-6">
@@ -702,9 +702,10 @@ if ($result->num_rows > 0) {
         <div class="row">
         <div class="col-md-6">
         <div class="form-group">
-          <label for="stockExpiryDate">Stock Expiry Date:</label>
-          <input type="date" class="form-control" id="stockExpiryDate" name="stockExpiryDate" required>
-        </div>
+    <label for="stockExpiryDate">Stock Expiry Date:</label>
+    <input type="date" class="form-control" id="stockExpiryDate" name="stockExpiryDate" required min="<?php echo date('Y-m-d', strtotime('+7 days')); ?>" onkeydown="return false">
+</div>
+
         </div>
         <div class="col-md-6">
         <div class="form-group">
@@ -1506,7 +1507,39 @@ $(document).ready(function () {
     });
     });
 </script>
+<script>
+function preventLeadingSpace(event) {
+    const input = event.target;
+    if (input.value.startsWith(' ')) {
+        input.value = input.value.trim(); // Remove leading space
+    }
+    // Replace multiple consecutive spaces with a single space
+    input.value = input.value.replace(/\s{2,}/g, ' ');
+}
 
+function preventSpaces(event) {
+        const input = event.target;
+        if (input.value.includes(' ')) {
+            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        }
+    }
 
+</script>
+<script>
+  // Get reference to the input element
+  var stockPriceInput = document.getElementById('stockPrice');
+
+  // Add event listener for input change
+  stockPriceInput.addEventListener('input', function() {
+    // Parse the value of the input to a number
+    var stockPrice = parseFloat(stockPriceInput.value);
+    
+    // Check if the value is negative
+    if (stockPrice < 0) {
+      // If negative, replace the value with an empty string
+      stockPriceInput.value = '';
+    }
+  });
+</script>
 </body>
 </html>

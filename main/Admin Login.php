@@ -106,6 +106,10 @@ if (isset($_SESSION['error'])) {
         .modal-header{
             border-bottom: 1px solid black;
         }
+        .error-border {
+    border: 1px solid red !important;
+}
+
     </style>
 </head>
 <body>
@@ -149,7 +153,7 @@ if (isset($_SESSION['error'])) {
                     <div class="col-md-12">
                         <div class="form-group">
                             <label for="last-name"><b>Username</b><span class="red">*</span></label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Username">
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Username" oninput="preventSpaces(event)">
                             <div id="username-error" class="text-danger"></div>
                         </div>
                         
@@ -158,7 +162,7 @@ if (isset($_SESSION['error'])) {
                     <div class="form-group">
                       <label for="password"><b>Password</b><span class="red">*</span></label>
                       <div class="password-input-container">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Password" oninput="preventSpaces(event)">
                         <i class="toggle-password fas fa-eye"></i>
                     </div>
                     <div id="password-error" class="text-danger"></div>
@@ -173,7 +177,7 @@ if (isset($_SESSION['error'])) {
                 <div class="form-group">
                     <label for="password"><b>Confirm Password</b><span class="red">*</span></label>
                     <div class="password-input-container">
-                      <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Password">
+                      <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Password" oninput="preventSpaces(event)">
                       <i class="toggle-confirm-password fas fa-eye"></i>
                     </div>
                     <div id="confirmPassword-error" class="text-danger"></div>
@@ -261,14 +265,15 @@ if (isset($_SESSION['error'])) {
     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>FORGOT</b></h2>
     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>PASSWORD</b></h2>
     <div class="text-center">
-        <small style="letter-spacing: -1px; color:#5e6e82;">To reset your own password<br></small>
-        <small style="letter-spacing: -1px; color:#5e6e82;">Enter your email address</small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">To reset your own password,<br></small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">Enter your email address.</small>
     </div>
     <div class="col-md-12 w-100 px-5">
         <form action="backend/forgot_password.php" method="post"> <!-- Change the action to your PHP script -->
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
                 <label for="inputEmail" class="d-block mb-1"><b>Email<span style="color:red;">*</span></b></label>
                 <input type="email" name="email" id="inputEmail" class="form-control" placeholder="@gmail.com">
+                <small id="email-error" class="text-danger"></small>
             </div>
             <div class="align-items-center justify-content-center d-flex mb-3">
                 <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
@@ -339,6 +344,7 @@ if (isset($_SESSION['error'])) {
                 <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="New Password">
                 <i class="toggle-new-password fas fa-eye"></i>
                     </div>
+                    <small id="new-password-error" class="text-danger"></small>
             </div>
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
             <div class="password-input-container">
@@ -346,9 +352,10 @@ if (isset($_SESSION['error'])) {
                 <input type="password" name="confirmNewPassword" id="confirmNewPassword" class="form-control" placeholder="New Password">
                 <i class="toggle-new-confirm-password fas fa-eye"></i>
                     </div>
+                    <small id="confirm-new-password-error" class="text-danger"></small>
             </div>
             <div class="align-items-center justify-content-center d-flex mb-3">
-                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
+                <button type="submit" id="newPasswordSubmission" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
             </div>
         </form>
     </div>
@@ -547,63 +554,248 @@ document.getElementById('forgot-password').addEventListener('click', function() 
             });
             </script>
              <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const passwordInput = document.getElementById('newPassword');
-                const togglePassword = document.querySelector('.toggle-new-password');
-            
-                togglePassword.addEventListener('click', function() {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
-                });
-            });
-            </script>
-         <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('loginForm');
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirmPassword');
+    const usernameError = document.getElementById('username-error');
+    const passwordError = document.getElementById('password-error');
+    const confirmPasswordError = document.getElementById('confirmPassword-error');
 
-        loginForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
+    // Password toggle functionality
+    const passwordInput = document.getElementById('newPassword');
+    const togglePassword = document.querySelector('.toggle-new-password');
 
-            const username = document.getElementById('username');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const usernameError = document.getElementById('username-error');
-            const passwordError = document.getElementById('password-error');
-            const confirmPasswordError= document.getElementById('confirmPassword-error');
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
 
-            // Reset previous error messages
-            usernameError.textContent = '';
-            passwordError.textContent = '';
-            confirmPasswordError.textContent= '';
+    loginForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-            // Validate username
-            if (username.value.trim() === '') {
-                usernameError.textContent = 'Please enter your username.';
-                return;
-            }
+        // Reset previous error messages and error borders
+        usernameError.textContent = '';
+        passwordError.textContent = '';
+        confirmPasswordError.textContent = '';
+        removeErrorBorder(username);
+        removeErrorBorder(password);
+        removeErrorBorder(confirmPassword);
 
-            // Validate password
-            if (password.value.trim() === '') {
-                passwordError.textContent = 'Please enter your password.';
-                return;
-            }
-            if (confirmPassword.value.trim() === '') {
-                confirmPasswordError.textContent = 'Please confirm your password.';
-                return;
-            }
+        // Validate username
+        if (username.value.trim() === '') {
+            usernameError.textContent = 'Please enter your username.';
+            addErrorBorder(username);
+            return;
+        }
 
-            // Validate if password and confirm password match
-            if (password.value.trim() !== confirmPassword.value.trim()) {
-                if (password.value.trim() !== confirmPassword.value.trim()) {
-    $('#passwordMismatchModal').modal('show'); // Show the password mismatch modal
-    return;
+        // Validate password
+        if (password.value.trim() === '') {
+            passwordError.textContent = 'Please enter your password.';
+            addErrorBorder(password);
+            return;
+        }
+
+        // Validate confirm password
+        if (confirmPassword.value.trim() === '') {
+            confirmPasswordError.textContent = 'Please confirm your password.';
+            addErrorBorder(confirmPassword);
+            return;
+        }
+
+        // Validate if password and confirm password match
+        if (password.value.trim() !== confirmPassword.value.trim()) {
+            $('#passwordMismatchModal').modal('show'); // Show the password mismatch modal
+            addErrorBorder(password);
+            addErrorBorder(confirmPassword);
+            return;
+        }
+
+        // If validation passes, submit the form
+        this.submit();
+    });
+
+    // Add input event listeners for real-time validation
+    username.addEventListener('input', function() {
+        usernameError.textContent = ''; // Clear previous error message
+        removeErrorBorder(username);
+        if (username.value.trim() === '') {
+            usernameError.textContent = 'Please enter your username.';
+            addErrorBorder(username);
+        }
+    });
+
+    password.addEventListener('input', function() {
+        passwordError.textContent = ''; // Clear previous error message
+        removeErrorBorder(password);
+        if (password.value.trim() === '') {
+            passwordError.textContent = 'Please enter your password.';
+            addErrorBorder(password);
+        }
+    });
+
+    confirmPassword.addEventListener('input', function() {
+        confirmPasswordError.textContent = ''; // Clear previous error message
+        removeErrorBorder(confirmPassword);
+        if (confirmPassword.value.trim() === '') {
+            confirmPasswordError.textContent = 'Please confirm your password.';
+            addErrorBorder(confirmPassword);
+        }
+    });
+
+    function addErrorBorder(element) {
+        element.classList.add('error-border');
+    }
+
+    function removeErrorBorder(element) {
+        element.classList.remove('error-border');
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('inputEmail');
+    const emailError = document.getElementById('email-error');
+
+    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    emailInput.addEventListener('input', function() {
+        // Clear previous error message
+        emailError.textContent = '';
+
+        const email = emailInput.value.trim().toLowerCase();
+        const allowedDomains = ['@gmail.com', '@outlook.com', '@yahoo.com'];
+
+        // Check if the email matches the valid email format
+        if (!emailRegex.test(email)) {
+            emailError.textContent = 'Please enter a valid email address.';
+            return;
+        }
+
+        // Check if the email ends with one of the allowed domains
+        const isValidDomain = allowedDomains.some(domain => email.endsWith(domain));
+        if (!isValidDomain) {
+            emailError.textContent = 'Please enter a valid email from Gmail, Outlook, or Yahoo.';
+            return;
+        }
+    });
+
+    emailInput.addEventListener('keydown', function(event) {
+        // Prevent space character from being entered
+        if (event.key === ' ') {
+            event.preventDefault();
+        }
+    });
+});
+
+
+
+</script>
+<script>
+function preventLeadingSpace(event) {
+    const input = event.target;
+    if (input.value.startsWith(' ')) {
+        input.value = input.value.trim(); // Remove leading space
+    }
+    // Replace multiple consecutive spaces with a single space
+    input.value = input.value.replace(/\s{2,}/g, ' ');
 }
+
+function preventSpaces(event) {
+        const input = event.target;
+        if (input.value.includes(' ')) {
+            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        }
+    }
+
+
+
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+        const newPasswordError = document.getElementById('new-password-error');
+        const confirmNewPasswordError = document.getElementById('confirm-new-password-error');
+        const submitPasswordButton = document.getElementById('newPasswordSubmission');
+        const updatePasswordForm = document.getElementById('updatePasswordForm');
+
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{8,16}$/;
+
+        function validatePassword(password) {
+            return passwordRegex.test(password);
+        }
+
+        function showPasswordError(errorElement, message) {
+            errorElement.textContent = message;
+            submitPasswordButton.disabled = true; // Disable submit button
+        }
+
+        function clearPasswordError(errorElement) {
+            errorElement.textContent = '';
+            submitPasswordButton.disabled = false; // Enable submit button
+        }
+
+        function checkPasswordsMatch() {
+            const newPassword = newPasswordInput.value;
+            const confirmNewPassword = confirmNewPasswordInput.value;
+
+            if (newPassword !== confirmNewPassword) {
+                showPasswordError(confirmNewPasswordError, 'Passwords do not match.');
+            } else {
+                clearPasswordError(confirmNewPasswordError);
+            }
+        }
+
+        newPasswordInput.addEventListener('input', function() {
+            const newPassword = newPasswordInput.value;
+
+            if (!validatePassword(newPassword)) {
+                showPasswordError(newPasswordError, 'Password must be 8-16 characters and include letters, numbers, and symbols.');
+            } else {
+                clearPasswordError(newPasswordError);
             }
 
-            // If validation passes, submit the form
-            this.submit();
+            // Check if passwords match whenever a new password is entered
+            checkPasswordsMatch();
+        });
+
+        confirmNewPasswordInput.addEventListener('input', function() {
+            // Check if passwords match whenever the confirm password is entered
+            checkPasswordsMatch();
+        });
+
+        // Prevent space character from being entered in password fields
+        newPasswordInput.addEventListener('keydown', function(event) {
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        });
+
+        confirmNewPasswordInput.addEventListener('keydown', function(event) {
+            if (event.key === ' ') {
+                event.preventDefault();
+            }
+        });
+
+        // Prevent form submission if there are errors
+        updatePasswordForm.addEventListener('submit', function(event) {
+            const newPassword = newPasswordInput.value;
+            const confirmNewPassword = confirmNewPasswordInput.value;
+
+            if (!validatePassword(newPassword)) {
+                showPasswordError(newPasswordError, 'Password must be 8-16 characters and include letters, numbers, and symbols.');
+                event.preventDefault(); // Prevent default form submission
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                showPasswordError(confirmNewPasswordError, 'Passwords do not match.');
+                event.preventDefault(); // Prevent default form submission
+                return;
+            }
         });
     });
 </script>

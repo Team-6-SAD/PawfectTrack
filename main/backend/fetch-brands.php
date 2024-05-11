@@ -8,10 +8,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $selectedMedicineID = $_POST["medicineType"];
 
     // Prepare the SQL query with a placeholder for the medicine ID
-    $sql = "SELECT mb.BrandName, mb.Route, mb.MedicineBrandID  
+    $sql = "SELECT mb.BrandName, mb.MedicineBrandID
             FROM medicinebrand mb
             INNER JOIN medicineinventory ms ON mb.MedicineBrandID = ms.MedicineBrandID
-            WHERE mb.MedicineID = ? AND ms.StockQuantity > 0";
+            WHERE mb.MedicineID = ? AND ms.StockQuantity > 0
+            GROUP BY mb.MedicineBrandID";
 
     // Prepare the statement
     $stmt = mysqli_prepare($conn, $sql);
@@ -25,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get the result
     $result = mysqli_stmt_get_result($stmt);
 
-    // Generate options for the "Medicine Given" dropdown based on the query result
+    // Fetch the options with brand details
     $options = array();
     while ($row = mysqli_fetch_assoc($result)) {
         $options[] = $row;

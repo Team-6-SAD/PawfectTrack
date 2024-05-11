@@ -81,7 +81,7 @@ if(isset($_GET['patientID'])) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -236,19 +236,19 @@ if(isset($_GET['patientID'])) {
                     <div class="row">
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-md-6 d-flex">
+                                <div class="col-md-10 d-flex">
                                     <span class="emergency-contact">Full Name:</span>
                                     <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactFullName']; ?></span>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 d-flex">
+                                <div class="col-md-10 d-flex">
                                     <span class="emergency-contact">Relationship:</span>
                                     <span class="emergency-contact-content ml-auto"><?php echo $row['Relationship']; ?></span>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 d-flex">
+                                <div class="col-md-10 d-flex">
                                     <span class="emergency-contact">Phone Number:</span>
                                     <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactLineNumber']; ?></span>
                                 </div>

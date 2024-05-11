@@ -60,7 +60,7 @@ mysqli_close($conn);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -217,19 +217,53 @@ if (!empty($adminPhoto)) {
 
 <div class="col-md-10"> 
     <div class="card mt-4 p-3 pb-5">
-        <h6 class="text-left gray mt-2"><b>Deactivate My Account</b></h6>
+        <h6 class="text-left gray mt-2"><b>Delete My Account</b></h6>
         <div class="card-body">
       
                 <input type="checkbox" id="accountDeactivation" name="accountDeactivation">
-                <label for="accountDeactivation"> I confirm my account deactivation</label>
+                <label for="accountDeactivation"> I understand this action cannot be undone.</label>
     
         </div>
-        <button id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Deactivate Account</button>
+        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Deactivate Account</button>
     </div>
 </div>
 
 
 
+<div class="modal fade" id="removalConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+        <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+</i>
+      </div>
+      <div class="modal-body">
+<div class="justify-content-center d-flex">
+<img src="img/img-alerts/caution-mark.png">
+</div>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>DELETE ACCOUNT</b></h2>
+<div class="justify-content-center d-flex">
+    <div>
+<small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to delete your <br></small>
+<div>
+    <small style="letter-spacing: -1px; color:#5e6e82; display: block; margin: 0 auto; text-align: center;">account <br></small>
+  </div>
+<small style="letter-spacing: -1px; color:#5e6e82;">&bull; Deleting your account will remove all<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">your information in the database<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">&bull; This action is permanent and cannot<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">be undone<br></small>
+</div>
+</div>
+<div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+<button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
+<button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="deactivateButtonConfirm"><b>Delete</b></button>
+</div>
+</div>  
+</div>
+</div>
+</div>
                        
     
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -249,7 +283,22 @@ if (!empty($adminPhoto)) {
 
 
 <!-- Include jQuery -->
+<script>
+$(document).ready(function() {
+  $('#deactivateButton').click(function(event) {
+    var confirmDeactivation = $("#accountDeactivation").prop("checked");
+    if (confirmDeactivation) {
+      event.preventDefault();
+      $('#removalConfirmationModal').modal('show');
+    } else {
+      alert("Please confirm account deactivation.");
+    }
+  });
+});
 
+
+ 
+    </script>
 <script>
     // Add an event listener to the "Reset" button
     document.getElementById('resetButton').addEventListener('click', function() {
@@ -624,7 +673,7 @@ const lastName = document.getElementById('lName').value;
         }
     }
 });$(document).ready(function() {
-    $("#deactivateButton").on("click", function(event) {
+    $("#deactivateButtonConfirm").on("click", function(event) {
         event.preventDefault(); // Prevent the default form submission behavior
         
         console.log("Deactivate button clicked"); // Log a message to the console

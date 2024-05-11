@@ -1,0 +1,1067 @@
+html, body {
+  overflow-x: hidden !important;
+}
+.main-container{
+  overflow-x: hidden !important;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #EAEFF6;
+
+}
+.images-card{
+  height: 100%;
+}
+#content{
+  overflow-x: hidden !important;
+}
+.main-container {
+  display: flex;
+  min-height: 100vh; /* Ensure the container covers the entire viewport height */
+  width: 100%;
+  overflow-y: auto;
+  position: relative; /* Ensure content area is positioned relative to this container */
+}
+.gray{
+  color:#5e6e82;
+
+}
+/* Override the width for the search input field */
+.dataTables_filter input[type="search"] {
+  display:none !important;
+}
+
+/* Style for the search input */
+.search-input {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="%23333" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.26c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: 10px center; /* Adjust position as needed */
+  padding-left: 35px; /* Adjust padding to accommodate icon */
+}
+
+.dataTables_paginate .paginate_button {
+  background-color: #F1F1F1;
+  color: #5E6E82;
+  border-radius: 11px !important;
+  font-weight: bold;
+  padding-bottom: 10px !important;
+  padding-top: 10px !important;
+  margin: 0 15px; /* Adjust the margin between buttons as needed */
+  
+}
+.bg-main-color-2{
+  background-color: #FFFFFF;
+
+}
+.dataTables_paginate .paginate_button.previous {
+  background-color: #FFFFFF;
+  color: white;
+  font-weight: normal;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: #003D8F !important;
+  background:#003D8F!important ;
+  color: #FFFFFF !important;
+
+}
+.dataTables_paginate .paginate_button.next {
+
+  color: white;
+  font-weight: normal;
+}
+
+.dataTables_filter label {
+  font-size: 0; /* Set font size to 0 to hide the label text */
+}
+.max-h-300{
+  height: 300px;
+}
+
+
+  .line {
+    width: 100%;
+    height: 2px; /* Adjust the height of the line as needed */
+    background-color: black; /* Color of the line */
+    margin-bottom: 10px; /* Optional: Adds space below the line */
+  }
+
+.border-left{
+  border-left:4px solid #003D8F !important; /* Adjust thickness and color as needed */
+ 
+}
+.border-top{
+  border-top: 4px solid #003D8F !important; /* Adjust thickness and color as needed */
+
+}
+.button-containers{
+  display: flex;
+
+  justify-content:center;
+}
+.table-header-alt{
+  background-color: #5E6E82;
+  color: #FFFFFF;
+}
+.sm-text{
+  font-size: 11px;
+}
+.table-header{
+  background-color: #0449A6;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px; /* Adjust this as needed */
+}
+.medicine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Align items vertically */
+  margin-bottom: 10px; /* Adjust this as needed */
+}
+.btn-customized{
+  width: 10rem;
+  background-color: #003D8F;
+}
+
+.invisible-element {
+  visibility: hidden;
+}
+.btn-table{
+  width: 6rem;
+  border-radius: 23.5px!important;
+}
+.yellow{
+  background-color: #ffc700;
+  color:#FFFFFF;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.btn-settings{
+  width: 11rem;
+  padding-left: 10px;
+  padding-right:10px;
+  height: 2.5rem;
+  border-radius: 10px;
+  background-color: #2e86DE;
+  color: #FFFFFF;
+  }
+  .green{
+    background-color: #1DD1A1;
+    color: #FFFFFF;
+    border-radius: 11px;
+    font-weight: bold;
+    font-size: 0.8rem;
+  }
+  .greener{
+    background-color: #10ac84;
+    color: #FFFFFF;
+    border-radius: 11px;
+    font-weight: bold;
+ 
+  }
+  .btn-settings-2{
+    width: 10rem;
+    font-size: 14px;
+    font-weight: bold;
+padding: 0;
+    height: 2.5rem;
+    border-radius: 10px;
+    background-color: #2e86DE;
+    color: #FFFFFF;
+    }
+    .btn-border-custom{
+      border-width: 2px;
+      border-radius:11px;
+    }
+  .custom-file-input {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .file-selected {
+    margin-top: 10px;
+  }  
+.btn-gray-color{
+background-color: #5E6E82;
+}
+.btn-blue-color{
+background-color: #2e86DE;
+}
+
+.container-fluid{
+  padding-left: 0;
+  padding-right: 0;
+  position: relative;
+}
+.img-card-icons{
+  height:70px;
+  width: 70px;
+}
+.img-card-icons-1{
+  height:50px;
+  width: 50px;
+}
+.main-font-color{
+  color:#003D8F
+}
+
+
+.card-image {
+  height: 150px;
+  background-image: url('../img/img-dashboard/welcome-image.png');
+  background-repeat: no-repeat !important; /* Added no-repeat */
+  background-size: cover;
+  background-position:  center;
+border-radius: 11px !important;
+
+  box-sizing: border-box;
+ 
+}
+.logo-font-color{
+  color: #FFFFFF;
+  margin-top:40px;
+}
+.patient-form input[type=file] {
+  
+
+ 
+  padding: 0px 0px;
+
+  
+}
+
+.patient-form input[type=file]::file-selector-button {
+  margin-right: 20px;
+  border: none;
+  background: #5e6e82;
+  padding: 5px 20px;
+
+  color: #fff;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+.patient-form input[type=file]::file-selector-button:hover {
+  background: #003D8F;
+}
+
+#content {
+  flex-grow: 1;
+  transition: margin-left 0.3s ease;
+  margin-top: 6rem;
+  margin-left:2rem;
+  margin-right:2rem;
+}
+.nav-logo{
+  width: 20px;
+  height: 20px;
+}
+.profile-nav-active{
+border-width: 4px;
+background: #003D8F;
+}
+.profile-content-container{
+  display: flex;
+}
+.profile-category-container {
+  display: block; /* Force the container to be a block element */
+  margin-bottom: 20px; /* Add margin bottom to create space between elements */
+}
+.profile-category{
+  color:#5e6e82;
+}
+.profile-category-content{
+  color:#000000;
+  font-weight: bold;
+}
+.emergency-contact{
+  display: inline-block;
+}
+.emergency-contact-content{
+  display: inline-block;
+  white-space:nowrap;
+}
+
+.img-fluidity {
+  width: 34rem; /* Set your desired width */
+  height: 18rem; /* Set your desired height */
+  object-fit: cover;
+  max-width: 100%; /* Ensure the image does not exceed the card width */
+  max-height: 100%; /* Ensure the image does not exceed the card height */
+}
+
+.profile-nav{
+  border-width: 3px;
+  background-color: #5E6E82 ;
+
+  }
+
+  .navbar-show {
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+}
+
+/* Show the collapsed navbar when toggled */
+
+
+/* Other styles for sidebar content */
+
+
+.navbar {
+  width: 100%;
+position: fixed;
+height: 60px;
+z-index: 10;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+.profile-container {
+  position: absolute; /* Position the profile container absolutely */
+  top: 0; /* Align the profile container to the top of the navbar */
+  right: 0; /* Align the profile container to the right side of the navbar */
+  background-color: #003D8F;
+  display: flex;
+  align-items: center;
+  width: calc(190px); /* Set the width of the profile container */
+  padding-left: 10px;
+  padding-top:10px;
+  padding-bottom:10px;
+}
+
+.img-logo{
+  width: 200px;
+}
+
+.ml-6{
+  margin-left: 15rem;
+  position: relative;
+}
+.navbar a {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #FCA311;
+  text-decoration: none;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f7f8fa !important; /* Set your desired background color for odd rows */
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: #ffffff !important; /* Set your desired background color for even rows */
+}
+
+#sidebar {
+  height: 100%; /* Set minimum height to full viewport height */
+position:fixed;
+top: 0;
+left: 0;
+width: 250px;
+background-color: #FFFFFF;
+transition: all 0.3s;
+box-shadow: 1px 1px 30px 5px #00000086;
+z-index: 20;
+
+  overflow-y: auto; /* Allow sidebar content to scroll if it exceeds viewport height */
+ 
+}
+#sidebar.active {
+margin-left: -250px;
+transition: margin-left 0.3s;
+}
+
+#sidebar.inactive {
+  margin-left: 0px;
+  transition: margin-left 0.3s;
+}
+#content.inactive {
+  display: none;
+}
+#sidebar .sidebar-content::-webkit-scrollbar-button {
+display: none;
+}
+* {
+border: 0;
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+.text-container{
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+ 
+}
+.settings-container{
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+ 
+}
+.no-break {
+  white-space: nowrap; /* Prevents line breaks */
+}
+.card-text {
+font-weight:600;
+font-size: 2em;
+}
+.sidebar-text {
+  margin-left : 20px;
+  color: #5E6E82;
+  text-decoration: none;
+font-size:0.8em;
+font-weight: bold;
+}
+.img-small{
+  height:50px;
+  transition: opacity 1s ease-in-out;
+
+}
+.line-divider{
+  padding-left: 0;
+  
+}
+.my-custom-line {
+  border-top: 1px solid #5E6E82;
+ 
+}
+
+.container {
+  display: flex;
+  align-items: center; /* Align items vertically in the center */
+}
+.dashboard-card
+{
+border-radius:20px;
+box-shadow: 2px 4px 4px 1px rgba(0, 0.25, 0.25, 0.25);
+position:relative;
+border: 1px solid #e5e5e5;
+width:350px;
+height:130px;
+background-color:#edf0fa;
+padding:10px;
+margin:10px;
+font-family: 'Lexend', sans-serif;
+overflow: hidden;
+z-index:2;
+}
+.dashboard-title 
+{
+font-size:40pt;
+color:#0a1732;
+font-family: 'Sora', sans-serif;
+z-index:3;
+}
+.dashboard-sub-title{
+font-size:12.5pt;
+color:#0a1732;
+z-index:3;
+}
+.fas{
+  position:absolute;
+font-size:80px;
+width:88px;
+color:#FCA311;
+zoom:2;
+top:10.3%;
+right:-30px;
+z-index: 1;
+opacity:0.8;
+}
+.far {
+position:absolute;
+font-size:80px;
+width:88px;
+color:#060d1c;
+zoom:2;
+top:10.3%;
+right:-20;
+z-index: 0;
+opacity:0.8;
+}
+#update_fp,
+#draw,
+#delete_floor_btn,
+#create_table,
+#cancel {
+    position: fixed;
+    /* Set the position of the buttons */
+    top: 3rem; /* Adjust the top position as needed */
+    z-index: 1000; /* Ensure the buttons appear above other elements */
+}
+
+#update_fp {
+    left: 400px; /* Adjust the left position for the first button */
+}
+
+#draw {
+    left: 660px; /* Adjust the left position for the second button */
+}
+#delete_floor_btn{
+  left:640px;
+}
+#create_table {
+    left: 600px; /* Adjust the left position for the third button */
+}
+
+#cancel {
+    left: 800px; /* Adjust the left position for the fourth button */
+}
+
+@media (max-width: 1000px) {
+  #details-1{
+    border-left:none;
+  }
+  
+}
+
+@media (max-width: 1200px) {
+.dashboard-card {
+    width: 100%;
+    max-width: none; /* Remove max-width for smaller screens */
+}
+
+.far, .fas {
+    font-size: 60px; /* Adjust icon size for smaller screens */
+    top: 50%; /* Center icons vertically */
+}
+}
+.alert{
+  width:100%;
+}
+.alert  p {
+  margin-bottom: 0; /* Remove default margin on paragraphs */
+  overflow: hidden; /* Hide overflowing content */
+  text-overflow: ellipsis; /* Display ellipsis (...) for overflow */
+  white-space: nowrap; /* Prevent text from wrapping */
+}
+.alert strong {
+  display: inline-block; /* Convert strong elements to inline-block */
+  overflow: hidden; /* Hide overflowing content */
+  text-overflow: ellipsis; /* Display ellipsis (...) for overflow */
+  white-space: nowrap; /* Prevent text from wrapping */
+  max-width: 100%; /* Limit the width of the strong elements */
+}
+
+.btn-outline-custom{
+  width: 10rem;
+  border: #003D8F 2px solid;
+  color:#003D8F;
+}
+
+.btn-outline-custom{
+  width: 10rem;
+  border: #003D8F 2px solid;
+  color:#003D8F;
+}
+.card-edit{
+  border-radius:10px;
+box-shadow: 2px 4px 4px 1px rgba(0, 0.25, 0.25, 0.25);
+position:relative;
+border: 1px solid #e5e5e5;
+
+background-color:#edf0fa;
+
+margin:10px 0;
+
+overflow: hidden;
+}
+.card-header{
+  background-color:#5E6E82 ;
+  color: #FFFFFF;
+  border-bottom: 1px solid #b0bfde; 
+  border-radius: 20px;
+  
+}
+.header-main{
+  background-color: #F9FAFD;
+  color: #0449A6;
+}
+.card-header-patient-form{
+  background-color: #1DD1A1;
+  color: #FFFFFF;
+  border-radius: 20px ;
+}
+.form-group{
+  font-weight: bold;
+
+ 
+}
+
+.justify-center{
+  justify-content: center;
+}
+.form-group label {
+  display: block; /* Make the label a block element */
+  margin-bottom: 5px; /* Adjust margin as needed */
+}
+.profile-icon{
+  height:40px;
+}
+
+.profile-text-container {
+  text-align: center; /* Optional: Center-align text */
+
+}
+
+.profile-text {
+  margin-left: 10px;
+  color:#FFFFFF;
+font-size: 15px;
+  display: block; /* Make the text block-level */
+  margin-bottom: -5px; /* Remove default padding */
+  max-width: 122.5px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.profile-role {
+  display: block; /* Make the role block-level */
+  color:#54A0FF;
+  font-size: 13px;
+  padding: 0; /* Remove default padding */
+}
+
+#maintenanceform{
+  background-color:#edf0fa;
+}
+/* Style for the sidebar heading container */
+.sidebar-heading-container {
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Align items vertically */
+}
+.input-group-text{
+  color: #FFFFFF;
+  background-color: #5E6E82;
+}
+
+/* Style for the sidebar heading */
+.sidebar-heading {
+  margin-right: 10px; /* Optional: Add some space between the heading and the line */
+}
+
+/* Style for the line */
+.sidebar-heading-line {
+  flex: 1; /* Allow the line to grow to fill available space */
+  height: 1px; /* Height of the line */
+  background-color: #9aacc2; /* Color of the line */
+  margin-right: 10px;
+}
+
+.btn-submit{
+width: 15rem;
+height: 2.5rem;
+  border-radius: 20px;
+   background-color: #14213D;
+   color:#FCA311;
+}
+.btn-submit:hover{
+  background-color:#22396c;
+  color:#af6c01;
+}
+
+
+
+/* Style the custom button */
+.custom-file-upload {
+  border-radius: 11px;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #2e86DE;
+  color: #FFFFFF;
+}
+.settings-container input[type="file"] {
+  display: none;
+}
+/* Style the label for the custom button */
+.custom-file-upload:hover {
+  background-color: #1f3460;
+}
+.form-group input {
+  border: 2px solid #EAEFF6;
+  border-radius: 0px;
+  background-color: #F9FAFD; /* Change this to the desired color */
+  color: #5E6E82; /* Change this to the desired text color */
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.form-group input[readonly] {
+  border-radius: 0px;
+  background-color: #EAEFF6; /* Change this to the desired color */
+  color: #5E6E82; /* Change this to the desired text color */
+}
+
+.form-group select{
+  border: 2px solid #EAEFF6;
+  border-radius: 0px;
+  background-color: #F9FAFD; /* Change this to the desired color */
+  color: #5E6E82; /* Change this to the desired text color */
+
+ 
+}
+
+
+#lengthInput {
+  width: auto; /* or specify a fixed width */
+  max-width: 100px; /* Set a maximum width */
+}
+
+.patient-navigation{
+  padding:0 ;
+
+}
+.patient-navigation-active{
+  padding:0 ;
+
+}
+.link-text-active{
+  color: #003D8F;
+  font-weight: bold;
+  font-size: 15px;
+
+}
+.link-text{
+  color: #5E6E82;
+  font-size: 15px;
+
+}
+
+.sidebar-content {
+
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+.sidebar-heading {
+color: #5E6E82;
+margin-bottom: 5px;
+  margin-left: 10px;
+}
+
+.sidebar-item {
+  display: flex;
+  padding-left: 20px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  
+  align-items: center;
+}
+
+.sidebar-item:hover {
+  background-color: #5E6E82; /* Change background color on hover */
+  color: #FFFFFF; /* Change font color on hover */
+}
+.sidebar-item:hover .sidebar-text {
+  background-color: #5E6E82; /* Change background color of sidebar text on hover */
+  color: #FFFFFF; /* Change font color of sidebar text on hover */
+}
+
+
+.sidebar-link {
+  text-decoration: none;
+}
+
+.sidebar-icon {
+  width: 25px;
+  height: 27px;
+
+}
+
+
+/* Dropdown button */
+.dropdown-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px; /* Adjust as needed */
+}
+
+/* Dropdown content */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 190px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  right: 0; /* Position the dropdown content at the right */
+  margin-top: 130px; /* Adjust as needed */
+}
+
+
+
+
+
+.button-excel {
+  background-color: #28A746 !important;
+  color: #fff !important;
+  border: 1px solid #218C3A !important;
+  border-radius: 20px !important;
+  padding: 6px 12px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.button-excel:hover {
+  background-color: #218C3A !important;
+  color: #fff !important;
+}
+
+
+/* Hover effect for Excel export button */
+.button-excel:hover {
+  background-color: #0056b3; /* Change the background color on hover */
+  color: #fff;
+}
+
+
+/* Style for the DataTables buttons container */
+.dataTables_wrapper .dt-buttons {
+  margin-bottom: 10px; /* Adjust margin as needed */
+}
+
+  
+
+
+      .wrapper {
+          margin-top: 5vh;
+      }
+
+      .dataTables_filter {
+          float: right;
+      }
+
+      .table-hover > tbody > tr:hover {
+          background-color: #ccffff;
+      }
+
+      @media only screen and (max-width: 872px) {
+          .table {
+              table-layout: fixed;
+              max-width: 100% !important;
+          }
+      }
+
+      thead {
+          background: #ddd;
+      }
+
+      .table td:nth-child(2) {
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+
+      .highlight {
+          background: #ffff99;
+      }
+
+      /* Hide checkboxes initially */
+      .select-checkbox {
+          display: none;
+      }
+/* Custom CSS to style the page length dropdown */
+.dataTables_length select {
+  /* Your styles here */
+  padding: 8px; /* Example: Add padding */
+  border-radius: 11px; /* Example: Add border-radius */
+  background-color: #f0f0f0; /* Example: Change background color */
+  color: #333; /* Example: Change text color */
+  font-size: 14px; /* Example: Change font size */
+}
+
+      @media only screen and (max-width: 872px) {
+          /* Force table to not be like tables anymore */
+          table,
+          thead,
+          tbody,
+          th,
+          td,
+          tr {
+              display: block;
+          }
+
+          /* Hide table headers (but not display: none;, for accessibility) */
+          thead tr,
+          tfoot tr {
+              position: absolute;
+              top: -9999px;
+              left: -9999px;
+          }
+
+          td {
+              /* Behave like a "row" */
+              border: none;
+              border-bottom: 1px solid #eee;
+              position: relative;
+              padding-left: 50% !important;
+          }
+
+          td:before {
+              /* Now like a table header */
+              position: absolute;
+              /* Top/left values mimic padding */
+              top: 6px;
+              left: 6px;
+              width: 45%;
+              padding-right: 10px;
+              white-space: nowrap;  
+          }
+
+          .table td:nth-child(1) {
+              background: #ccc;
+              height: 100%;
+              top: 0;
+              left: 0;
+              font-weight: bold;
+          }
+
+          /*
+          Label the data
+          */
+          td:nth-of-type(2):before {
+              content: "Tenant ID";
+          }
+
+          td:nth-of-type(3):before {
+              content: "Name";
+          }
+
+          td:nth-of-type(4):before {
+              content: "Unit Number";
+          }
+
+          td:nth-of-type(5):before {
+              content: "Move-in Date";
+          }
+
+          td:nth-of-type(6):before {
+              content: "Start date";
+          }
+
+          td:nth-of-type(7):before {
+              content: "End Date";
+          }
+
+  
+          .dataTables_filter {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+          }
+
+        
+
+          .dataTables_filter label {
+              width: 100%;
+          }
+          
+
+        
+          
+      }
+      
+  .step-indicator {
+    text-align: center;
+  justify-content: center;
+    display: flex;
+    align-items: center;
+ 
+
+
+  }
+  .step-indicator span {
+    
+    display: inline-block;
+  line-height: 170%;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    border: 2px solid;
+    border-color: #0449A6;
+  
+ 
+  }
+  .step-indicator .line {
+    flex-grow: 1;
+    height: 1px;
+    background-color: #ccc;
+    margin: 0 5px;
+  
+}
+  .step-indicator span.active {
+    background-color: #003D8F;
+    color: #1DD1A1;
+    
+  }
+  .h-1000{
+    max-height: 630px;
+
+  }
+  
+  .main-color{
+    color: #0449A6;
+  }
+  .main-color-2{
+    color: #FFFFFF;
+  }
+  .mx-h-400{
+    max-height: 400px;
+  }
+  .mx-h-300{
+    max-height: 300px;
+  }
+  .step {
+    display: none;
+  }
+  .step.active {
+    display: block;
+   
+  }
+  button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .lines {
+    border-top: 3px solid #ccc;
+   width:10rem;
+    margin: 0 5px;
+
+}
+.lines.active {
+  border-top: 3px solid #003D8F;
+ width:10rem;
+  margin: 0 5px;
+}
+.number{
+  font-weight: bold;
+  color:#0449A6;
+}
+.text-indicator.active{
+  font-weight: bold;
+  color: #0449A6;
+}
+.text-indicator{
+
+  color: #0449A6;
+}

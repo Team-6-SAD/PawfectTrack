@@ -190,7 +190,7 @@ if ($result) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="Favicon 2.png" type="image/png">
+  <link rel="icon" href="img/Favicon 2.png" type="image/png">
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -203,11 +203,13 @@ if ($result) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
-  <title>Tenant Dashboard</title>
+  <title>Reports and Analytics</title>
   
 </head>
 <body>
+
 <div class="container-fluid">
+<div id="preloader"></div>
     <div class="main-container">
         <!-- Header and Sidebar -->
         <?php include 'includes/admin_header.php'; ?>
@@ -580,7 +582,7 @@ $(document).ready(function () {
  // Define chart configuration
  <?php
 $datasets = [];
-$colors = ['#FF0000', '#00FF00', '#0000FF'];
+$colors = ['#FF0000', '#1dd1a1', '#0000FF'];
 
 // Initialize an associative array to store treatment counts indexed by category and month
 $treatmentCountsByCategory = [];
@@ -682,8 +684,10 @@ const monthlyTreatmentChart = new Chart(ctx3, monthlyTreatmentChartConfig);
   },
 };
 function getRandomColor() {
-  // Generate a random hexadecimal color
-  return '#' + Math.floor(Math.random()*16777215).toString(16);
+  // Generate a random hexadecimal color with different hues of blue
+  var shades = ['33', '66', '99', 'CC', 'FF']; // Different shades of blue
+  var randomShade = shades[Math.floor(Math.random() * shades.length)]; // Choose a random shade
+  return '#' + '0000' + randomShade; // Combine with fixed red and green components
 }
 
 // Create the chart
@@ -793,10 +797,23 @@ const monthlyMedicineUsageChart = new Chart(ctxMedicineUsage, monthlyMedicineUsa
     const myPieChart = new Chart(ctx4, config);
 </script>
 
-  </script>
 
 <script>
+  var loader = document.getElementById("preloader");
+  window.addEventListener("load", function() {
+    setTimeout(function() {
+      loader.style.opacity = "1"; // Fading in
+      setTimeout(function() {
+        loader.style.opacity = "0"; // Fading out
+        setTimeout(function() {
+          loader.style.display = "none"; // Hide the preloader after fading out
+        }, 500); // Delay before hiding after fading out
+      }, 1500); // Duration of fading out
+    }, 500); // Delay before fading in
+  });
+</script>
 
+<script>
 $(document).ready(function () {
     $('#generateInvoiceButton').on('click', function () {
         var selectedRows = $('.select-checkbox:checked').map(function () {

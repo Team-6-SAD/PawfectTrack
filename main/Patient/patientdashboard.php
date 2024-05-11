@@ -1,3 +1,88 @@
+<?php
+session_start();
+
+// Check if the 'admin' session variable is not set or is false (user not logged in)
+if (!isset($_SESSION['user']) || $_SESSION['user'] !== true || !isset($_SESSION['userID'])) {
+    // Redirect the user to the login page
+    header("Location: Patient Login.php");
+    exit(); // Terminate the script
+}
+
+// Include your database connection file
+require_once '../backend/pawfect_connect.php';
+
+// Get the AdminID from the session
+$userID = $_SESSION['userID'];
+
+// Prepare and execute a query to retrieve the PatientID associated with the userID
+$stmt = $conn->prepare("SELECT PatientID FROM usercredentials WHERE UserID = ?");
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    // Fetch the PatientID
+    $row = $result->fetch_assoc();
+    $patientID = $row['PatientID'];
+
+    // Prepare and execute a query to retrieve the FirstName and LastName using the PatientID
+    $stmt = $conn->prepare("SELECT FirstName, LastName FROM patient WHERE PatientID = ?");
+    $stmt->bind_param("i", $patientID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        // Fetch the FirstName and LastName
+        $row = $result->fetch_assoc();
+        $firstName = $row['FirstName'];
+        $lastName = $row['LastName'];
+
+        // Now you have the FirstName and LastName
+        // You can use them as needed in your PHP code
+    } else {
+        // Patient not found
+        // Handle the error or redirect as needed
+    }
+} else {
+    // User not found or multiple users found (should not happen)
+    // Handle the error or redirect as needed
+}
+
+$stmt = $conn->prepare("SELECT TreatmentID FROM treatment WHERE PatientID = ?");
+$stmt->bind_param("i", $patientID);
+$stmt->execute();
+$treatmentResult = $stmt->get_result();
+
+if ($treatmentResult->num_rows > 0) {
+    // Iterate through each treatment
+    while ($treatmentRow = $treatmentResult->fetch_assoc()) {
+        $treatmentID = $treatmentRow['TreatmentID'];
+
+        // Fetch all the MedicineName associated with the TreatmentID
+        $stmt = $conn->prepare("SELECT MedicineName FROM medicineusage WHERE TreatmentID = ?");
+        $stmt->bind_param("i", $treatmentID);
+        $stmt->execute();
+        $medicineResult = $stmt->get_result();
+
+        if ($medicineResult->num_rows > 0) {
+            // Output data of each row
+            while ($medicineRow = $medicineResult->fetch_assoc()) {
+                // Access medicine name
+                $medicineName = $medicineRow['MedicineName'];
+
+                // Output medicine name
+            }
+        } else {
+            echo "No medicines found for this treatment.<br>";
+        }
+    }
+} else {
+    echo "No treatments found for this patient.<br>";
+}
+// Close the database connection
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +99,7 @@
   <link href="hamburgers.css" rel="stylesheet">
   <link href="patient.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <title>Admin Dashboard</title>
+  <title>Patient Dashboard</title>
   <style>
     table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
         content: "\e5d8" !important; /* Font Awesome icon for ascending sort */
@@ -45,7 +130,7 @@
                                     <p><i>We prioritized your well-being and the safety of your dear ones.</i></p>
                                 </div>
                                 <div class="col-md-6 text-right mt-3 pr-5 d-none d-lg-block" >
-                                    <img src="Frame 154.png" alt="Description of the image" class="img-logo ml-auto">
+                                    <img src="../img/img-dashboard/ABC-Sign-White.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
                             </div>
                         </div>
@@ -59,39 +144,78 @@
                                     <div class="table-header-1 d-flex justify-content-between align-items-center">
                                         <div class="col-md-6">
                                         <h6 class="card-title"><b>My Vaccination:</b></h6>
-                                        <h6 class="card-title">Anti-Rabies</h6>
+                                        <h6 class="card-title"><?php  echo $medicineName . "<br>"; ?></h6>
                                         </div>
                                         <div class="col-md-6  px-3 justify-content-end d-flex ">
                                         
-                                            <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;">View History</button>
+                                        <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;" onclick="redirectToAppointments()">View History</button>
                                             <!-- Additional buttons next to Edit -->
                                     
                                     </div>
                                     </div>
                                     <div class="table-responsive">
-                                        <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
-                                        <div class="card-body">
-                                            <table id="example" class="table">
-                                                <thead class="table-header-alt">
-                                                    <tr>
-                                                        <th>Sessions</th>
-                                                        <th>Schedules</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr style="background-color:white;">
-                                                        <td>Sessions</td>
-                                                        <td>Schedules</td>
-                                                        <td>Status</td>
-                                                    </tr>
-                                                    <!-- ... other rows ... -->
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+    <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
+    <div class="card-body">
+        <table id="example" class="table">
+            <thead class="table-header">
+                <tr>
+                    <th>Sessions</th>
+                    <th>Schedules</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+// Fetch and display appointment information
+$stmt = $conn->prepare("SELECT PatientID FROM usercredentials WHERE UserID = ?");
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    // Fetch the PatientID
+    $row = $result->fetch_assoc();
+    $patientID = $row['PatientID'];
+
+    // Prepare and execute a query to retrieve appointment information using the PatientID
+    $stmt = $conn->prepare("SELECT SessionDays, Status, AppointmentDate FROM appointmentinformation WHERE PatientID = ?");
+    $stmt->bind_param("i", $patientID);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Output data of each row
+        while ($row = $result->fetch_assoc()) {
+            // Access appointment details
+            $sessionDays = $row['SessionDays'];
+            $status = $row['Status'];
+            $appointmentDate = $row['AppointmentDate'];
+
+            // Output appointment details within table rows
+?>
+           <tr>
+    <td><?php echo $sessionDays; ?></td>
+    <td><?php echo $appointmentDate; ?></td>
+    <td><button class="btn btn-table status-button <?php echo ($status == 'Done' ? 'green' : 'yellow'); ?>" data-appointment-id="<?php echo $appointmentID; ?>"><?php echo $status; ?></button></td>
+</tr>
+
+<?php
+        }
+    } else {
+        echo "No appointments found for this patient.";
+    }
+} else {
+    echo "User not found or multiple users found (should not happen).";
+}
+?>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+</div>
+
                             <div class="col-md-12 col-lg-6 mt-2 h-100 px-0 px-lg-2">
                                 <div id="carouselExampleSlidesOnly" class="carousel slide h-100" data-ride="carousel">
                                     <!-- Carousel Indicators -->
@@ -99,28 +223,32 @@
                                         <li data-target="#carouselExampleSlidesOnly" data-slide-to="0" class="active"></li>
                                         <li data-target="#carouselExampleSlidesOnly" data-slide-to="1"></li>
                                         <li data-target="#carouselExampleSlidesOnly" data-slide-to="2"></li>
+                                        <li data-target="#carouselExampleSlidesOnly" data-slide-to="3"></li>
                                     </ol>
                                     <!-- Carousel Slides -->
                                     <div class="carousel-inner h-100">
                                         <div class="carousel-item active h-100">
-                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 1">
+                                            <img src="Image 0.png" class="d-block img-fluid" alt="Slide 1">
                                             <div class="carousel-caption">
-                                                <h5>Slide 1</h5>
-                                                <p>This is the first slide.</p>
+                                        
                                             </div>
                                         </div>
                                         <div class="carousel-item h-100">
-                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 2">
+                                            <img src="Image 1.png" class="d-block img-fluid" alt="Slide 2">
                                             <div class="carousel-caption">
-                                                <h5>Slide 2</h5>
-                                                <p>This is the second slide.</p>
+                            
                                             </div>
                                         </div>
                                         <div class="carousel-item h-100">
-                                            <img src="https://via.placeholder.com/1200x900" class="d-block img-fluid" alt="Slide 3">
+                                            <img src="Image 2.png" class="d-block img-fluid" alt="Slide 3">
                                             <div class="carousel-caption">
-                                                <h5>Slide 3</h5>
-                                                <p>This is the third slide.</p>
+                                
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item h-100">
+                                            <img src="Image 3.png" class="d-block img-fluid" alt="Slide 3">
+                                            <div class="carousel-caption">
+                                
                                             </div>
                                         </div>
                                     </div>
@@ -214,6 +342,12 @@ $(document).ready(function () {
 
 </script>
 <script>
+    function redirectToAppointments() {
+        window.location.href = "patient-appointments.php";
+    }
+</script>
+<script>
+    
 
 $(document).ready(function () {
 
