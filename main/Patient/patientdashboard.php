@@ -102,121 +102,204 @@ if ($treatmentResult->num_rows > 0) {
   <title>Patient Dashboard</title>
   <style>
     table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
-        content: "\e5d8" !important; /* Font Awesome icon for ascending sort */
-        font-family: 'Material Icons';
-        right: 1em !important;
+        display: none !important;
     }
 
     table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
-        content: "\e5db" !important; /* Font Awesome icon for descending sort */
-        font-family: 'Material Icons';
-        right: 0.5em !important;
+     display: none !important;
     }
+
+    @media only screen and (max-width: 872px) {
+          /* Force table to not be like tables anymore */
+          table,
+          thead,
+          tbody,
+          th,
+          td,
+          tr {
+              display: block;
+          }
+
+          /* Hide table headers (but not display: none;, for accessibility) */
+          thead tr,
+          tfoot tr {
+              position: absolute;
+              top: -9999px;
+              left: -9999px;
+          }
+
+          td {
+              /* Behave like a "row" */
+              border: none;
+              border-bottom: 1px solid #eee;
+              position: relative;
+              padding-left: 50% !important;
+          }
+
+          td:before {
+              /* Now like a table header */
+              position: absolute;
+              /* Top/left values mimic padding */
+              top: 6px;
+              left: 6px;
+              width: 45%;
+              padding-right: 10px;
+              white-space: nowrap;  
+          }
+
+     
+          td:nth-of-type(1):before {
+            content: "Sessions";
+        }
+          /*
+          Label the data
+          */
+          td:nth-of-type(2):before {
+              content: "Schedules";
+          }
+
+          td:nth-of-type(3):before {
+              content: "Status";
+          }
+
+          td:nth-of-type(4):before {
+              content: "Appointment Date";
+          }
+
+          td:nth-of-type(5):before {
+              content: "Status";
+          }
+
+          td:nth-of-type(6):before {
+              content: "Start date";
+          }
+
+          td:nth-of-type(7):before {
+              content: "End Date";
+          }
+
+  
+          .dataTables_filter {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+          }
+
+        
+
+          .dataTables_filter label {
+              width: 100%;
+          }
+          
+
+        
+          
+      }
+      
   </style>
 </head>
 <body>
-    <div class="container-fluid">
+<div class="container-fluid">
         <div class="main-container">
             <!-- Header and Sidebar -->
             <?php include 'patient_header.php'; ?>
+
             <!-- Content -->
             <div class="content" id="content">
-                <div class="row justify-content-center d-flex">
-                    <div class="col-md-10 mt-0 pt-0">
+                <div class="row mr-5 ml-3 mt-0 pt-0 justify-content-center">
+                    <div class="col-11 mt-0 pt-0 pr-0">
                         <div class="card-body card-image p-0 align-items-center">
                             <div class="row logo-font-color mt-0 pl-2">
-                                <div class="col-md-6 text-left mt-5 pl-5">
-                                    <h4><b>Welcome, Patient!</b></h4>
-                                    <p><i>We prioritized your well-being and the safety of your dear ones.</i></p>
+                                <div class="col-md-6 text-left mt-5 ml-4">
+                                    <h3 class="mt-1"><b>Welcome, Patient!</b></h3>
+                                    <small style="word-wrap: break-word; "><i>We prioritized your well-being and the safety of your dear ones.</i></small>
                                 </div>
-                                <div class="col-md-6 text-right mt-3 pr-5 d-none d-lg-block" >
+                                <div class="col-md-5 text-right mt-4 pt-2">
                                     <img src="../img/img-dashboard/ABC-Sign-White.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row justify-content-center d-flex mt-5">
-                    <div class="col-md-10 m-0 p-0">
-                        <div class="row justify-content-center d-flex mr-2 ml-3">
-                            <div class="col-md-12 col-lg-6 mt-2 mx-auto px-0">
-                                <div class="card p-3 pt-5 mx-auto table-card h-100">
+                    </div>
+                    <div class="row mr-5 ml-3 mt-0 pt-0 mt-3 mb-5 justify-content-center">
+                    <div class="col-11 justify-content-center m-0 p-0">
+                        <div class="row justify-content-center mr-2 ml-3 equal-height-columns">
+                            <div class="col-md-12 col-lg-6 mt-2 pl-0 pr-3">
+                                <div class="card p-3 pt-5 mx-auto table-card" style="height: 380px;">
                                     <div class="table-header-1 d-flex justify-content-between align-items-center">
                                         <div class="col-md-6">
-                                        <h6 class="card-title"><b>My Vaccination:</b></h6>
-                                        <h6 class="card-title"><?php  echo $medicineName . "<br>"; ?></h6>
+                                            <h6 class="card-title"><b>My Vaccination:</b></h6>
+                                            <h6 class="card-title"><?php echo $medicineName . "<br>"; ?></h6>
                                         </div>
-                                        <div class="col-md-6  px-3 justify-content-end d-flex ">
-                                        
-                                        <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;" onclick="redirectToAppointments()">View History</button>
-                                            <!-- Additional buttons next to Edit -->
-                                    
-                                    </div>
+                                        <div class="col-md-6 px-3 justify-content-end d-flex">
+                                            <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;" onclick="redirectToAppointments()">View History</button>
+                                        </div>
                                     </div>
                                     <div class="table-responsive">
-    <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
-    <div class="card-body">
-        <table id="example" class="table">
-            <thead class="table-header">
-                <tr>
-                    <th>Sessions</th>
-                    <th>Schedules</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
-// Fetch and display appointment information
-$stmt = $conn->prepare("SELECT PatientID FROM usercredentials WHERE UserID = ?");
-$stmt->bind_param("i", $userID);
-$stmt->execute();
-$result = $stmt->get_result();
+                                        <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
+                                        <div class="card-body">
+                                            <table id="example" class="table">
+                                                <thead class="table-header">
+                                                    <tr>
+                                                        <th>Sessions</th>
+                                                        <th>Schedules</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    // Fetch and display appointment information
+                                                    $stmt = $conn->prepare("SELECT PatientID FROM usercredentials WHERE UserID = ?");
+                                                    $stmt->bind_param("i", $userID);
+                                                    $stmt->execute();
+                                                    $result = $stmt->get_result();
 
-if ($result->num_rows === 1) {
-    // Fetch the PatientID
-    $row = $result->fetch_assoc();
-    $patientID = $row['PatientID'];
+                                                    if ($result->num_rows === 1) {
+                                                        // Fetch the PatientID
+                                                        $row = $result->fetch_assoc();
+                                                        $patientID = $row['PatientID'];
 
-    // Prepare and execute a query to retrieve appointment information using the PatientID
-    $stmt = $conn->prepare("SELECT SessionDays, Status, AppointmentDate FROM appointmentinformation WHERE PatientID = ?");
-    $stmt->bind_param("i", $patientID);
-    $stmt->execute();
-    $result = $stmt->get_result();
+                                                        // Prepare and execute a query to retrieve appointment information using the PatientID
+                                                        $stmt = $conn->prepare("SELECT SessionDays, Status, AppointmentDate FROM appointmentinformation WHERE PatientID = ?");
+                                                        $stmt->bind_param("i", $patientID);
+                                                        $stmt->execute();
+                                                        $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        // Output data of each row
-        while ($row = $result->fetch_assoc()) {
-            // Access appointment details
-            $sessionDays = $row['SessionDays'];
-            $status = $row['Status'];
-            $appointmentDate = $row['AppointmentDate'];
+                                                        if ($result->num_rows > 0) {
+                                                            // Output data of each row
+                                                            while ($row = $result->fetch_assoc()) {
+                                                                // Access appointment details
+                                                                $sessionDays = $row['SessionDays'];
+                                                                $status = $row['Status'];
+                                                                $appointmentDate = $row['AppointmentDate'];
+                                                                ?>
+                                                                <tr>
+                                                                    <td><?php echo $sessionDays; ?></td>
+                                                                    <td><?php echo $appointmentDate; ?></td>
+                                                                    <td>
+                                                                        <button class="btn btn-table status-button <?php echo ($status == 'Done' ? 'green' : 'yellow'); ?>" data-appointment-id="<?php echo $appointmentID; ?>">
+                                                                            <?php echo $status; ?>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                                <?php
+                                                            }
+                                                        } else {
+                                                            echo "<tr><td colspan='3'>No appointments found for this patient.</td></tr>";
+                                                        }
+                                                    } else {
+                                                        echo "<tr><td colspan='3'>User not found or multiple users found (should not happen).</td></tr>";
+                                                    }
+                                                    ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-            // Output appointment details within table rows
-?>
-           <tr>
-    <td><?php echo $sessionDays; ?></td>
-    <td><?php echo $appointmentDate; ?></td>
-    <td><button class="btn btn-table status-button <?php echo ($status == 'Done' ? 'green' : 'yellow'); ?>" data-appointment-id="<?php echo $appointmentID; ?>"><?php echo $status; ?></button></td>
-</tr>
-
-<?php
-        }
-    } else {
-        echo "No appointments found for this patient.";
-    }
-} else {
-    echo "User not found or multiple users found (should not happen).";
-}
-?>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-</div>
-</div>
-
-                            <div class="col-md-12 col-lg-6 mt-2 h-100 px-0 px-lg-2">
+                            <div class="col-md-12 col-lg-6 mt-2 pl-4 pr-0">
                                 <div id="carouselExampleSlidesOnly" class="carousel slide h-100" data-ride="carousel">
                                     <!-- Carousel Indicators -->
                                     <ol class="carousel-indicators">
@@ -227,29 +310,17 @@ if ($result->num_rows === 1) {
                                     </ol>
                                     <!-- Carousel Slides -->
                                     <div class="carousel-inner h-100">
-                                        <div class="carousel-item active h-100">
-                                            <img src="Image 0.png" class="d-block img-fluid" alt="Slide 1">
-                                            <div class="carousel-caption">
-                                        
-                                            </div>
+                                        <div class="carousel-item active h-100" >
+                                            <img src="Image 0.png" class="d-block img-fluid" alt="Slide 1" style="border-radius: 11px; height: 380px;">
                                         </div>
                                         <div class="carousel-item h-100">
-                                            <img src="Image 1.png" class="d-block img-fluid" alt="Slide 2">
-                                            <div class="carousel-caption">
-                            
-                                            </div>
+                                            <img src="Image 1.png" class="d-block img-fluid" alt="Slide 2" style="border-radius: 11px; height: 380px;">
                                         </div>
                                         <div class="carousel-item h-100">
-                                            <img src="Image 2.png" class="d-block img-fluid" alt="Slide 3">
-                                            <div class="carousel-caption">
-                                
-                                            </div>
+                                            <img src="Image 2.png" class="d-block img-fluid" alt="Slide 3"style="border-radius: 11px; height: 380px;">
                                         </div>
                                         <div class="carousel-item h-100">
-                                            <img src="Image 3.png" class="d-block img-fluid" alt="Slide 3">
-                                            <div class="carousel-caption">
-                                
-                                            </div>
+                                            <img src="Image 3.png" class="d-block img-fluid" alt="Slide 4"style="border-radius: 11px; height: 380px;">
                                         </div>
                                     </div>
                                     <!-- Carousel Controls -->
@@ -269,9 +340,8 @@ if ($result->num_rows === 1) {
             </div> <!-- End of content -->
         </div> <!-- End of main-container -->
     </div> <!-- End of container-fluid -->
-
-    <!-- Your script tags here -->
-
+                
+             
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
     <script src='https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js'></script>
@@ -285,6 +355,7 @@ if ($result->num_rows === 1) {
 
 
 <script>
+    
   document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
     var dropdownContent = document.getElementById("dropdownContent");
@@ -506,6 +577,7 @@ $(document).ready(function () {
         responsive: true,
         searching: false,
         paging: false,
+        sorting: false,
         pageLength: 5,
         dom: 'lBfrtip', // Include 'l' for length menu, 'B' is for Buttons
         buttons: [

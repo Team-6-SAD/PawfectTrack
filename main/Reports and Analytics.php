@@ -204,7 +204,12 @@ if ($result) {
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <title>Reports and Analytics</title>
-  
+  <style>
+        #monthlyPatientChart {
+            width: 100%; /* Make the canvas responsive */
+            height: 200px; /* Set the desired height */
+        }
+    </style>
 </head>
 <body>
 
@@ -222,25 +227,25 @@ if ($result) {
 <!--Profile Picture and Details--><div class="content" id="content">
 <div class="row">
   <div class="col-sm-12 col-md-10 col-lg-11 mt-2 mx-auto mb-4">
-    <div class="card mx-auto table-card">
+    <div class="card mx-auto table-card mb-3">
       <div class="card-header header-main">
         <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>REPORTS</b></h3>
       </div>
-      <div class="card-body p-5">
+      <div class="card-body p-4 px-5">
         <div class="row">
           <div class="col-md-6 pt-4">
             <h5 class="main-font-color"><b>Monthly Treatment Distribution</b></h5>
             <canvas id="monthlyTreatmentChart"></canvas>
           </div>
       
-          <div class="col-md-6 border-left pt-4">
+          <div class="col-md-6 border-left py-3">
             <div class="col-md-10">
             <div class="row">
             <div class="col-md-3 align-items-center justify-content-center d-flex">
                 <img src="img/img-dashboard/injection-blue-db.png" height="55px">
               </div>
               <div class="col-md-9 mb-3 pl-0">
-                <h1 class="main-font-color pb-0 mb-0"><b>  <?php
+                <h1 class="main-font-color " style="font-size: 3rem; margin-bottom: -10px;"><b>  <?php
     // Define the start and end dates for the past 7 days
     $startDate = date('Y-m-d', strtotime('-7 days'));
     $endDate = date('Y-m-d');
@@ -269,11 +274,11 @@ if ($result) {
             </div>
             <div class="col-md-10 mt-1 p-0">
               <div class="row border-top">
-              <div class="col-md-3 align-items-center justify-content-center d-flex">
+              <div class="col-md-3 align-items-center justify-content-center d-flex pl-4">
                 <img src="img/img-dashboard/medicine-bag-blue.png" height="55px">
               </div>
-                <div class="col-md-9 pl-0 mt-2">
-                <h1 class="main-font-color pb-0 mb-0"><b><?php echo $totalQuantity; ?></b></h1>
+                <div class="col-md-9 pl-0 mt-3">
+                <h1 class="main-font-color pb-0 " style="font-size: 3rem; margin-bottom: -10px;"><b><?php echo $totalQuantity; ?></b></h1>
 <span class="pt-0 mb-0"><?php echo $medicineBrandName; ?></span>
 
                   <h5 class="main-font-color"><b>Most Used Medicine</b></h5>
@@ -285,7 +290,7 @@ if ($result) {
       </div>
     </div>
   
-  <div class="row mb-5">
+  <div class="row mb-4">
     <div class="col-md-6 mt-3">
       <div class="card table-card"> 
         <div class="card-header header-main">
@@ -320,7 +325,7 @@ if ($result) {
   </div>
 
   <div class="row mr-0 pr-0">
-    <div class="col-sm-12 col-md-12 col-lg-12 mt-2 mx-auto mb-4 mr-0 pr-0">
+    <div class="col-sm-12 col-md-12 col-lg-12  mx-auto mb-4 mr-0 pr-0">
       <div class="card mx-auto table-card">
         <div class="card-header header-main">
           <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>ANALYTICS</b></h3>
@@ -388,18 +393,18 @@ if ($start_pos !== false && $end_pos !== false) {
     <div class="col-md-6 mt-3">
       <div class="card table-card h-100"> 
         <div class="card-header header-main">
-          <h4 class="card-title text-left main-font-color mt-3 ml-2"><b>Monthly Patient Count</b></h4>
+          <h5 class="card-title text-left gray mt-2 ml-2"><b>Monthly Patient Count</b></h5>
         </div>    
         <div class="card-body bg-main-color-2 pb-4 pt-4 px-2 m-0 p-0 d-flex justify-content-center align-items-center w-100 h-100">
          
-            <canvas id="monthlyPatientChart"></canvas>    
+            <canvas id="monthlyPatientChart" height="180px"></canvas>    
       
         </div>
         
       </div>
       
     </div>
-    <div class="col-md-6 mt-3 pr-0">
+    <div class="row col-md-6 mt-3 pr-0">
     <?php
 // Execute the Python script and capture the JSON output
 $output = shell_exec('python backend/machinelearning/linear-regression-patient.py');
@@ -424,12 +429,15 @@ if ($parsed_data !== null) {
                     </div>
                 </div>
             </div>
-        </div>';
+        </div>
+        ';
 
         $weekly_prediction = number_format($parsed_data["weekly_prediction"], 2);
-    echo '<div class="col-md-12 mt-5 pr-0">
-            <div class="card pr-0">
-                <div class="card-body">
+        
+    echo ' 
+    <div class="col-md-12 pr-0 align-items-end justify-content-end d-flex w-100">
+            <div class="card pr-0 w-100">
+                <div class="card-body w-100">
                     <div class="d-flex align-items-center">
                         <img src="img/img-dashboard/ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
                         <div> 

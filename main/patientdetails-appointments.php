@@ -70,7 +70,7 @@ $result = mysqli_stmt_get_result($stmt);
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+  <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,6 +79,7 @@ $result = mysqli_stmt_get_result($stmt);
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
   <title>Patient Details - Appointments</title>
   
 </head>
@@ -134,7 +135,7 @@ $result = mysqli_stmt_get_result($stmt);
     <div class="col-md-11">
 
         <div class=" table-responsive mt-5">
-        <table id="example" class="table table-striped text-center">
+        <table id="example1" class="table table-striped text-center">
     <thead class="table-header mb-5">
         <tr>
             <th class="text-center">Appointment ID</th>
@@ -494,7 +495,7 @@ $(document).ready(function () {
     });
 
     // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function () {
+    $('#example1 tbody').on('change', '.select-checkbox', function () {
         // Update buttons visibility
         toggleButtonsVisibility();
     });
@@ -526,19 +527,17 @@ $(document).ready(function () {
   // DataTable initialization
 
  
-$(document).ready(function () {
+  $(document).ready(function () {
     // DataTable initialization
-    var table = $('#example').DataTable({
+    var table = $('#example1').DataTable({
         paging: true,
         responsive: true,
         searching: true,
-        
-       
-        "dom": 
-     
-        "<'row'<'col-sm-12 p-0 m-0't>>" + // Place table in a row
-        "<'row'<'col-sm-12 d-flex justify-content-between'<'col-sm-6'l><'col-sm-6'p>>>" // Place length menu and pagination in the same row
-    ,
+        "pageLength": 5, // Set default page length
+        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
+        "dom": // Place search input at the top
+               "<'row'<'col-sm-12't>>" + // Place table in a row
+               "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
         buttons: [
             {
@@ -566,17 +565,36 @@ $(document).ready(function () {
                 className: 'btn-img'
             }
         ],
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
+        "columnDefs": [
+            { "orderable": false, "targets": 0 } // Disable sorting for the first column (index 0)
         ],
         pageLength: 5,
-        lengthMenu: [ [5,10, 25, 50, -1], [5,10, 25, 50, "All"] ],
+        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
         language: { "lengthMenu": "Display _MENU_ "
-           
+          
         }
+       
+    });
+    function updatePageInfo() {
+        var pageInfo = table.page.info();
+        var currentPage = pageInfo.page + 1; // Add 1 to convert zero-based index to one-based index
+        var totalPages = pageInfo.pages;
+        var pageLengthContainer = $('.dataTables_length');
+
+        // Update the page information with styles
+        pageLengthContainer.find('.page-info').remove(); // Remove previous page info to avoid duplication
+        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
+    }
+
+    // Initial update of page information
+    updatePageInfo();
+
+    // Update page information whenever the table is redrawn
+    table.on('draw', function() {
+        updatePageInfo();
     });
 
-    // Hide buttons initially
+
     $('.btn-img').hide();
 
     // Toggle button visibility
@@ -604,8 +622,6 @@ $(document).ready(function () {
         $('#content').toggleClass('active');
     });
 });
-
-
 
 
 

@@ -80,20 +80,58 @@ $result = mysqli_query($conn, $sql);
   <link href="css/userdashboard.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
  <title>Admin Dashboard</title>
 <style>
     table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
-        content: "\e5d8" !important; /* Font Awesome icon for ascending sort */
-        font-family: 'Material Icons';
-        right: 1em !important;
+        content: "\F148" !important; /* Font Awesome icon for ascending sort */
+        font-family: "bootstrap-icons";
+        right: 0.8em !important;
+        top: 40% !important;
+        font-size: 14px !important;
 }
 
 table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
     
-    content: "\e5db" !important; /* Font Awesome icon for descending sort */
-    font-family: 'Material Icons';
-        right: 0.5em !important;
+    content: "\F128" !important; /* Font Awesome icon for descending sort */
+    font-family: 'bootstrap-icons';
+        right: 0.2em !important;
+        top: 40% !important;
+        font-size: 14px !important;
 }
+
+          h3, small {
+            margin: 0; /* Remove default margins */
+            padding: 0; /* Remove default padding */
+        }
+
+        h3 {
+            margin-bottom: -5px; /* Adjust the bottom margin as needed */
+        }
+        .card{
+        
+            border-radius: 5px;
+            border:none;
+        }
+        .table thead th{
+            border-bottom: none;
+        }
+        #example thead th:first-child::after {
+    display: none;
+}
+#example thead th:first-child::before {
+    display: none;
+}
+.table td, .table th{
+    border-top: none;
+}
+tbody tr:nth-child(odd) {
+        background-color: #F7F8FA !important;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #FFFFFF;
+    }   
 </style>
 </head>
 <body>
@@ -111,11 +149,11 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                     <div class="col-12 mt-0 pt-0">
                         <div class="card-body card-image p-0 align-items-center">
                             <div class="row logo-font-color mt-0 pl-2">
-                                <div class="col-md-6 text-left mt-5 pl-5">
-                                    <h4><b>Welcome, Admin!</b></h4>
-                                    <p><i>We prioritized your well-being and the safety of your dear ones.</i></p>
+                                <div class="col-md-6 text-left mt-5 ml-4">
+                                    <h3 class="mt-1"><b>Welcome, Admin!</b></h3>
+                                    <small style="word-wrap: break-word; "><i>We prioritized your well-being and the safety of your dear ones.</i></small>
                                 </div>
-                                <div class="col-md-6 text-right mt-3 pr-5">
+                                <div class="col-md-5 text-right mt-4 pt-2">
                                     <img src="img/img-dashboard/ABC-Sign-White.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
                             </div>
@@ -123,14 +161,14 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
                     </div>
                 </div>
 
-                <div class="row justify-content-center align-items-center d-flex mr-5 ml-3">
-                    <div class="col-md-6 mt-4">
-                        <div class="card">
+                <div class="row justify-content-center align-items-center d-flex mr-5 ml-3 mb-3">
+                    <div class="col-md-6 mt-3">
+                        <div class="card px-3 pb-1">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <img src="img/img-dashboard/ri_user-add-fill.png" alt="Logo" class="img-card-icons mr-3 mt-2">
+                                    <img src="img/img-dashboard/Vector.png" alt="Logo" class="img-card-icons mr-2 mt-1">
                                     <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b><?php $sql = "SELECT COUNT(*) AS TotalPatients FROM patient WHERE ActiveStatus = 'Active'";
+                                        <h1 class="text-font-big main-font-color" style="font-size:3rem; margin-bottom:-12px;"><b><?php $sql = "SELECT COUNT(*) AS TotalPatients FROM patient WHERE ActiveStatus = 'Active'";
 
 // Execute the query
 $result = mysqli_query($conn, $sql);
@@ -155,13 +193,13 @@ if ($result) {
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mt-4">
-                        <div class="card">
+                    <div class="col-md-6 mt-3">
+                        <div class="card px-3 pb-1">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <img src="img/img-dashboard/injection-blue-db.png" alt="Logo" class="img-card-icons-1 mr-3">
+                                    <img src="img/img-dashboard/injection-blue-db.png" alt="Logo" class="img-card-icons-1 mr-2">
                                     <div>
-                                        <h1 class="text-font-big main-font-color mb-0"><b><?php
+                                        <h1 class="text-font-big main-font-color" style="font-size:3rem; margin-bottom:-12px;"><b><?php
 // Assuming you have already established a database connection
 
 // SQL query to get the total count of treatments
@@ -197,17 +235,19 @@ if ($result) {
                     </div>
                 </div>
 
-                <div class="row justify-content-center align-items-center d-flex mr-5 ml-3">
+                <div class="row justify-content-center align-items-center d-flex mr-5 ml-3 mb-5">
                     <div class="col-md-12 mt-2 mx-auto">
-                        <div class="card mx-auto table-card">
+                        <div class="card mx-auto table-card px-3 mb-5">
                             <div class="table-header-1 d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mt-5 ml-4"><b>List of Upcoming Vaccine Sessions</b></h5>
+                                <h5 class="card-title mt-5 ml-4 gray"><b>List of Upcoming Vaccine Sessions</b></h5>
                                 <div class="flex-grow-1"></div>
-                                <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-4 mt-1 mr-5 mt-4">
-                                    <button id="editButton" class="btn btn-gray-color btn-custom mb-2 mb-sm-0 mr-sm-2" style="color:white">Action</button>
+                                <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-4 mt-1 mt-4">
+                                <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 px-3" style="color:white;  border-radius: 8px">
+  Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
+</button>
                                     <!-- Additional buttons next to Edit -->
                                     <div class="d-flex flex-row flex-wrap align-items-center">
-                                        <button id="viewButton" style="white-space: nowrap; color: white;" class="btn btn-custom btn-blue-color btn-outline-info mr-2" >View Profile</button>
+                                        <button id="viewButton" style="white-space: nowrap; color: white;  border-radius: 8px;" class="btn btn-custom btn-blue-color btn-outline-info px-4 mr-3" >View</button>
                                     </div>
                                 </div>
                             </div>
@@ -247,7 +287,7 @@ if (mysqli_num_rows($result) > 0) {
     ?>
     <table id="example" class="table">
         <thead class="table-header-alt">
-            <tr>
+            <tr style="font-size:12px;">
                 <th></th>
                 <th>Patient ID</th>
                 <th>Full Name</th>
@@ -257,20 +297,22 @@ if (mysqli_num_rows($result) > 0) {
             </tr>
         </thead>
         <tbody>
-            <?php
-            // Output data of each row
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo '<tr style="background-color:white;">';
-                echo '<td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['PatientID'] . '"></td>';
-                echo '<td>' . $row['PatientID'] . '</td>';
-                echo '<td>' . $row['FullName'] . '</td>';
-                echo '<td>' . $row['SessionDays'] . '</td>';
-                echo '<td>' . $row['AppointmentDate'] . '</td>';
-                echo '<td>' . $row['ExposureType'] . '</td>';
-                echo '</tr>';
-            }
-            ?>
-        </tbody>
+    <?php
+    // Output data of each row
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo '<tr style="font-size:12px;">';
+        echo '<td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['PatientID'] . '"></td>';
+        echo '<td>' . $row['PatientID'] . '</td>';
+        echo '<td>' . $row['FullName'] . '</td>';
+        echo '<td>' . $row['SessionDays'] . '</td>';
+        echo '<td>' . $row['AppointmentDate'] . '</td>';
+        echo '<td>' . $row['ExposureType'] . '</td>';
+        echo '</tr>';
+    }
+    ?>
+</tbody>
+
+
     </table>
     <?php
 } else {

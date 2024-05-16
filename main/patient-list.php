@@ -88,16 +88,73 @@ mysqli_close($conn);
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <title>Patient List</title>
   <style>
-    /* Hide sorting icons for the first column */
-    .sorting_asc {
-     background-image: none !important;
+    table.dataTable.no-footer {
+    border-bottom: none !important;
+}
+    table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+        content: "\F148" !important; /* Font Awesome icon for ascending sort */
+        font-family: "bootstrap-icons";
+        right: 0.8em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+table.dataTable thead .sorting {
+    background-image: none !important;
+}
+table.dataTable thead .sorting_asc {
+    background-image: none !important;
+}
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    
+    content: "\F128" !important; /* Font Awesome icon for descending sort */
+    font-family: 'bootstrap-icons';
+        right: 0.2em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+
+          h3, small {
+            margin: 0; /* Remove default margins */
+            padding: 0; /* Remove default padding */
+        }
+
+        h3 {
+            margin-bottom: -5px; /* Adjust the bottom margin as needed */
+        }
+    
+   
+        .table thead th{
+            border-bottom: none;
+        }
+        #example thead th:first-child::after {
+    display: none;
+}
+#example thead th:first-child::before {
+    display: none;
+}
+.table td, .table th{
+    border-top: none;
+}
+tbody tr:nth-child(odd) {
+        background-color: #F7F8FA !important;
     }
-    </style>
+
+    tbody tr:nth-child(even) {
+        background-color: #FFFFFF;
+    }   
+    .btn{
+        border-radius: 8px !important;
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
 <div class="container-fluid">
@@ -113,23 +170,23 @@ mysqli_close($conn);
         <div class="content" id="content">
         <div class="row  mr-5 ml-3 ">
         <div class="col-md-12">
-                    <div class="card mx-auto  table-card p-3">
-                        <div class="table-header-1">
-                        <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>LIST OF PATIENTS</b></h3>
-</div>
+                    <div class="card mx-auto  table-card">
+                    
+                        <h4 class="card-title text-center main-font-color p-3 table-header-1" style="background-color:#faf9fd;  border-radius: 8px 8px 0 0;"><b>LIST OF PATIENTS</b></h4>
 
 
-                        <div id="buttonContainer" class="d-flex flex-column flex-md-row align-items-center mb-2 ml-2 mt-1">
+                        <div id="buttonContainer" class="d-flex flex-column flex-md-row align-items-center mb-2 ml-2 mt-1 pl-1 pr-3">
     <!-- Edit button on the left -->
    
-    <button id="editButton" class="btn btn-gray-color btn-custom ml-3 mb-2 mb-sm-0 mr-sm-2" style="color:white">Action</button>
-
+    <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 px-3 ml-3 py-2" style="color:white;  border-radius: 6px; font-weight: 400;">
+  Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
+</button>
     <!-- Additional buttons next to Edit -->
     <div class="d-flex flex-row flex-wrap align-items-center">
      
-        <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;">View </button>
-        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;" >Archive</button>
-        <button id="updateButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;" onclick="redirectToEdit()">Edit</button>
+        <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;">View </button>
+        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-3 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Archive</button>
+        <button id="updateButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" onclick="redirectToEdit()">Edit</button>
 
     </div>
 
@@ -137,8 +194,8 @@ mysqli_close($conn);
                     
                         <!-- Spacer to push custom search and Excel export buttons to the right -->
                             <div class="flex-grow-1"></div>
-                            <button id="editButton" class="btn greener  mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2">Existing Account</button> 
-                            <button id="addPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2">Add Patient</button> 
+                            <button id="editButton" class="btn greener  mb-2 mb-sm-0 mr-sm-2 px-2"> <img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Existing Account</button> 
+                            <button id="addPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 "><img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Add Patient</button> 
                         <!-- Custom search on the right -->
                         
                     
@@ -157,7 +214,7 @@ mysqli_close($conn);
     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
 
          
-                <div class="card-body">
+                <div class="card-body px-4">
                 <?php // Check if there are any patients fetched from the database
 if (mysqli_num_rows($patients_result) > 0) {
     // Output the table only if there are patients
@@ -226,18 +283,17 @@ if (mysqli_num_rows($patients_result) > 0) {
 </i>
       </div>
       <div class="modal-body">
-<div class="justify-content-center d-flex">
-<img src="img/img-alerts/Archive alert.png">
+<div class="justify-content-center d-flex mb-2">
+<img src="img/img-alerts/Archive alert.png" width="70px" height="60">
 </div>
-<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>REMOVE</b></h2>
-<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ITEM</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ARCHIVE</b></h2>
 <div class="text-center">
 <small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to archive the<br></small>
 <small style="letter-spacing: -1px; color:#5e6e82;"> selected patient record/s?<br></small>
 </div>
 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
 <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-<button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Remove</b></button>
+<button type="button" style="background-color: #2e86de; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Archive</b></button>
 </div>
 </div>  
 </div>
@@ -557,7 +613,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom": // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
@@ -605,7 +661,7 @@ $(document).ready(function () {
 
         // Update the page information with styles
         pageLengthContainer.find('.page-info').remove(); // Remove previous page info to avoid duplication
-        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page: <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
+        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
     }
 
     // Initial update of page information

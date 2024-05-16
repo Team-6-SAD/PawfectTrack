@@ -155,7 +155,7 @@ mysqli_close($conn);
     <div class="row justify-content-center d-flex">
     <div class="col-md-11">
     <div class="row">
-    <div class="col-md-7">
+    <div class="col-md-7 pl-0 h-100">
         <div class="card mt-4">
             
             <div class="card-body p-5">
@@ -209,9 +209,8 @@ if ($bitePicture === "uploads/") {
     </div>
 </div>
 </div>
-</div>
 
-<div class="col-md-11 mt-4 pl-0">
+<div class="col-md-11 mt-4 pl-0 mb-5">
 
 <div class="card">
     <div class="card-body">

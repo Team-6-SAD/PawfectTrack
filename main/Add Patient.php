@@ -171,7 +171,7 @@ $provincesAndCities = array(
     <div class="row justify-content-center mb-5 mt-4">
 
         <div class="col-md-11"> 
-            <div class="card">
+            <div class="card" style="background-color: #f5f5f5;">
                 <div class="card-header card-header-patient-form text-center">
                     <h3> <b>ADD PATIENT</b> <h3>
                 </div>

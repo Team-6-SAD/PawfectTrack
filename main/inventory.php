@@ -145,7 +145,7 @@ if ($result) {
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+  <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -155,6 +155,7 @@ if ($result) {
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
   <title>Inventory</title>
   <style>
 .row-spacing {
@@ -181,9 +182,9 @@ table.dataTable.no-footer {
 <!--Profile Picture and Details--><div class="content" id="content">
     <div class="row">
         <div class="  col-sm-12 col-md-10 col-lg-11 mt-2 mx-auto mb-4 ">
-            <div class="card mx-auto table-card ">
+            <div class="card mx-auto table-card mb-3">
                 <div class="card-header header-main">
-                    <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>INVENTORY</b></h3>
+                    <h4 class="card-title text-center main-font-color mt-2 ml-2"><b>INVENTORY</b></h4>
                 </div>
                
                 
@@ -192,18 +193,20 @@ table.dataTable.no-footer {
                         <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-2 mt-1">
                             <!-- Edit button on the left -->
                            
-                            <button id="editButton" class="btn btn-lg main-color-2 btn-gray-color  mr-2 ">Action</button>
+                            <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 ml-0 " style="color:white;  border-radius: 6px; font-weight: 400;">
+  Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
+</button>
                             <!-- Additional buttons next to Edit -->
                             <div class="d-flex flex-row flex-wrap align-items-center">
 
                     
-                                <button id="deleteButton" class="btn btn-lg btn-danger">Remove Medicine</button>
+                                <button id="deleteButton" class="btn btn-danger"><img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove</button>
                                
                             </div>
                             
                         </div>
                         <div class="medicine-header">
-                            <h4 class="main-color"><b>Medicine</b></h4>
+                            <h5 class="main-color"><b>Medicine</b></h5>
                             <div class="button-container">
                           
                             <button id="addMedicineButton" class="btn btn-lg greener mb-2  mr-sm-2 pt-2 pb-2 no-break" data-toggle="modal" data-target="#addMedicineModal">Add Medicine</button>
@@ -306,7 +309,7 @@ if ($result) {
        
         
 
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mb-3">
     <div class="col-md-6 col-lg-6 mt-2">
         <div class="card table-card h-100">     
             <div class="card-body bg-main-color-2 p-4">
@@ -376,7 +379,7 @@ if ($result) {
     <div class="col-md-6 col-lg-6 mt-2">
         <div class="row">
             <div class="col-md-12">
-                <div class="card table-card"> 
+                <div class="card table-card mb-3"> 
                     <div class="card-header header-main">
                         <h5 class="card-title text-left gray mt-3 ml-2"><b>Medicine Stock Indicator </b></h5>
                     </div>    
@@ -404,14 +407,14 @@ if ($result) {
             </div>
        
         <div class="row">
-        <div class="  col-sm-12 col-md-12 col-lg-12 mt-2 mx-auto mb-4 ">
+        <div class="  col-sm-12 col-md-12 col-lg-12 mt-2 mx-auto mb-3 ">
             <div class="card mx-auto table-card p-5">
                
                 
                     
               
                         <div class="medicine-header">
-                            <h4 class="main-color"> <b>Medicine Usage History</b></h4>
+                            <h5 class="main-color"> <b>Medicine Usage History</b></h5>
                            
                         </div>
           
@@ -448,14 +451,14 @@ if ($result) {
             
         </div>
    
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mb-5">
     <div class="col-md-6 col-lg-6 mt-2">
         <div class="card table-card h-100">     
             <div class="card-body bg-main-color-2 p-5">
                 <div class="row">
                 <div class="col-md-12 col-lg-6 col-xl-6">
                 <div class="medicine-header">
-                    <h4 class="main-color"><b>Equipment </b></h4>
+                    <h5 class="main-color"><b>Equipment </b></h5>
 </div>
 </div>
 <div class="col-md-12 col-lg-6 col-xl-6">
@@ -512,7 +515,7 @@ if ($result->num_rows > 0) {
         <div class="card table-card h-100">     
             <div class="card-body bg-main-color-2 p-5">
                 <div class="medicine-header">
-                    <h4 class="main-color"><b>Equipment Usage History</b></h4>
+                    <h5 class="main-color"><b>Equipment Usage History</b></h5>
                  
                 </div>
                
@@ -1213,7 +1216,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom": // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
@@ -1311,7 +1314,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom":  // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
@@ -1341,9 +1344,7 @@ $(document).ready(function () {
                 className: 'btn-img'
             }
         ],
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
-        ],
+     
         pageLength: 5,
         lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
         language: { "lengthMenu": "Display _MENU_ "
@@ -1363,7 +1364,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom":  // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<<'col-sm-12 justify-content-center d-flex mt-5 p-0'p>>", // Place length menu and pagination in separate rows
         buttons: [
@@ -1395,7 +1396,7 @@ $(document).ready(function () {
         columnDefs: [
             { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
         ],
-        pageLength: 5,
+        pageLength: 10,
         lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
         language: { "lengthMenu": "Display _MENU_ "
           
@@ -1414,7 +1415,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom":  // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
        
@@ -1466,7 +1467,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom":  // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
        
@@ -1496,9 +1497,7 @@ $(document).ready(function () {
                 className: 'btn-img'
             }
         ],
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
-        ],
+       
         pageLength: 5,
         lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
         language: { "lengthMenu": "Display _MENU_ "

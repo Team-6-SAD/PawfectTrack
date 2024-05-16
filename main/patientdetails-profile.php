@@ -224,7 +224,7 @@ if(isset($_GET['patientID'])) {
 </div>
 </div>
 </div>
-<div class="row justify-content-center d-flex align-items-center">
+<div class="row justify-content-center d-flex align-items-center mb-5">
 <div class="col-md-11">
 <div class="row mt-4">
    

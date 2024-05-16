@@ -88,6 +88,96 @@ $result = mysqli_stmt_get_result($stmt);
 <link href="css/hamburgers.css" rel="stylesheet">
 <link href="patient.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
+  <style>
+     @media only screen and (max-width: 872px) {
+          /* Force table to not be like tables anymore */
+          table,
+          thead,
+          tbody,
+          th,
+          td,
+          tr {
+              display: block;
+          }
+
+          /* Hide table headers (but not display: none;, for accessibility) */
+          thead tr,
+          tfoot tr {
+              position: absolute;
+              top: -9999px;
+              left: -9999px;
+          }
+
+          td {
+              /* Behave like a "row" */
+              border: none;
+              border-bottom: 1px solid #eee;
+              position: relative;
+              padding-left: 50% !important;
+          }
+
+          td:before {
+              /* Now like a table header */
+              position: absolute;
+              /* Top/left values mimic padding */
+              top: 6px;
+              left: 6px;
+              width: 45%;
+              padding-right: 10px;
+              white-space: nowrap;  
+          }
+
+     
+          td:nth-of-type(1):before {
+            content: " Appointment ID";
+        }
+          /*
+          Label the data
+          */
+          td:nth-of-type(2):before {
+              content: "Service";
+          }
+
+          td:nth-of-type(3):before {
+              content: "Session";
+          }
+
+          td:nth-of-type(4):before {
+              content: "Appointment Date";
+          }
+
+          td:nth-of-type(5):before {
+              content: "Status";
+          }
+
+          td:nth-of-type(6):before {
+              content: "Start date";
+          }
+
+          td:nth-of-type(7):before {
+              content: "End Date";
+          }
+
+  
+          .dataTables_filter {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 10px;
+          }
+
+        
+
+          .dataTables_filter label {
+              width: 100%;
+          }
+          
+
+        
+          
+      }
+      
+    </style>
   <title>Patient Details - Appointments</title>
   
 </head>

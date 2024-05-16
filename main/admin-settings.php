@@ -215,7 +215,7 @@ if (!empty($adminPhoto)) {
 
 
 
-<div class="col-md-10"> 
+<div class="col-md-10 mb-5"> 
     <div class="card mt-4 p-3 pb-5">
         <h6 class="text-left gray mt-2"><b>Delete My Account</b></h6>
         <div class="card-body">
@@ -224,7 +224,7 @@ if (!empty($adminPhoto)) {
                 <label for="accountDeactivation"> I understand this action cannot be undone.</label>
     
         </div>
-        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Deactivate Account</button>
+        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Delete Account</button>
     </div>
 </div>
 

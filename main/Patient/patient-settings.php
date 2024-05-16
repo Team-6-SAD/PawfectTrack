@@ -253,7 +253,7 @@ if (!empty($profilePicture)) {
                 <label for="accountDeactivation"> I understand this action cannot be undone.</label>
     
         </div>
-        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Deactivate Account</button>
+        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Delete Account</button>
     </div>
 </div>
 

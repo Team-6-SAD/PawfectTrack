@@ -76,6 +76,9 @@ mysqli_close($conn);
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
+  <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+
   <title>Archival</title>
 
 </head>
@@ -92,8 +95,8 @@ mysqli_close($conn);
 <!--Profile Picture and Details-->
         <div class="content" id="content">
         <div class="row  mr-5 ml-3 ">
-        <div class="col-md-12">
-                    <div class="card mx-auto  table-card p-3">
+        <div class="col-md-12 mb-5">
+                    <div class="card mx-auto  table-card p-3 ">
                         <div class="table-header-1">
                         <h3 class="card-title text-center main-font-color mt-3 ml-2"><b>LIST OF PATIENTS</b></h3>
 </div>
@@ -531,7 +534,7 @@ $(document).ready(function () {
         searching: true,
         "pageLength": 5, // Set default page length
         "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom": "<'row'<'col-sm-12'f>>" + // Place search input at the top
+        "dom":  // Place search input at the top
                "<'row'<'col-sm-12't>>" + // Place table in a row
                "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
        
