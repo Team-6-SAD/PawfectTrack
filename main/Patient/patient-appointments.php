@@ -66,7 +66,15 @@ $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, "i", $patientID);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
+$stmtProfilePic = $conn->prepare("SELECT profilepicture FROM patient WHERE PatientID = (SELECT PatientID FROM usercredentials WHERE UserID = ?)");
+$stmtProfilePic->bind_param("i", $userID);
+$stmtProfilePic->execute();
+$resultProfilePic = $stmtProfilePic->get_result();
 
+if ($resultProfilePic->num_rows === 1) {
+    $rowProfilePic = $resultProfilePic->fetch_assoc();
+    $profilePicture = $rowProfilePic['profilepicture'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,17 +86,38 @@ $result = mysqli_stmt_get_result($stmt);
   <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
+  <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
 <link href="css/hamburgers.css" rel="stylesheet">
 <link href="patient.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <style>
+        table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+        content: "\F148" !important; /* Font Awesome icon for ascending sort */
+        font-family: "bootstrap-icons";
+        right: 0.8em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    
+    content: "\F128" !important; /* Font Awesome icon for descending sort */
+    font-family: 'bootstrap-icons';
+        right: 0.2em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+table.dataTable thead .sorting{
+    background-image: none;
+}
      @media only screen and (max-width: 872px) {
           /* Force table to not be like tables anymore */
           table,
@@ -177,6 +206,50 @@ $result = mysqli_stmt_get_result($stmt);
           
       }
       
+      table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+        content: "\F148" !important; /* Font Awesome icon for ascending sort */
+        font-family: "bootstrap-icons";
+        right: 0.8em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    
+    content: "\F128" !important; /* Font Awesome icon for descending sort */
+    font-family: 'bootstrap-icons';
+        right: 0.2em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+
+          h3, small {
+            margin: 0; /* Remove default margins */
+            padding: 0; /* Remove default padding */
+        }
+
+        h3 {
+            margin-bottom: -5px; /* Adjust the bottom margin as needed */
+        }
+        .card{
+        
+            border-radius: 5px;
+            border:none;
+        }
+        .table thead th{
+            border-bottom: none;
+        }
+  
+.table td, .table th{
+    border-top: none;
+}
+tbody tr:nth-child(odd) {
+        background-color: #F7F8FA !important;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #FFFFFF;
+    }   
     </style>
   <title>Patient Details - Appointments</title>
   
@@ -190,9 +263,9 @@ $result = mysqli_stmt_get_result($stmt);
 
 <!--Profile Picture and Details-->
         <div class="content" id="content">
-    <div class="row mt-4 justify-content-center d-flex">
+    <div class="row mt-4 justify-content-center d-flex mb-5">
         <div class="card p-5">
-        <div class="card-body p-5">
+        <div class="card-body p-3">
             <div class="col-md-12 justify-content-center d-flex mb-4">
             <img src="ABC-Vax-Header.png" width="400px">
 </div>
@@ -203,7 +276,7 @@ $result = mysqli_stmt_get_result($stmt);
     <div class="col-md-12">
 
       
-        <table id="example" class="table table-striped text-center">
+        <table id="example1" class="table table-striped text-center">
     <thead class="table-header mb-5">
         <tr>
             <th class="text-center">Appointment ID</th>
@@ -533,7 +606,7 @@ $(document).ready(function () {
     });
 
     // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function () {
+    $('#example1 tbody').on('change', '.select-checkbox', function () {
         // Update buttons visibility
         toggleButtonsVisibility();
     });
@@ -567,7 +640,7 @@ $(document).ready(function () {
  
 $(document).ready(function () {
     // DataTable initialization
-    var table = $('#example').DataTable({
+    var table = $('#example1').DataTable({
         paging: false,
         responsive: true,
         searching: true,
@@ -604,9 +677,6 @@ $(document).ready(function () {
                 titleAttr: 'PDF',
                 className: 'btn-img'
             }
-        ],
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
         ],
         pageLength: 5,
         lengthMenu: [ [5,10, 25, 50, -1], [5,10, 25, 50, "All"] ],

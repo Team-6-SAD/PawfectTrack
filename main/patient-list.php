@@ -29,41 +29,50 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now fetch one appointment per patient
-    $sql = "SELECT 
-    p.PatientID, 
-    CONCAT(p.FirstName, ' ', p.LastName) AS FullName, 
-    ai.SessionDays AS CurrentSession, 
-    ai.AppointmentDate, 
-    ai.Status,
-    bd.ExposureType
-FROM 
-    patient p
-INNER JOIN 
-    appointmentinformation ai ON p.PatientID = ai.PatientID
-INNER JOIN 
-    bitedetails bd ON ai.PatientID = bd.PatientID
-INNER JOIN (
-    SELECT 
-        PatientID, 
-        MIN(AppointmentDate) AS NearestAppointmentDate
-    FROM 
-        appointmentinformation
-    WHERE 
-        Status = 'Pending'
-    GROUP BY 
-        PatientID
-) AS nearest_appointment ON ai.PatientID = nearest_appointment.PatientID 
-                           AND ai.AppointmentDate = nearest_appointment.NearestAppointmentDate
-WHERE 
-    p.ActiveStatus = 'Active' 
-    AND ai.Status = 'Pending'
-ORDER BY 
-    ai.AppointmentDate ASC;
-;
-
-"; // Fetch the nearest appointment first
-
+    $sql = "
+    SELECT
+        p.PatientID,
+        CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
+        MAX(ai.SessionDays) AS CurrentSession,
+        MAX(ai.AppointmentDate) AS AppointmentDate,
+        MAX(ai.Status) AS Status,
+        MAX(bd.ExposureType) AS ExposureType
+    FROM
+        patient p
+    LEFT JOIN
+        treatment t ON p.PatientID = t.PatientID
+    LEFT JOIN
+        (
+            SELECT
+                ai1.PatientID,
+                ai1.SessionDays,
+                ai1.AppointmentDate,
+                ai1.Status,
+                ai1.TreatmentID
+            FROM
+                appointmentinformation ai1
+            WHERE
+                ai1.Status = 'Pending'
+            GROUP BY
+                ai1.PatientID
+            ORDER BY
+                ai1.AppointmentDate ASC
+        ) ai ON t.TreatmentID = ai.TreatmentID
+    LEFT JOIN
+        bitedetails bd ON bd.PatientID = p.PatientID
+    WHERE
+        p.ActiveStatus = 'Active'
+    GROUP BY
+        p.PatientID
+    ORDER BY
+        MAX(ai.AppointmentDate) ASC; -- Ensure the earliest pending appointment date is selected
+    ";
+    
+    
+    
     $patients_result = mysqli_query($conn, $sql);
+    
+    
 } else {
     // Admin information not found
     echo "Admin information not found!";
@@ -93,6 +102,7 @@ mysqli_close($conn);
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <title>Patient List</title>
   <style>
     table.dataTable.no-footer {
@@ -186,7 +196,7 @@ tbody tr:nth-child(odd) {
      
         <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;">View </button>
         <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-3 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Archive</button>
-        <button id="updateButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" onclick="redirectToEdit()">Edit</button>
+        <button id="updateButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Edit</button>
 
     </div>
 
@@ -194,7 +204,7 @@ tbody tr:nth-child(odd) {
                     
                         <!-- Spacer to push custom search and Excel export buttons to the right -->
                             <div class="flex-grow-1"></div>
-                            <button id="editButton" class="btn greener  mb-2 mb-sm-0 mr-sm-2 px-2"> <img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Existing Account</button> 
+                            <button id="existingPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 px-2"> <img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Existing Account</button> 
                             <button id="addPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 "><img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Add Patient</button> 
                         <!-- Custom search on the right -->
                         
@@ -237,14 +247,18 @@ if (mysqli_num_rows($patients_result) > 0) {
         echo "<td scope='row' class='pl-3'><input type='checkbox' class='select-checkbox' value='" . $patient['PatientID'] . "'></td>";
         echo "<td class='pl-3'>" . $patient['PatientID'] . "</td>";
         echo "<td class='pl-3'>" . $patient['FullName'] . "</td>";
-        if ($patient['Status'] === 'Done') {
+        if ($patient['Status'] != "Pending") {
             echo "<td class='pl-3'>Completed</td>"; // Display "Completed" if status is "Done"
         } else {
         echo "<td class='pl-3'>" . 'Day' . " " .  $patient['CurrentSession'] . "</td>";
     }
        
-        
+    if ($patient['Status'] != "Pending") {
+        echo "<td class='pl-3'>Completed</td>"; // Display "Completed" if status is "Done"
+    } else {
             echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>"; // Otherwise, display the appointment date
+        }
+    
         echo "<td class='pl-3'>" . $patient['ExposureType'] . "</td>";
         echo "</tr>";
     }
@@ -299,10 +313,37 @@ if (mysqli_num_rows($patients_result) > 0) {
 </div>
 </div>
 </div>
+<!-- Patient Modal -->
+<div id="patientModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="patientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="patientModalLabel">Select Patient</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="patientSelect">Patient</label>
+                        <select class="form-control" id="patientSelect" style="width: 100%;">
+                            <option value="">Select a patient</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
-    
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Data Table JS -->
 <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
 
@@ -314,6 +355,72 @@ if (mysqli_num_rows($patients_result) > 0) {
     <!-- ... (your existing script imports) ... -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Function to initialize Select2 within the modal
+    function initializeSelect2() {
+        $('#patientSelect').select2({
+            placeholder: 'Select a patient',
+            allowClear: true,
+            dropdownParent: $('#patientModal') // Ensure the dropdown appears within the modal
+        });
+    }
+
+    // Event listener for the "Existing Account" button
+    $('#existingPatient').on('click', function() {
+        // Fetch patient data
+        $.ajax({
+            url: 'backend/get-patients.php', // The PHP script that fetches patient data
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var $patientSelect = $('#patientSelect');
+                $patientSelect.empty(); // Clear any existing options
+                $patientSelect.append('<option value=""></option>'); // Default option for Select2
+
+                // Populate the dropdown with patient data
+                $.each(data, function(index, patient) {
+                    $patientSelect.append('<option value="' + patient.PatientID + '">' + patient.FullName + '</option>');
+                });
+
+                // Show the modal
+                $('#patientModal').modal('show');
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error: ' + status + error);
+            }
+        });
+    });
+
+    // Initialize Select2 after the modal is shown
+    $('#patientModal').on('shown.bs.modal', function() {
+        initializeSelect2();
+    });
+
+    // Destroy Select2 instance when the modal is hidden (optional cleanup)
+    $('#patientModal').on('hidden.bs.modal', function() {
+        $('#patientSelect').select2('destroy');
+    });
+
+    // Handle form submission
+    $('#patientModal form').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        // Get the selected patient value
+        var selectedPatientID = $('#patientSelect').val();
+
+        // Redirect to the desired URL with the selected patient value
+        if (selectedPatientID) {
+            window.location.href = 'existing-patient-record.php?patientID=' + selectedPatientID;
+        } else {
+            alert('Please select a patient.');
+        }
+    });
+});
+
+</script>
+
 <script>
     $(document).ready(function() {
   $('#deleteButton').click(function() {
@@ -399,11 +506,20 @@ $(document).ready(function () {
 </script>
 <script>
     
-    function redirectToEdit() {
-        // Assuming PatientID is stored in a variable called patientID
-        // Redirect to Edit Patient.php with the PatientID parameter
-        window.location.href = "Edit Patient.php?PatientID=" + patientID;
+// Function to handle the Edit button click
+$(document).on('click', '.editButton', function() {
+    var patientID = $(this).data('patientid'); // Get the PatientID from the data attribute
+    redirectToEdit(patientID); // Pass the PatientID to the redirect function
+});
+
+function redirectToEdit(patientID) {
+    if (patientID) {
+        window.location.href = "Edit Patient.php?PatientID=" + patientID; // Redirect with PatientID
+    } else {
+        alert('Patient ID not found.');
     }
+}
+
 </script>
 
 <script>
@@ -600,6 +716,20 @@ $(document).ready(function () {
 
         // Redirect to the view profile page with the selected Applicant ID
         window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
+    } else {
+        // If no checkbox or more than one checkbox is checked, show an alert
+        alert('Please select exactly one row to view.');
+    }
+});
+$('#updateButton').on('click', function () {
+    var selectedCheckbox = $('.select-checkbox:checked');
+
+    // Check if exactly one checkbox is checked
+    if (selectedCheckbox.length === 1) {
+        var patientID = selectedCheckbox.val();
+
+        // Redirect to the view profile page with the selected Applicant ID
+        window.location.href = 'Edit Patient.php?patientID=' + patientID;
     } else {
         // If no checkbox or more than one checkbox is checked, show an alert
         alert('Please select exactly one row to view.');

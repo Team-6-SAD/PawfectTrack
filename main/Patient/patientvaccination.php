@@ -46,80 +46,26 @@ if ($result->num_rows === 1) {
     // User not found or multiple users found (should not happen)
     // Handle the error or redirect as needed
 }
-$stmt = $conn->prepare("SELECT p.FirstName, p.LastName, p.MiddleName, p.Age, p.Sex, p.Weight, p.BirthDate, ci.LineNumber AS ContactLineNumber,
-                        pa.Province, pa.City, pa.Address,
-                        ec.FullName AS EmergencyContactFullName, ec.Relationship AS EmergencyContactRelationship, ec.LineNumber AS EmergencyContactLineNumber,
-                        bd.ExposureDate, bd.AnimalType, bd.ExposureType, bd.BiteLocation, bd.ExposureMethod,
-                        t.DateofTreatment, t.Category, t.Session, t.Recommendation, t.TreatmentID
-                        FROM patient p
-                        LEFT JOIN contactinformation ci ON p.PatientID = ci.PatientID
-                        LEFT JOIN patientaddress pa ON p.PatientID = pa.PatientID
-                        LEFT JOIN emergencycontact ec ON p.PatientID = ec.PatientID
-                        LEFT JOIN bitedetails bd ON p.PatientID = bd.PatientID
-                        LEFT JOIN treatment t ON p.PatientID = t.PatientID
-                        WHERE p.PatientID = ?");
+// Fetch all unique ExposureDate values for a specific PatientID
+$stmt = $conn->prepare("SELECT DISTINCT bd.ExposureDate
+                        FROM bitedetails bd
+                        WHERE bd.PatientID = ?");
 $stmt->bind_param("i", $patientID);
 $stmt->execute();
 $result = $stmt->get_result();
+$exposureDates = [];
+while ($row = $result->fetch_assoc()) {
+    $exposureDates[] = $row['ExposureDate'];
+}
 
-if ($result->num_rows > 0) {
-    // Fetch patient information
-    $patientInfo = $result->fetch_assoc();
+$stmtProfilePic = $conn->prepare("SELECT profilepicture FROM patient WHERE PatientID = (SELECT PatientID FROM usercredentials WHERE UserID = ?)");
+$stmtProfilePic->bind_param("i", $userID);
+$stmtProfilePic->execute();
+$resultProfilePic = $stmtProfilePic->get_result();
 
-    // Access patient information
-    $firstName = $patientInfo['FirstName'];
-    $lastName = $patientInfo['LastName'];
-    $middleName = $patientInfo['MiddleName'];
-    $age = $patientInfo['Age'];
-    $sex = $patientInfo['Sex'];
-    $weight = $patientInfo['Weight'];
-    $birthDate = $patientInfo['BirthDate'];
-    $contactLineNumber = $patientInfo['ContactLineNumber'];
-    $province = $patientInfo['Province'];
-    $city = $patientInfo['City'];
-    $address = $patientInfo['Address'];
-    $emergencyContactFullName = $patientInfo['EmergencyContactFullName'];
-    $emergencyContactRelationship = $patientInfo['EmergencyContactRelationship'];
-    $emergencyContactLineNumber = $patientInfo['EmergencyContactLineNumber'];
-    $exposureDate = $patientInfo['ExposureDate'];
-    $animalType = $patientInfo['AnimalType'];
-    $exposureType = $patientInfo['ExposureType'];
-    $biteLocation = $patientInfo['BiteLocation'];
-    $exposureMethod = $patientInfo['ExposureMethod'];
-    $dateOfTreatment = $patientInfo['DateofTreatment'];
-    $category = $patientInfo['Category'];
-    $session = $patientInfo['Session'];
-    $recommendation = $patientInfo['Recommendation'];
-    $treatmentID = $patientInfo['TreatmentID'];
-
-    // Fetch MedicineBrand using TreatmentID
-    $stmt = $conn->prepare("SELECT mu.MedicineName, mu.MedicineBrand, mb.Route
-                            FROM medicineusage mu
-                            INNER JOIN medicinebrand mb ON mu.MedicineBrand = mb.BrandName
-                            WHERE mu.TreatmentID = ?");
-    $stmt->bind_param("i", $treatmentID);
-    $stmt->execute();
-    $medicineResult = $stmt->get_result();
-
-    // Array to hold medicine information
-    $medicines = array();
-
-    if ($medicineResult->num_rows > 0) {
-        // Fetch medicine information
-        while ($medicineRow = $medicineResult->fetch_assoc()) {
-            $medicines[] = array(
-                'MedicineBrand' => $medicineRow['MedicineBrand'],
-                'Route' => $medicineRow['Route'],
-                'MedicineName' => $medicineRow['MedicineName']
-            );
-        }
-    } else {
-        echo "No medicines found for this treatment.";
-    }
-
-    // Output or process the fetched patient and treatment-related information as needed
-} else {
-    echo "Patient information not found.";
+if ($resultProfilePic->num_rows === 1) {
+    $rowProfilePic = $resultProfilePic->fetch_assoc();
+    $profilePicture = $rowProfilePic['profilepicture'];
 }
 ?>
 <!DOCTYPE html>
@@ -181,41 +127,37 @@ if ($result->num_rows > 0) {
                         </div>
                                 <div class="row d-flex">
                                     
-                                <div class="col-md-6 mb-4">
-                              
-                                <b>Patient Name:</b> <?php echo $firstName . ' ' . $middleName . ' ' . $lastName; ?><br>
-    <b>Age:</b> <?php echo $age; ?><br>
-    <b>Sex:</b> <?php echo $sex; ?><br>
-    <b>Weight:</b> <?php echo $weight; ?><br>
-                                </div>
+                                <div class="col-md-6 mb-4" id="patientInfoContainer">
+    <!-- Placeholder for patient information -->
+</div>
+
                                 <div class="col-md-6 justify-content-end d-flex">
-    <div>
-        <b>Phone Number:</b> <?php echo $contactLineNumber; ?><br>
-        <b>Birth Date:</b> <?php echo $birthDate; ?><br>
-    </div>
+                                <div id="contactDetailsContainer">
+    <!-- Placeholder for contact details -->
+</div>
 </div>
 
 
 <div class="col-lg-4 form-group m-0">
     <label for="Province">Province</label>
-    <input type="text" id="Province" name="Province" class="form-control" placeholder="Province" value="<?php echo $province; ?>" required readonly><br><br>
+    <input type="text" id="Province" name="Province" class="form-control" placeholder="Province" required readonly><br><br>
 </div>
 <div class="col-lg-4 form-group m-0">
     <label for="city">City</label>
-    <input type="text" id="city" name="city" class="form-control" placeholder="City" value="<?php echo $city; ?>" required readonly><br><br>
+    <input type="text" id="city" name="city" class="form-control" placeholder="City"  required readonly><br><br>
 </div>
 <div class="col-lg-4 form-group m-0">
     <label for="address">Address</label>
-    <input type="text" id="address" name="address" class="form-control" placeholder="Address" value="<?php echo $address; ?>" required readonly><br><br>
+    <input type="text" id="address" name="address" class="form-control" placeholder="Address"  required readonly><br><br>
 </div>
 
 <div class="col-lg-4 form-group m-0">
     <label for="emergencyContact">In case of Emergency, notify</label>
-    <input type="text" id="emergencyContact" name="emergencyContact" class="form-control" placeholder="Full Name" value="<?php echo $emergencyContactFullName; ?>" required readonly><br><br>
+    <input type="text" id="emergencyContact" name="emergencyContact" class="form-control" placeholder="Full Name" required readonly><br><br>
 </div>
 <div class="col-lg-4 form-group m-0">
     <label for="Relationship">Relationship</label>
-    <input type="text" id="Relationship" name="Relationship" class="form-control" placeholder="Relationship" value="<?php echo $emergencyContactRelationship; ?>" required readonly><br><br>
+    <input type="text" id="Relationship" name="Relationship" class="form-control" placeholder="Relationship"  required readonly><br><br>
 </div>
 <div class="col-lg-4 form-group m-0">
     <label for="phoneNumber">Phone Number<span class="red">*</span></label>
@@ -223,7 +165,7 @@ if ($result->num_rows > 0) {
         <div class="input-group-prepend">
             <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
         </div>
-        <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" value="<?php echo $emergencyContactLineNumber; ?>" required readonly>
+        <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px"  required readonly>
     </div>
     <small id="phone-number-error" class="error-message"></small>
 </div>
@@ -236,88 +178,37 @@ if ($result->num_rows > 0) {
                <div class="row d-flex ">
                         <div class="col-lg-6 form-group ">
             <label for="exposureDate">Date of Exposure</label>
-            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" value="<?php echo $exposureDate ?>" max="<?php echo date('Y-m-d'); ?>" required readonly>
+            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" max="<?php echo date('Y-m-d'); ?>" required readonly>
         </div>
         <div class="col-lg-6 form-group">
             <label for="TreatmentDate   ">Date of Treatment</label>
-            <input type="date" id="TreatmentDate" name="TreatmentDate" class="form-control" placeholder="Date of Exposure"  value="<?php echo $dateOfTreatment ?>"  max="<?php echo date('Y-m-d'); ?>" required readonly>
+            <input type="date" id="TreatmentDate" name="TreatmentDate" class="form-control" placeholder="Date of Exposure"   max="<?php echo date('Y-m-d'); ?>" required readonly>
         </div>
         
         <div class="col-lg-3 form-group m-0">
             <label for="animalType">Type of Exposure</label>
-            <input type="tel" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control"  value="<?php echo $exposureType ?>" required readonly><br><br>
+            <input type="tel" id="exposureType" name="animalType" placeholder="Type of Animal" class="form-control"   required readonly><br><br>
         </div>
         <div class="col-lg-3 form-group m-0">
             <label for="animalType">Exposure By</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control"  value="<?php echo $exposureMethod ?>" required readonly><br><br>
+            <input type="text" id="exposureMethod" name="animalType" placeholder="Type of Animal" class="form-control"  required readonly><br><br>
         </div>
  
         <div class="col-lg-3 form-group m-0">
             <label for="animalType">Type of Animal</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control"  value="<?php echo $animalType?>" required readonly><br><br>
+            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control"   required readonly><br><br>
         </div>
         <div class="col-lg-3 form-group m-0 ">
             <label for="biteLocation">Bite Location</label>
-            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" value= "<?php echo $biteLocation ?>" required readonly><br><br>
+            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" required readonly><br><br>
         </div>
         </div>
  
-        <div class="col-md-12 py-4 " style="border-top: 1px solid black; color:#0449a6;">
-                        
-                        <h4><b> Treatment Given</h4></b>
-                  </div>
-        <div class="row d-flex ">
-        <?php
-$medicineNames = array();
-foreach ($medicines as $medicine) {
-    $medicineNames[] = $medicine['MedicineName'];
-}
-$medicineNamesString = implode(', ', $medicineNames);
-?>
-<div class="col-lg-6 form-group">
-    <label for="medicineGiven">Type of Medicine</label>
-    <input type="text" id="medicineGiven" name="medicineGiven" class="form-control" placeholder="Type of Medicine" value="<?php echo $medicineNamesString; ?>" readonly>
+        <div id="treatmentDetailsContainer">
+    <!-- Placeholder for treatment details -->
 </div>
-        <?php
-$medicineBrands = array();
-foreach ($medicines as $medicine) {
-    $medicineBrands[] = $medicine['MedicineBrand'];
-}
-$medicineBrandsString = implode(', ', $medicineBrands);
-?>
-<div class="col-lg-6 form-group">
-    <label for="medicineGiven">Medicine Given</label>
-    <input type="text" id="medicineGiven" name="medicineGiven" class="form-control" placeholder="Medicine Given" value="<?php echo $medicineBrandsString; ?>" readonly>
 </div>
-        
- 
-        <div class="col-lg-4 form-group m-0">
-            <label for="animalType">Treatment Category</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" value="<?php echo $category ?>" required readonly><br><br>
-        </div>
- 
-        <div class="col-lg-4 form-group m-0">
-            <label for="animalType">Sessions</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control"  value="<?php echo $session ?>"required readonly><br><br>
-        </div>
-        <?php
-$routes = array();
-foreach ($medicines as $medicine) {
-    $routes[] = $medicine['Route'];
-}
-$routesString = implode(', ', $routes);
-?>
-<div class="col-lg-4 form-group m-0">
-    <label for="biteLocation">Route</label>
-    <input type="text" id="biteLocation" name="biteLocation" class="form-control" placeholder="Route" value="<?php echo $routesString; ?>" readonly>
-</div>
-        <div class="col-lg-12 form-group">
-        <label for="doctorRemarks">Doctor Remarks</label>
-        <textarea id="doctorRemarks" name="doctorRemarks" placeholder="Doctor Remarks" class="form-control w-100" readonly><?php echo $recommendation ?? "None"; ?></textarea>
 
-    </div>
-        </div>
-        </div>
         <div class="col-lg-12 d-flex justify-content-center">
         <button id="generatePdfButton" onclick="CreatePDFfromHTML()" style="background-color:#0449a6; border-radius:9px;" >
     <img src="ph_download-fill.png" alt="Download Icon">
@@ -342,7 +233,25 @@ $routesString = implode(', ', $routes);
         </div> <!-- End of main-container -->
     </div> <!-- End of container-fluid -->
     
-   
+    <div class="modal fade" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="dateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="dateModalLabel">Select Exposure Date</h5>
+        </div>
+        <div class="modal-body">
+          <label for="exposureDates">Select Exposure Date:</label>
+          <select id="exposureDates" class="form-control">
+            <option value="">Select Date</option>
+            <!-- Exposure dates will be populated here -->
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="selectDateButton">Select Date</button>
+        </div>
+      </div>
+    </div>
+  </div>
     <!-- Your script tags here -->
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
@@ -353,9 +262,121 @@ $routesString = implode(', ', $routes);
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+      // Fetch exposure dates on page load
+      fetchExposureDates();
 
+      // Show the modal on page load
+      $('#dateModal').modal('show');
+
+      // Fetch patient details on exposure date selection
+      $('#selectDateButton').click(function() {
+        var exposureDate = $('#exposureDates').val();
+        if (exposureDate) {
+          $('#dateModal').modal('hide');
+          fetchPatientDetails(exposureDate);
+        } else {
+          alert('Please select a date.');
+        }
+      });
+
+      function fetchExposureDates() {
+        $.ajax({
+          url: 'fetch_exposure_dates.php',
+          type: 'GET',
+          success: function(data) {
+            var dates = JSON.parse(data);
+            $.each(dates, function(index, value) {
+              $('#exposureDates').append('<option value="' + value + '">' + value + '</option>');
+            });
+          }
+        });
+      }
+
+      function fetchPatientDetails(exposureDate) {
+        $.ajax({
+          url: 'fetch-by-bite.php',
+          type: 'POST',
+          data: { exposureDate: exposureDate },
+          success: function(data) {
+            var details = JSON.parse(data);
+            if (details.error) {
+                alert(details.error);
+            } else {
+                var medicineNames = [];
+                var medicineBrands = [];
+                var routes = [];
+                details.Medicines.forEach(function(medicine) {
+                    medicineNames.push(medicine.MedicineName);
+                    medicineBrands.push(medicine.MedicineBrand);
+                    routes.push(medicine.Route);
+                });
+                // Populate patient details into HTML elements
+                $('#patientInfoContainer').html(`
+                    <b>Patient Name:</b> ${details.FirstName} ${details.MiddleName} ${details.LastName}<br>
+                    <b>Age:</b> ${details.Age}<br>
+                    <b>Sex:</b> ${details.Sex}<br>
+                    <b>Weight:</b> ${details.Weight}<br>
+                    <!-- Add other patient details here -->
+                `);
+                $('#contactDetailsContainer').html(`
+                    <b>Phone Number:</b> ${details.ContactLineNumber}<br>
+                    <b>Birth Date:</b> ${details.BirthDate}<br>
+                    <!-- Add other contact details here -->
+                `);
+                $('#Province').val(details.Province);
+                $('#city').val(details.City);
+                $('#address').val(details.Address);
+                $('#emergencyContact').val(details.EmergencyContactFullName);
+                $('#Relationship').val(details.EmergencyContactRelationship);
+                $('#phoneNumber').val(details.EmergencyContactLineNumber);
+                $('#exposureDate').val(details.ExposureDate);
+                $('#TreatmentDate').val(details.DateofTreatment);
+                $('#exposureType').val(details.ExposureType);
+                $('#animalType').val(details.AnimalType);
+                $('#exposureMethod').val(details.ExposureMethod);
+                $('#biteLocation').val(details.BiteLocation);
+                $('#treatmentDetailsContainer').html(`
+                    <div class="col-md-12 py-4" style="border-top: 1px solid black; color: #0449a6;">
+                        <h4><b>Treatment Given</b></h4>
+                    </div>
+                    <div class="row d-flex">
+                        <div class="col-lg-6 form-group">
+                            <label for="medicineGiven">Type of Medicine</label>
+                            <input type="text" id="medicineGiven" name="medicineGiven" class="form-control" placeholder="Type of Medicine" value="${medicineNames.join(', ')}" readonly>
+                        </div>
+                        <div class="col-lg-6 form-group">
+                            <label for="medicineGiven">Medicine Given</label>
+                            <input type="text" id="medicineGiven" name="medicineGiven" class="form-control" placeholder="Medicine Given" value="${medicineBrands.join(', ')}" readonly>
+                        </div>
+                        <div class="col-lg-4 form-group m-0">
+                            <label for="animalType">Treatment Category</label>
+                            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" value="${details.Category}" required readonly>
+                        </div>
+                        <div class="col-lg-4 form-group m-0">
+                            <label for="animalType">Sessions</label>
+                            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" value="${details.Session}" required readonly>
+                        </div>
+                        <div class="col-lg-4 form-group m-0">
+                            <label for="biteLocation">Route</label>
+                            <input type="text" id="biteLocation" name="biteLocation" class="form-control" placeholder="Route" value="${routes.join(', ')}" readonly>
+                        </div>
+                        <div class="col-lg-12 form-group">
+                            <label for="doctorRemarks">Doctor Remarks</label>
+                            <textarea id="doctorRemarks" name="doctorRemarks" placeholder="Doctor Remarks" class="form-control w-100" readonly>${details.Recommendation}</textarea>
+                        </div>
+                    </div>
+                `);
+            }
+        }
+    });
+      }
+    });
+  </script>
 <script>
 
+  
 document.addEventListener('DOMContentLoaded', function() {
     var pdfContent = document.getElementById('pdfContent');
     pdfContent.style.marginTop = '0'; // Set the top margin to 0

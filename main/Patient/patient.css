@@ -320,6 +320,31 @@ height: 60px;
 z-index: 10;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0 2px 32px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 0; /* Position the dropdown content at the right */
+  margin-top: 200px; /* Adjust as needed */
+  margin-right: 40px;
+  border-radius: 10px;
+}
+.navbar-item:hover {
+
+  color: #5E6E82; /* Change font color on hover */
+  font-weight: bold;
+}
+.navbar-pictures{
+  width: 20px;
+  height: 20px;
+  }
+  .navbar-pictures-sub{
+    width: 17px;
+    height: 16px;
+    }
 .profile-container {
   position: absolute; /* Position the profile container absolutely */
   top: 0; /* Align the profile container to the top of the navbar */
@@ -331,6 +356,7 @@ z-index: 10;
   padding-left: 10px;
   padding-top:10px;
   padding-bottom:10px;
+  cursor: pointer;
 }
 
 .img-logo{
@@ -616,7 +642,8 @@ overflow: hidden;
 .profile-text {
   margin-left: 10px;
   color:#FFFFFF;
-font-size: 15px;
+font-size: 11.5px;
+font-weight: bold;
   display: block; /* Make the text block-level */
   margin-bottom: -5px; /* Remove default padding */
   max-width: 122.5px;
@@ -624,12 +651,17 @@ font-size: 15px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
+.card{
+        
+  border-radius: 5px;
+  border:none;
+}
 .profile-role {
   display: block; /* Make the role block-level */
   color:#54A0FF;
-  font-size: 13px;
+  font-size: 11.5px;
   padding: 0; /* Remove default padding */
+  padding-left: 10px !important;
 }
 
 #maintenanceform{
@@ -799,7 +831,7 @@ margin-bottom: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1;
   right: 0; /* Position the dropdown content at the right */
-  margin-top: 130px; /* Adjust as needed */
+  margin-top: 180px; /* Adjust as needed */
 }
 
 

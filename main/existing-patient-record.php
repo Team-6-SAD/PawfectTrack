@@ -34,90 +34,69 @@ if ($row = mysqli_fetch_assoc($result)) {
     // Admin information not found
     echo "Admin information not found!";
 }
-$provincesAndCities = array(
-  "Abra" => array("Bangued", "Boliney", "Bucay", "Bucloc", "Daguioman", "Danglas", "Dolores", "La Paz", "Lacub", "Lagangilang", "Lagayan", "Langiden", "Licuan-Baay", "Luba", "Malibcong", "Manabo", "Penarrubia", "Pidigan", "Pilar", "Sallapadan", "San Isidro", "San Juan", "San Quintin", "Tayum", "Tineg", "Tubo", "Villaviciosa"),
-  "Agusan del Norte" => array("Buenavista", "Butuan City", "Cabadbaran City", "Carmen", "Jabonga", "Kitcharao", "Las Nieves", "Magallanes", "Nasipit", "Remedios T. Romualdez", "Santiago", "Tubay"),
-  "Agusan del Sur" => array("Bayugan City", "Bunawan", "Esperanza", "La Paz", "Loreto", "Prosperidad (Capital)", "Rosario", "San Francisco", "San Luis", "Santa Josefa", "Sibagat", "Talacogon", "Trento", "Veruela"),
-  "Aklan" => array("Altavas", "Balete", "Banga", "Batan", "Buruanga", "Ibajay", "Kalibo (Capital)", "Lezo", "Libacao", "Madalag", "Makato", "Malay", "Malinao", "Nabas", "New Washington", "Numancia", "Tangalan"),
-  "Albay" => array("Bacacay", "Camalig", "Daraga (Locsin)", "Guinobatan", "Jovellar", "Legazpi City (Capital)", "Libon", "Ligao City", "Malilipot", "Malinao", "Manito", "Oas", "Pio Duran", "Polangui", "Rapu-Rapu", "Santo Domingo", "Tiwi"),
-  "Antique" => array("Anini-y", "Barbaza", "Belison", "Bugasong", "Caluya", "Culasi", "Hamtic", "Laua-an", "Libertad", "Pandan", "Patnongon", "San Jose de Buenavista (Capital)", "San Remigio", "Sebaste", "Sibalom", "Tibiao", "Tobias Fornier", "Valderrama"),
-  "Apayao" => array("Calanasan (Bayag)", "Conner", "Flora", "Kabugao (Capital)", "Luna", "Pudtol", "Santa Marcela"),
-  "Aurora" => array("Baler (Capital)", "Casiguran", "Dilasag", "Dinalungan", "Dingalan", "Dipaculao", "Maria Aurora", "San Luis"),
-  "Basilan" => array("Akbar", "Al-Barka", "Hadji Mohammad Ajul", "Hadji Muhtamad", "Isabela City (Capital)", "Lamitan City", "Lantawan", "Maluso", "Sumisip", "Tabuan-Lasa", "Tipo-Tipo", "Ungkaya Pukan"),
-  "Bataan" => array("Abucay", "Bagac", "Balanga City (Capital)", "Dinalupihan", "Hermosa", "Limay", "Mariveles", "Morong", "Orani", "Orion", "Pilar", "Samal"),
-  "Batanes" => array("Basco (Capital)", "Itbayat", "Ivana", "Mahatao", "Sabtang", "Uyugan"),
-  "Batangas" => array("Agoncillo", "Alitagtag", "Balayan", "Balete", "Bauan", "Calaca", "Calatagan", "Cuenca", "Ibaan", "Laurel", "Lemery", "Lian", "Lipa City", "Lobo", "Mabini", "Malvar", "Mataasnakahoy", "Nasugbu", "Padre Garcia", "Rosario", "San Jose", "San Juan", "San Luis", "San Nicolas", "San Pascual", "Santa Teresita", "Santo Tomas", "Taal", "Talisay", "Tanauan City", "Taysan", "Tingloy", "Tuy"),
-  "Benguet" => array("Atok", "Baguio City", "Bakun", "Bokod", "Buguias", "Itogon", "Kabayan", "Kapangan", "Kibungan", "La Trinidad (Capital)", "Mankayan", "Sablan", "Tuba", "Tublay"),
-  "Biliran" => array("Almeria", "Biliran", "Cabucgayan", "Caibiran", "Culaba", "Kawayan", "Maripipi", "Naval (Capital)"),
-  "Bohol" => array("Alburquerque", "Alicia", "Anda", "Antequera", "Baclayon", "Balilihan", "Batuan", "Bien Unido", "Bilar", "Buenavista", "Calape", "Candijay", "Carmen", "Catigbian", "Clarin", "Corella", "Cortes", "Dagohoy", "Danao", "Dauis", "Dimiao", "Duero", "Garcia Hernandez", "Getafe", "Guindulman", "Inabanga", "Jagna", "Lila", "Loay", "Loboc", "Loon", "Mabini", "Maribojoc", "Panglao", "Pilar", "President Carlos P. Garcia (Pitogo)", "Sagbayan (Borja)", "San Isidro", "San Miguel", "Sevilla", "Sierra Bullones", "Sikatuna", "Tagbilaran City (Capital)", "Talibon", "Trinidad", "Tubigon", "Ubay", "Valencia"),
-  "Bukidnon" => array("Baungon", "Cabanglasan", "Damulog", "Dangcagan", "Don Carlos", "Impasugong", "Kadingilan", "Kalilangan", "Kibawe", "Kitaotao", "Lantapan", "Libona", "Malaybalay City (Capital)", "Malitbog", "Manolo Fortich", "Maramag", "Pangantucan", "Quezon", "San Fernando", "Sumilao", "Talakag"),
-  "Bulacan" => array("Angat", "Balagtas (Bigaa)", "Baliuag", "Bocaue", "Bulacan", "Bustos", "Calumpit", "Doña Remedios Trinidad", "Guiguinto", "Hagonoy", "Malolos City (Capital)", "Marilao", "Meycauayan City", "Norzagaray", "Obando", "Pandi", "Paombong", "Plaridel", "Pulilan", "San Ildefonso", "San Jose del Monte City", "San Miguel", "San Rafael", "Santa Maria"),
-  "Cagayan" => array("Abulug", "Alcala", "Allacapan", "Amulung", "Aparri", "Baggao", "Ballesteros", "Buguey", "Calayan", "Camalaniugan", "Claveria", "Enrile", "Gattaran", "Gonzaga", "Iguig", "Lal-lo", "Lasam", "Pamplona", "Peñablanca", "Piat", "Rizal", "Sanchez-Mira", "Santa Ana", "Santa Praxedes", "Santa Teresita", "Santo Niño (Faire)", "Solana", "Tuao", "Tuguegarao City (Capital)"),
-  "Camarines Norte" => array("Basud", "Capalonga", "Daet (Capital)", "Jose Panganiban", "Labo", "Mercedes", "Paracale", "San Lorenzo Ruiz (Imelda)", "San Vicente", "Santa Elena", "Talisay", "Vinzons"),
-  "Camarines Sur" => array("Baao", "Balatan", "Bato", "Bombon", "Buhi", "Bula", "Cabusao", "Calabanga", "Camaligan", "Canaman", "Caramoan", "Del Gallego", "Gainza", "Garchitorena", "Goa", "Iriga City", "Lagonoy", "Libmanan", "Lupi", "Magarao", "Milaor", "Minalabac", "Nabua", "Naga City (Capital)", "Ocampo", "Pamplona", "Pasacao", "Pili (Capital)", "Presentacion (Parubcan)", "Ragay", "Sagnay", "San Fernando", "San Jose", "Sipocot", "Siruma", "Tigaon", "Tinambac"),
-  "Camiguin" => array("Catarman", "Guinsiliban", "Mahinog", "Mambajao (Capital)"),
-  "Capiz" => array("Cuartero", "Dao", "Dumalag", "Dumarao", "Ivisan", "Jamindan", "Maayon", "Mambusao", "Panay", "Panitan", "Pilar", "Pontevedra", "President Roxas", "Roxas City (Capital)", "Sapi-an", "Sigma", "Tapaz"),
-  "Catanduanes" => array("Bagamanoc", "Baras", "Bato", "Caramoran", "Gigmoto", "Pandan", "Panganiban (Payo)", "San Andres (Calolbon)", "San Miguel", "Viga", "Virac (Capital)"),
-  "Cavite" => array("Alfonso", "Amadeo", "Bacoor City", "Carmona", "Cavite City", "Dasmariñas City", "General Emilio Aguinaldo", "General Mariano Alvarez", "General Trias", "Imus City (Capital)", "Indang", "Kawit", "Magallanes", "Maragondon", "Mendez", "Naic", "Noveleta", "Rosario", "Silang", "Tagaytay City", "Tanza", "Ternate", "Trece Martires City (Capital)"),
-  "Cebu" => array("Alcantara", "Alcoy", "Alegria", "Aloguinsan", "Argao", "Asturias", "Badian", "Balamban", "Bantayan", "Barili", "Bogo City", "Boljoon", "Borbon", "Carcar City", "Carmen", "Catmon", "Cebu City (Capital)", "Compostela", "Consolacion", "Cordoba", "Daanbantayan", "Dalaguete", "Danao City", "Dumanjug", "Ginatilan", "Liloan", "Madridejos", "Malabuyoc", "Mandaue City", "Medellin", "Minglanilla", "Moalboal", "Naga City", "Oslob", "Pilar", "Pinamungajan", "Poro", "Ronda", "Samboan", "San Fernando", "San Francisco", "San Remigio", "Santa Fe", "Santander", "Sibonga", "Sogod", "Tabogon", "Tabuelan", "Talisay City", "Toledo City", "Tuburan", "Tudela"),
-  "Cotabato" => array("Alamada", "Aleosan", "Antipas", "Arakan", "Banisilan", "Carmen", "Kabacan", "Kidapawan City (Capital)", "Libungan", "M'lang", "Magpet", "Makilala", "Matalam", "Midsayap", "Pigcawayan", "Pikit", "President Roxas", "Roxas", "Tulunan"),
-  "Davao de Oro" => array("Compostela", "Laak (San Vicente)", "Mabini (Dona Alicia)", "Maco", "Maragusan (San Mariano)", "Mawab", "Monkayo", "Montevista", "Nabunturan (Capital)", "New Bataan", "Pantukan"),
-  "Davao del Norte" => array("Asuncion (Saug)", "Braulio E. Dujali", "Carmen", "Kapalong", "New Corella", "Panabo City", "Samal City", "San Isidro", "Santo Tomas", "Tagum City (Capital)", "Talaingod"),
-  "Davao del Sur" => array("Bansalan", "Davao City", "Digos City (Capital)", "Hagonoy", "Kiblawan", "Magsaysay", "Malalag", "Matanao", "Padada", "Santa Cruz", "Sulop"),
-  "Davao Occidental" => array("Don Marcelino", "Jose Abad Santos (Trinidad)", "Malita (Capital)", "Santa Maria", "Sarangani"),
-  "Davao Oriental" => array("Baganga", "Banaybanay", "Boston", "Caraga", "Cateel", "Governor Generoso", "Lupon", "Manay", "Mati City (Capital)", "San Isidro", "Tarragona"),
-  "Dinagat Islands" => array("Basilisa (Rizal)", "Cagdianao", "Dinagat", "Loreto", "San Jose (Capital)"),
-  "Eastern Samar" => array("Arteche", "Balangiga", "Balangkayan", "Borongan City (Capital)", "Can-avid", "Dolores", "General MacArthur", "Giporlos", "Guiuan", "Hernani", "Jipapad", "Lawaan", "Llorente", "Maslog", "Maydolong", "Mercedes", "Oras", "Quinapondan", "Salcedo", "San Julian", "San Policarpo", "Sulat", "Taft"),
-  "Guimaras" => array("Buenavista", "Jordan (Capital)", "Nueva Valencia", "San Lorenzo", "Sibunag"),
-  "Ifugao" => array("Aguinaldo", "Alfonso Lista (Potia)", "Asipulo", "Banaue", "Hingyon", "Hungduan", "Kiangan", "Lagawe (Capital)", "Lamut", "Mayoyao", "Tinoc"),
-  "Ilocos Norte" => array("Adams", "Bacarra", "Badoc", "Bangui", "Banna (Espiritu)", "Batac City", "Burgos", "Carasi", "Currimao", "Dingras", "Dumalneg", "Laoag City (Capital)", "Marcos", "Nueva Era", "Pagudpud", "Paoay", "Pasuquin", "Piddig", "Pinili", "San Nicolas", "Sarrat", "Solsona", "Vintar"),
-  "Ilocos Sur" => array("Alilem", "Banayoyo", "Bantay", "Burgos", "Cabugao", "Candon City", "Caoayan", "Cervantes", "Galimuyod", "Gregorio del Pilar (Concepcion)", "Lidlidda", "Magsingal", "Nagbukel", "Narvacan", "Quirino (Angkaki)", "Salcedo (Baugen)", "San Emilio", "San Esteban", "San Ildefonso", "San Juan (Lapog)", "San Vicente", "Santa", "Santa Catalina", "Santa Cruz", "Santa Lucia", "Santa Maria", "Santiago", "Santo Domingo", "Sigay", "Sinait", "Sugpon", "Suyo", "Tagudin", "Vigan City (Capital)"),
-  "Iloilo" => array("Ajuy", "Alimodian", "Anilao", "Badiangan", "Balasan", "Banate", "Barotac Nuevo", "Barotac Viejo", "Batad", "Bingawan", "Cabatuan", "Calinog", "Carles", "Concepcion", "Dingle", "Dueñas", "Dumangas", "Estancia", "Guimbal", "Igbaras", "Iloilo City (Capital)", "Janiuay", "Lambunao", "Leganes", "Lemery", "Leon", "Maasin", "Miagao", "Mina", "New Lucena", "Oton", "Passi City", "Pavia", "Pototan", "San Dionisio", "San Enrique", "San Joaquin", "San Miguel", "San Rafael", "Santa Barbara", "Sara", "Tigbauan", "Tubungan", "Zarraga"),
-  "Isabela" => array("Alicia", "Angadanan", "Aurora", "Benito Soliven", "Burgos", "Cabagan", "Cabatuan", "Cordon", "Delfin Albano (Magsaysay)", "Dinapigue", "Divilacan", "Echague", "Gamu", "Ilagan City (Capital)", "Jones", "Luna", "Maconacon", "Mallig", "Naguilian", "Palanan", "Quezon", "Quirino", "Ramon", "Reina Mercedes", "Roxas", "San Agustin", "San Guillermo", "San Isidro", "San Manuel", "San Mariano", "San Mateo", "San Pablo", "Santa Maria", "Santiago City", "Santo Tomas", "Tumauini"),
-  "Kalinga" => array("Balbalan", "Lubuagan", "Pasil", "Pinukpuk", "Rizal (Liwan)", "Tabuk City (Capital)", "Tanudan", "Tinglayan"),
-  "La Union" => array("Agoo", "Aringay", "Bacnotan", "Bagulin", "Balaoan", "Bangar", "Bauang", "Burgos", "Caba", "Luna", "Naguilian", "Pugo", "Rosario", "San Fernando City (Capital)", "San Gabriel", "San Juan", "Santo Tomas", "Santol", "Sudipen", "Tubao"),
-  "Laguna" => array("Alaminos", "Bay", "Biñan City", "Cabuyao City", "Calamba City (Capital)", "Calauan", "Cavinti", "Famy", "Kalayaan", "Liliw", "Los Baños", "Luisiana", "Lumban", "Mabitac", "Magdalena", "Majayjay", "Nagcarlan", "Paete", "Pagsanjan", "Pakil", "Pangil", "Pila", "Rizal", "San Pablo City", "San Pedro City", "Santa Cruz (Capital)", "Santa Maria", "Santa Rosa City", "Siniloan", "Victoria"),
-  "Lanao del Norte" => array("Bacolod", "Baloi", "Baroy", "Iligan City", "Kapatagan", "Kauswagan", "Kolambugan", "Lala", "Linamon", "Magsaysay", "Maigo", "Matungao", "Munai", "Nunungan", "Pantao Ragat", "Pantar", "Poona Bayabao (Gata)", "Salvador", "Sapad", "Sultan Naga Dimaporo (Karomatan)", "Tagoloan", "Tangcal", "Tubod (Capital)"),
-  "Lanao del Sur" => array("Bacolod-Kalawi (Bacolod Grande)", "Balabagan", "Balindong (Watu)", "Bayang", "Binidayan", "Buadiposo-Buntong", "Bubong", "Butig", "Calanogas", "Ditsaan-Ramain", "Ganassi", "Kapai", "Kapatagan", "Lumba-Bayabao (Maguing)", "Lumbaca-Unayan", "Lumbatan", "Lumbayanague", "Madalum", "Madamba (Pagayawan)", "Maguing", "Malabang", "Marantao", "Marogong", "Masiu", "Mulondo", "Pagayawan (Tatarikan)", "Piagapo", "Picong (Sultan Gumander)", "Poona Bayabao (Gata)", "Pualas", "Saguiaran", "Sultan Dumalondong", "Picong", "Tagoloan II", "Tamparan", "Taraka", "Tubaran", "Tugaya", "Wao"),
-  "Leyte" => array("Abuyog", "Alangalang", "Albuera", "Babatngon", "Barugo", "Bato", "Baybay City", "Burauen", "Calubian", "Capoocan", "Carigara", "Dagami", "Dulag", "Hilongos", "Hindang", "Inopacan", "Isabel", "Jaro", "Javier (Bugho)", "Julita", "Kananga", "La Paz", "Leyte", "MacArthur", "Mahaplag", "Matag-ob", "Matalom", "Mayorga", "Merida", "Ormoc City", "Palo", "Palompon", "Pastrana", "San Isidro", "San Miguel", "Santa Fe", "Tabango", "Tabontabon", "Tacloban City (Capital)", "Tanauan", "Tolosa", "Tunga", "Villaba"),
-  "Maguindanao" => array("Ampatuan", "Barira", "Buldon", "Buluan", "Datu Abdullah Sangki", "Datu Anggal Midtimbang", "Datu Blah T. Sinsuat", "Datu Hoffer Ampatuan", "Datu Montawal (Pagagawan)", "Datu Odin Sinsuat (Dinaig)", "Datu Paglas", "Datu Piang (Dulawan)", "Datu Salibo", "Datu Saudi-Ampatuan", "Datu Unsay", "General Salipada K. Pendatun", "Guindulungan", "Kabuntalan (Tumbao)", "Mamasapano", "Mangudadatu", "Matanog", "Northern Kabuntalan", "Pagalungan", "Paglat", "Pandag", "Parang", "Rajah Buayan", "Shariff Aguak (Maganoy)", "South Upi", "Sultan Kudarat", "Sultan Mastura", "Sultan Sa Barongis (Lambayong)", "Sultan Sumagka (Talitay)", "Talayan", "Talitay", "Upi"),
-  "Marinduque" => array("Boac (Capital)", "Buenavista", "Gasan", "Mogpog", "Santa Cruz", "Torrijos"),
-  "Masbate" => array("Aroroy", "Baleno", "Balud", "Batuan", "Cataingan", "Cawayan", "Claveria", "Dimasalang", "Esperanza", "Mandaon", "Masbate City (Capital)", "Milagros", "Mobo", "Monreal", "Palanas", "Pio V. Corpuz (Limbuhan)", "Placer", "San Fernando", "San Jacinto", "San Pascual", "Uson"),
-  "Misamis Occidental" => array("Aloran", "Baliangao", "Bonifacio", "Calamba", "Clarin", "Concepcion", "Don Victoriano Chiongbian (Don Mariano Marcos)", "Jimenez", "Lopez Jaena", "Oroquieta City (Capital)", "Ozamiz City", "Panaon", "Plaridel", "Sapang Dalaga", "Sinacaban", "Tangub City", "Tudela"),
-  "Misamis Oriental" => array("Alubijid", "Balingasag", "Balingoan", "Binuangan", "Cagayan de Oro City (Capital)", "Claveria", "El Salvador City", "Gingoog City", "Gitagum", "Initao", "Jasaan", "Kinoguitan", "Lagonglong", "Laguindingan", "Libertad", "Lugait", "Magsaysay (Linugos)", "Manticao", "Medina", "Naawan", "Opol", "Salay", "Sugbongcogon", "Tagoloan", "Talisayan", "Villanueva"),
-  "Mountain Province" => array("Barlig", "Bauko", "Besao", "Bontoc (Capital)", "Natonin", "Paracelis", "Sabangan", "Sadanga", "Sagada", "Tadian"),
-  "Negros Occidental" => array("Bacolod City", "Bago City", "Binalbagan", "Cadiz City", "Calatrava", "Candoni", "Cauayan", "Enrique B. Magalona (Saravia)", "Escalante City", "Himamaylan City", "Hinigaran", "Hinoba-an (Asia)", "Ilog", "Isabela", "Kabankalan City", "La Carlota City", "La Castellana", "Manapla", "Moises Padilla (Magallon)", "Murcia", "Pontevedra", "Pulupandan", "Sagay City", "Salvador Benedicto", "San Carlos City", "San Enrique", "Silay City", "Sipalay City", "Talisay City", "Toboso", "Valladolid", "Victorias City"),
-  "Negros Oriental" => array("Amlan (Ayuquitan)", "Ayungon", "Bacong", "Bais City", "Basay", "Bayawan City (Tulong)", "Bindoy (Payabon)", "Canlaon City", "Dauin", "Dumaguete City (Capital)", "Guihulngan", "Jimalalud", "La Libertad", "Mabinay", "Manjuyod", "Pamplona", "San Jose", "Santa Catalina", "Siaton", "Sibulan", "Tanjay City", "Tayasan", "Valencia (Luzurriaga)", "Vallehermoso", "Zamboanguita"),
-  "Northern Samar" => array("Allen", "Biri", "Bobon", "Capul", "Catubig", "Catarman (Capital)", "Gamay", "Laoang", "Lapinig", "Las Navas", "Lavezares", "Lope de Vega", "Mapanas", "Mondragon", "Palapag", "Pambujan", "Rosario", "San Antonio", "San Isidro", "San Jose", "San Roque", "San Vicente", "Silvino Lobos", "Victoria"),
-  "Nueva Ecija" => array("Aliaga", "Bongabon", "Cabanatuan City", "Cabiao", "Carranglan", "Cuyapo", "Gabaldon (Bitulok & Sabani)", "Gapan City", "General Mamerto Natividad", "General Tinio (Papaya)", "Guimba", "Jaen", "Laur", "Licab", "Llanera", "Lupao", "Muñoz City", "Nampicuan", "Palayan City (Capital)", "Pantabangan", "Peñaranda", "Quezon", "Rizal", "San Antonio", "San Isidro", "San Jose City", "San Leonardo", "Santa Rosa", "Santo Domingo", "Science City of Muñoz", "Talavera", "Talugtug", "Zaragoza"),
-  "Nueva Vizcaya" => array("Alfonso Castañeda", "Ambaguio", "Aritao", "Bagabag", "Bambang (Capital)", "Bayombong", "Diadi", "Dupax del Norte", "Dupax del Sur", "Kasibu", "Kayapa", "Quezon", "Santa Fe", "Solano", "Villaverde (Ibung)"),
-  "Occidental Mindoro" => array("Abra de Ilog", "Calintaan", "Looc", "Lubang", "Magsaysay", "Mamburao (Capital)", "Paluan", "Rizal", "Sablayan", "San Jose", "Santa Cruz"),
-  "Oriental Mindoro" => array("Baco", "Bansud", "Bongabong", "Bulalacao (San Pedro)", "Calapan City (Capital)", "Gloria", "Mansalay", "Naujan", "Pinamalayan", "Pola", "Puerto Galera", "Roxas", "San Teodoro", "Socorro", "Victoria"),
-  "Palawan" => array("Aborlan", "Agutaya", "Araceli", "Balabac", "Bataraza", "Brooke's Point", "Busuanga", "Cagayancillo", "Coron", "Culion", "Cuyo", "Dumaran", "El Nido (Bacuit)", "Kalayaan", "Linapacan", "Magsaysay", "Narra", "Puerto Princesa City (Capital)", "Quezon", "Rizal (Marcos)", "Roxas", "San Vicente", "Sofronio Española", "Taytay"),
-  "Pampanga" => array("Angeles City", "Apalit", "Arayat", "Bacolor", "Candaba", "Floridablanca", "Guagua", "Lubao", "Mabalacat City", "Macabebe", "Magalang", "Masantol", "Mexico", "Minalin", "Porac", "San Fernando City (Capital)", "San Luis", "San Simon", "Santa Ana", "Santa Rita", "Santo Tomas", "Sasmuan"),
-  "Pangasinan" => array("Agno", "Aguilar", "Alaminos City", "Alcala", "Anda", "Asingan", "Balungao", "Bani", "Basista", "Bautista", "Bayambang", "Binalonan", "Binmaley", "Bolinao", "Bugallon", "Burgos", "Calasiao", "Dasol", "Infanta", "Labrador", "Laoac", "Lingayen (Capital)", "Mabini", "Malasiqui", "Manaoag", "Mangaldan", "Mangatarem", "Mapandan", "Natividad", "Pozorrubio", "Rosales", "San Carlos City", "San Fabian", "San Jacinto", "San Manuel", "San Nicolas", "San Quintin", "Santa Barbara", "Santa Maria", "Santo Tomas", "Sison", "Sual", "Tayug", "Umingan", "Urbiztondo", "Villasis"),
-  "Quezon" => array("Agdangan", "Alabat", "Atimonan", "Buenavista", "Burdeos", "Calauag", "Candelaria", "Catanauan", "Dolores", "General Luna", "General Nakar", "Guinayangan", "Gumaca", "Infanta", "Jomalig", "Lopez", "Lucban", "Lucena City (Capital)", "Macalelon", "Mauban", "Mulanay", "Padre Burgos", "Pagbilao", "Panukulan", "Patnanungan", "Perez", "Pitogo", "Plaridel", "Polillo", "Quezon", "Real", "Sampaloc", "San Andres", "San Antonio", "San Francisco (Aurora)", "San Narciso", "Sariaya", "Tagkawayan", "Tayabas City", "Tiaong", "Unisan"),
-  "Quirino" => array("Aglipay", "Cabarroguis (Capital)", "Diffun", "Maddela", "Nagtipunan", "Saguday"),
-  "Rizal" => array("Angono", "Antipolo City", "Baras", "Binangonan", "Cainta", "Cardona", "Jalajala", "Morong", "Pililla", "Rodriguez (Montalban)", "San Mateo", "Tanay", "Taytay", "Teresa"),
-  "Romblon" => array("Alcantara", "Banton (Jones)", "Cajidiocan", "Calatrava", "Concepcion", "Corcuera", "Ferrol", "Looc", "Magdiwang", "Odiongan (Capital)", "Romblon", "San Agustin", "San Andres", "San Fernando", "San Jose", "Santa Fe", "Santa Maria"),
-  "Samar (Western Samar)" => array("Almagro", "Basey", "Calbayog City", "Calbiga", "Catbalogan City (Capital)", "Daram", "Gandara", "Hinabangan", "Jiabong", "Marabut", "Matuguinao", "Motiong", "Pagsanghan", "Paranas (Wright)", "Pinabacdao", "San Jorge", "San Jose de Buan", "San Sebastian", "Santa Margarita", "Santa Rita", "Santo Niño", "Tagapul-an", "Talalora", "Tarangnan", "Villareal", "Zumarraga"),
-  "Sarangani" => array("Alabel (Capital)", "Glan", "Kiamba", "Maasim", "Maitum", "Malapatan", "Malungon"),
-  "Siquijor" => array("Enrique Villanueva", "Larena", "Lazi", "Maria", "San Juan", "Siquijor (Capital)"),
-  "Sorsogon" => array("Barcelona", "Bulan", "Bulusan", "Casiguran", "Castilla", "Donsol", "Gubat", "Irosin", "Juban", "Magallanes", "Matnog", "Pilar", "Prieto Diaz", "Santa Magdalena", "Sorsogon City (Capital)"),
-  "South Cotabato" => array("Banga", "General Santos City (Dadiangas) (Capital)", "Koronadal City", "Lake Sebu", "Norala", "Polomolok", "Santo Niño", "Surallah", "T'boli", "Tampakan", "Tantangan", "Tupi"),
-  "Southern Leyte" => array("Anahawan", "Bontoc", "Hinunangan", "Hinundayan", "Libagon", "Liloan", "Limasawa", "Maasin City (Capital)", "Macrohon", "Malitbog", "Padre Burgos", "Pintuyan", "Saint Bernard", "San Francisco", "San Juan (Cabalian)", "San Ricardo", "Silago", "Sogod", "Tomas Oppus"),
-  "Sultan Kudarat" => array("Bagumbayan", "Columbio", "Esperanza", "Isulan (Capital)", "Kalamansig", "Lambayong (Mariano Marcos)", "Lebak", "Lutayan", "Palimbang", "President Quirino", "Senator Ninoy Aquino", "Tacurong City"),
-  "Sulu" => array("Banguingui (Tongkil)", "Hadji Panglima Tahil (Marunggas)", "Indanan", "Jolo (Capital)", "Kalingalan Caluang", "Lugus", "Luuk", "Maimbung", "Old Panamao", "Omar", "Pandami", "Panglima Estino (New Panamao)", "Pangutaran", "Parang", "Pata", "Patikul", "Siasi", "Talipao", "Tapul"),
-  "Surigao del Norte" => array("Alegria", "Bacuag", "Burgos", "Claver", "Dapa", "Del Carmen", "General Luna", "Gigaquit", "Mainit", "Malimono", "Pilar", "Placer", "San Benito", "San Francisco (Anao-aon)", "San Isidro", "Santa Monica (Sapao)", "Sison", "Socorro", "Surigao City (Capital)", "Tagana-an", "Tubod"),
-  "Surigao del Sur" => array("Barobo", "Bayabas", "Bislig City", "Cagwait", "Cantilan", "Carmen", "Carrascal", "Cortes", "Hinatuan", "Lanuza", "Lianga", "Lingig", "Madrid", "Marihatag", "San Agustin", "San Miguel", "Tagbina", "Tago", "Tandag City (Capital)"),
-  "Tarlac" => array("Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City (Capital)", "Victoria"),
-  "Tawi-Tawi" => array("Bongao (Capital)", "Languyan", "Mapun (Cagayan de Tawi-Tawi)", "Panglima Sugala (Balimbing)", "Sapa-Sapa", "Sibutu", "Simunul", "Sitangkai", "South Ubian", "Tandubas", "Turtle Islands (Taganak)"),
-  "Zambales" => array("Botolan", "Cabangan", "Candelaria", "Castillejos", "Iba (Capital)", "Masinloc", "Olongapo City", "Palauig", "San Antonio", "San Felipe", "San Marcelino", "San Narciso", "Santa Cruz", "Subic"),
-  "Zamboanga del Norte" => array("Baliguian", "Dapitan City", "Dipolog City (Capital)", "Godod", "Gutalac", "Jose Dalman (Ponot)", "Kalawit", "Katipunan", "La Libertad", "Labason", "Leon B. Postigo (Bacungan)", "Liloy", "Manukan", "Mutia", "Piñan (New Piñan)", "Polanco", "Pres. Manuel A. Roxas", "Rizal", "Salug", "Sergio Osmeña Sr.", "Siayan", "Sibuco", "Sibutad", "Sindangan", "Siocon", "Sirawai", "Tampilisan"),
-  "Zamboanga del Sur" => array("Aurora", "Bayog", "Dimataling", "Dinas", "Dumalinao", "Dumingag", "Guipos", "Josefina", "Kumalarang", "Labangan", "Lakewood", "Lapuyan", "Mahayag", "Margosatubig", "Midsalip", "Molave", "Pagadian City (Capital)", "Pitogo", "Ramon Magsaysay (Liargo)", "San Miguel", "San Pablo", "Sominot", "Tabina", "Tambulig", "Tigbao", "Tukuran", "Vincenzo A. Sagun"),
-  "Zamboanga Sibugay" => array("Alicia", "Buug", "Diplahan", "Imelda", "Ipil (Capital)", "Kabasalan", "Mabuhay", "Malangas", "Naga", "Olutanga", "Payao", "Roseller Lim", "Siay", "Talusan", "Titay", "Tungawan")
-);
+if (isset($_GET['patientID'])) {
+  $patientID = $_GET['patientID'];
 
+  // SQL query to fetch patient details
+  $sql = "
+  SELECT 
+      p.LastName, 
+      p.FirstName, 
+      p.MiddleName, 
+      TIMESTAMPDIFF(YEAR, p.BirthDate, CURDATE()) AS Age, 
+      p.BirthDate, 
+      p.Weight, 
+      p.Sex, 
+      ci.LineNumber AS ContactNumber, 
+      ci.EmailAddress, 
+      pa.Province, 
+      pa.City, 
+      pa.Address, 
+      ec.FullName AS EmergencyContactName, 
+      ec.Relationship AS EmergencyContactRelationship, 
+      ec.LineNumber AS EmergencyContactNumber
+  FROM 
+      patient p
+  LEFT JOIN 
+      contactinformation ci ON p.PatientID = ci.PatientID
+  LEFT JOIN 
+      patientaddress pa ON p.PatientID = pa.PatientID
+  LEFT JOIN 
+      emergencycontact ec ON p.PatientID = ec.PatientID
+  WHERE 
+      p.PatientID = ?
+  ";
+
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "i", $patientID);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+
+  if ($row = mysqli_fetch_assoc($result)) {
+      // Store patient details in variables
+      $lastName = $row['LastName'];
+      $firstName = $row['FirstName'];
+      $middleName = $row['MiddleName'];
+      $age = $row['Age'];
+      $birthDate = $row['BirthDate'];
+      $weight = $row['Weight'];
+      $sex = $row['Sex'];
+      $contactNumber = $row['ContactNumber'];
+      $emailAddress = $row['EmailAddress'];
+      $province = $row['Province'];
+      $city = $row['City'];
+      $address = $row['Address'];
+      $emergencyContactName = $row['EmergencyContactName'];
+      $emergencyContactRelationship = $row['EmergencyContactRelationship'];
+      $emergencyContactNumber = $row['EmergencyContactNumber'];
+  } else {
+      echo "No patient found with the given ID.";
+      exit(); // Terminate the script
+  }
+} else {
+  echo "No PatientID provided.";
+  exit(); // Terminate the script
+}
 
 ?>
 
@@ -217,45 +196,41 @@ $provincesAndCities = array(
 <form id="multi-step-form" enctype="multipart/form-data">
   <div class="step active" id="step1">
     <div class="row justify-content-center mt-3 px-3 ">
+    <input type="hidden" name="patientID" value="<?php echo $patientID; ?>">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="fName">First Name<span class="red">*</span></label>
-        <input type="text" id="fName" name="fName" placeholder="First Name" class="form-control" oninput="preventLeadingSpace(event)" required>
+        <input type="text" id="fName" name="fName" placeholder="First Name" value="<?php echo $firstName; ?>" class="form-control" oninput="preventLeadingSpace(event)" readonly>
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="mName">Middle Name</label>
-        <input type="text" id="mName" name="mName" placeholder="Middle Name" class="form-control" oninput="preventLeadingSpace(event)" >
+        <input type="text" id="mName" name="mName" placeholder="Middle Name" value="<?php echo $middleName; ?> "class="form-control" oninput="preventLeadingSpace(event)"readonly >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="lName">Last Name<span class="red">*</span></label>
-        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" oninput="preventLeadingSpace(event)" required>
+        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" value="<?php echo $lastName; ?>" oninput="preventLeadingSpace(event)" readonly>
       </div>
     </div>
     <div class="row justify-content-center px-3">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="birthDate">Birth Date<span class="red">*</span></label>
-        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year')); ?>"onkeydown="return false">
+        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" value="<?php echo $birthDate; ?>"  max="<?php echo date('Y-m-d', strtotime('-1 year')); ?>"onkeydown="return false" readonly>
 
       </div>
   
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="age">Age<span class="red">*</span></label>
-        <input type="tel" id="age" name="age" placeholder="Age" class="form-control"required >
+        <input type="tel" id="age" name="age" placeholder="Age" value="<?php echo $age; ?>" class="form-control" readonly>
       </div>
    
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="sex">Sex<span class="red">*</span></label>
-        <select id="sex" name="sex" class="form-control" required >
-          <option value="">Select Sex</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
-        </select>
+        <input type="text" id="sex" name="sex" class="form-control" value="<?php echo $sex; ?>" readonly >
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-0">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="weight">Weight (kg)<span class="red">*</span></label>
-        <input type="tel" id="weight" name="weight" placeholder="Weight (kg)" class="form-control"  required>
+        <input type="tel" id="weight" name="weight" placeholder="Weight (kg)" value="<?php echo $weight; ?>" class="form-control"   readonly>
       </div>
          <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="phoneNumber">Phone Number<span class="red">*</span></label>
@@ -264,7 +239,7 @@ $provincesAndCities = array(
                                         <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
                                     </div>
 
-                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" value="<?php echo $contactNumber; ?>"  readonly>
                                    <div>
 
                                    </div>
@@ -275,56 +250,33 @@ $provincesAndCities = array(
                             
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="email">Email Address<span class="red">*</span></label>
-        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" required>
+        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" value="<?php echo $emailAddress; ?>"  readonly>
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-0">
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="province">Province<span class="red">*</span></label>
-      <select id="provinceSelect" name="province" class="form-control" required >
-    <option value="">Select Province</option>
-    <?php foreach ($provincesAndCities as $province => $cities): ?>
-        <option value="<?php echo $province; ?>"><?php echo $province; ?></option>
-    <?php endforeach; ?>
-</select>
+      <input type="text" id="province" name="province" class="form-control" placeholder="Province" value="<?php echo $province; ?>"   readonly>
+
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="city">City<span class="red">*</span></label>
-      <select id="citySelect" name="city" class="form-control" required >
-    <option value="">Select City</option>
-</select>
+      <input type="text" id="city" name="city" class="form-control" placeholder="City" value="<?php echo $city; ?>"   readonly>
 
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="address">Address<span class="red">*</span></label>
-        <input type="text" id="address" name="address" class="form-control" placeholder="Address" required >
+        <input type="text" id="address" name="address" class="form-control" placeholder="Address" value="<?php echo $address; ?>"  readonly>
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-3">
       <div class="col-lg-4 form-group px-4">
         <label for="emergencyContact">In case of Emergency, notify<span class="red">*</span></label>
-        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" required oninput="preventLeadingSpace(event)" >
+        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" value="<?php echo $emergencyContactName; ?>"   oninput="preventLeadingSpace(event)" readonly >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="relationship">Relationship<span class="red">*</span></label>
-        <select id="emergencyContactRelationship" name="emergency_contact_relationship" class="form-control" required >
-    <option value="">Select Relationship</option>
-    <option value="Spouse">Spouse</option>
-    <option value="Parent">Parent</option>
-    <option value="Child">Child</option>
-    <option value="Sibling">Sibling</option>
-    <option value="Other Family Member">Other Family Member </option>
-    <option value="Friend">Friend</option>
-    <option value="Colleague">Colleague</option>
-    <option value="Neighbor">Neighbor</option>
-    <option value="Guardian">Guardian</option>
-    <option value="Legal Representative">Legal Representative</option>
-    <option value="Partner">Partner</option>
-    <option value="Caretaker">Caretaker</option>
-    <option value="Doctor">Doctor</option>
-    <option value="Other">Other</option>
-</select>
-
+        <input type="text" id="relationship" name="relationship" placeholder="Relationship" class="form-control" value="<?php echo $emergencyContactRelationship; ?>"   oninput="preventLeadingSpace(event)" readonly >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="emergencyPhoneNumber">Phone Number<span class="red">*</span></label>
@@ -333,7 +285,7 @@ $provincesAndCities = array(
                                         <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
                                     </div>
 
-                                    <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                    <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" value="<?php echo $emergencyContactNumber?> " style="min-width: 140px"  readonly>
                                    <div>
 
                                    </div>
@@ -818,10 +770,8 @@ function nextStep(step) {
   if (currentStep === 1) {
     validateBirthDateField();
     validateAgeField();
-    validatePhoneNumberField();
-    validateEmergencyPhoneNumberField();
     validateWeightField();
-    validateEmailField();
+
   }
 
   // If there are validation errors in the current step, stop and show error messages
@@ -922,7 +872,7 @@ document.getElementById('submit-button').addEventListener('click', function(e) {
         const formData = new FormData(document.getElementById('multi-step-form'));
 
         $.ajax({
-            url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
+            url: 'backend/submit-existing.php', // Replace 'submit.php' with your actual form submission endpoint
             method: 'POST',
             data: formData,
             contentType: false, // Important for file uploads
@@ -948,36 +898,6 @@ document.getElementById('submit-button').addEventListener('click', function(e) {
 
 
 
-
-
-// Define JavaScript variable to hold PHP-generated data
-var provincesAndCities = <?php echo json_encode($provincesAndCities); ?>;
-
-// Get references to the province and city select elements
-var provinceSelect = document.getElementById("provinceSelect");
-var citySelect = document.getElementById("citySelect");
-
-// Add event listener to the province select element
-provinceSelect.addEventListener("change", function() {
-    // Clear previous options in the city select element
-    citySelect.innerHTML = "<option value=''>Select City</option>";
-    
-    // Get the selected province
-    var selectedProvince = this.value;
-    
-    // Get the cities for the selected province from JavaScript variable
-    var cities = provincesAndCities[selectedProvince];
-    
-    // Add options for cities to the city select element
-    if (cities) {
-        cities.forEach(function(city) {
-            var option = document.createElement("option");
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-        });
-    }
-});
 
   // Function to validate birth date
   function validateBirthDate(birthDate) {
@@ -1091,25 +1011,7 @@ function removeError(field) {
     }
   }
 
-  // Function to validate phone number field
-  function validatePhoneNumberField() {
-    const phoneNumber = document.getElementById('phoneNumber').value;
-    const isValid = validatePhoneNumber(phoneNumber);
-    if (!isValid) {
-      showError(document.getElementById('phoneNumber'), 'Phone number should start with "09" and have 11 digits.');
-    } else {
-      removeError(document.getElementById('phoneNumber'));
-    }
-  }
-  function validateEmergencyPhoneNumberField() {
-    const emergencyPhoneNumber = document.getElementById('emergencyPhoneNumber').value;
-    const isValid = validateEmergencyPhoneNumber(emergencyPhoneNumber);
-    if (!isValid) {
-      showError(document.getElementById('emergencyPhoneNumber'), 'Phone number should start with "09" and have 11 digits.');
-    } else {
-      removeError(document.getElementById('emergencyPhoneNumber'));
-    }
-  }
+
 
   // Function to validate weight field
   function validateWeightField() {
@@ -1123,23 +1025,15 @@ function removeError(field) {
   }
 
   // Function to validate email field
-  function validateEmailField() {
-    const email = document.getElementById('email').value;
-    const isValid = validateEmail(email);
-    if (!isValid) {
-      showError(document.getElementById('email'), 'Please enter a valid email address.');
-    } else {
-      removeError(document.getElementById('email'));
-    }
-  }
+
+
 
   // Add event listeners to input fields to validate them as the user types
   document.getElementById('birthDate').addEventListener('input', validateBirthDateField);
   document.getElementById('age').addEventListener('input', validateAgeField);
-  document.getElementById('phoneNumber').addEventListener('input', validatePhoneNumberField);
-  document.getElementById('emergencyPhoneNumber').addEventListener('input', validateEmergencyPhoneNumberField);
+
+
   document.getElementById('weight').addEventListener('input', validateWeightField);
-  document.getElementById('email').addEventListener('input', validateEmailField);
 
   $(document).ready(function() {
     // Function to fetch brands and quantity based on selected medicine type

@@ -5,47 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Page</title>
     <link rel="icon" href="img/Favicon 2.png" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
+                .white-shadow {
+    box-shadow: 0 4px 40px 4px white !important;
+}
      body{
-        font-family: "Poppins";
+        font-family: "Rubik";
         background-color: #EAEFF6;
-        
+   
         background-position: center center;
      }
+     input.form-control{
+            background-color: white !important;
+            border: #ECECEC solid 2px;
+            border-radius: 0;
+            height: 35px;
+        }
      .red{
         color: red;
      }
     
-     .error-border {
-    border-color: red !important; /* Change border color to red */
-    /* Add any other styling for error indication */
-}
 
-     
-     .container{
-        background-image: url('img/img-login-register/Group 2313.png');
-        background-size:contain;
-        background-position:top;
-        background-repeat: no-repeat;
-        
-     }
-     @media screen and (max-width: 768px) {
-        .container{
-        background-image: url('img/img-login-register/Group 2313.png');
-        background-size:cover;
-        background-repeat:repeat-y;
-        background-position:  left center;
-     }
-}
+     .password-input-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .password-input-wrapper input {
+            flex: 1;
+        }
 
 .password-input-container {
     position: relative;
   }
+  
 
   ::-ms-reveal {
   display: none !important;
@@ -66,6 +64,10 @@
         box-shadow: 0 0 10px #719CF2 !important; /* Add !important to override existing styles if necessary */
     }
 
+    .error-border {
+    border-color: red !important; /* Change border color to red */
+    /* Add any other styling for error indication */
+}
 
 
     .pos-fix{
@@ -79,147 +81,166 @@
     .margin-bottom{
         margin-bottom: 100px;
     }
-    input.form-control {
-            border: 1px solid #EAEFF6; /* Light gray border */
-            background-color: #F9FAFD; /* Light blue background */
-            border-radius: 0px !important;
+
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+         
         }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .form-container {
+            border-radius: 19px;
+            position: relative;
+            z-index: 10;
+            background-color: #fff;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        
+        }
+
+        .header-container h2 {
+            color: #5E6E82;
+            font-weight: 800;
+            margin-bottom: 0px;
+        }
+
+        .header-container img {
+            margin-left: 10px;
+            max-width: 100px; /* Adjust size as needed */
+            height: auto;
+        }
+        
+    
+        .form-control::placeholder{
+            color:#ECECEC;
+            font-size: 12px;
+        }
+        .card{
+            border:none;
+        }
+        .toggle-btn {
+            height:35px;
+            padding: 5px 12px;
+            border: 2px solid #ECECEC;
+            border-left:none;
+            background-color: #f8f8f8;
+            cursor: pointer;
+        }
+        label {
+    font-size: 12px;  /* Change the font size to 16px for all labels */
+}
+.form-group{
+    margin-bottom: 0.5rem;
+}
+   
+
     </style>
 </head>
 <body>
-    
-    <div class="container d-flex justify-content-center align-items-center margin-bottom">
-    
-        <div class="row justify-content-center ">
-           
-            <div class="card pos-fix col-md-10 col-lg-9 mt-5 element " style="border-radius: 19px;">
-                <div class="row">
-                <div class="col-md-4 p-3" style="background-color: #0449A6;">
-                 <div class="col-md-12 mt-5 align-items-center justify-content-center d-flex mb-2">
-                    <img src="img/img-login-register/Login Logo.png" width="90px" height="78px">
-                </div>
-                <div class="col-md-12 align-items-center justify-content-center d-flex">
-                 <h4 style="color: white; white-space:nowrap;"> <b>Pawfect Track </b></h4>
-                </div>
-                <div class="col-md-12 align-items-center justify-content-center d-none d-sm-none d-md-block d-lg-block mb-5 pb-5">
-                    <span class="text-center d-sm-none d-md-block d-lg-block" style="color: white; font-size: 12px;"> Pawfect Track is an Anti-Rabies Vaccination Record System and Inventory Management with Predictive Analytics </span>
-                   </div>
-                
-                   <div class="justify-content-center d-none align-items-center d-sm-none d-md-flex d-lg-flex d-xl-flex padding-top">
-                    <div class="card mt-5 px-2 py-1" style="border-radius: 20px;" >
-                    <div class="col-md-12 align-items-center justify-content-center d-flex mb-3" >
-                     <img src="img/img-dashboard/ABC-Sign.png" width="150" height="90" style="min-height: 100;min-width:170; ">
-                     </div>
-                 </div>
-          
-                </div>
-                <div class="col-md-12 align-items-center justify-content-center d-flex mt-5">
-                    <span class="text-center" style="color: white; font-size: 12px;"> Already have an Account? </span>
-                </div>
-                <div class="justify-content-center d-flex mb-5">
-                <a class="text-center" style="text-decoration: underline;"  href="Admin Login.php">Login</a>
-                </div>
-            </div>
-            
-                <div class="col-md-8 px-5 py-3 mt-5">
-                    <div class="pl-4 pr-4">
-                        <h4 class="text-center pb-4" style="color:#5E6E82;"><b> Register</b></h4>
-                        <div id="alertMessages" class="mt-1"> </div>
-                        <form id="registrationForm" method="post" action="backend/pawfectRegistration.php">
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="first-name"><b>First Name</b><span class="red">*</span></label>
-                                <input type="text" id="first-name" name="first-name" class="form-control" placeholder="First Name" oninput="preventLeadingSpace(event)" maxlength="50">
-                                <small id="first-name-error" class="text-danger"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="middle-name"><b>Middle Name</b></label>
-                                <input type="text" id="middle-name" name="middle-name" class="form-control" placeholder="Middle Name" oninput="preventLeadingSpace(event)" maxlength="50">
-                                <small id="middle-name-error" class="text-danger"></small>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="last-name"><b>Last Name</b><span class="red">*</span></label>
-                                <input type="text" id="last-name" name="last-name" class="form-control" placeholder="Last Name" oninput="preventLeadingSpace(event)" maxlength="50">
-                                <small id="last-name-error" class="text-danger"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="username"><b>Username</b><span class="red">*</span></label>
-                                <input type="text" id="username" name ="username" class="form-control" placeholder="Username"   oninput="preventSpaces(event)" maxlength="16">
-                                <small id="username-error" class="text-danger"></small>                            
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="phone-number"><b>Phone Number</b><span class="red">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
-                                    </div>
-                                    
-                                    <input type="text" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789" >
-                                   
-                                </div>
-                                <small id="phone-number-error" class="text-danger"></small>
-                           
-                            </div>
-                        </div>
-                        
-                    
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="email"><b>Email</b><span class="red">*</span></label>
-                                <input type="email" id="email" name="email" class="form-control" placeholder="@gmail.com" >
-                                <small id="email-error" class="text-danger"></small>
-                            </div>
-                        </div>
-                        
-            
-                        <div class="col-md-12">
-                            <div class="form-group">
-                              <label for="password"><b>Password</b><span class="red">*</span></label>
-                              <div class="password-input-container">
-                                <input type="password" id="password" name="password" class="form-control" placeholder="Password" oninput="preventSpaces(event)" maxlength="16">
-                                <i class="toggle-password fas fa-eye"></i>
-                
-                            </div>
-                            <small id="password-error" class="text-danger"></small>
-                            </div>
-                          </div>
-                        
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="password"><b>Confirm Password</b><span class="red">*</span></label>
-                            <div class="password-input-container">
-                              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" oninput="preventSpaces(event)" maxlength="16">
-                              <i class="toggle-confirm-password fas fa-eye"></i>
-                            </div>
-                            <small id="confirmPassword-error" class="text-danger"></small>
-                          </div>
-                            
-                    </div>
-                <div class="col-md-12 mt-3 mb-0">
-                    <div class="form-group  justify-content-center d-flex">
-                       <button type="submit" class="btn btn-primary btn-lg px-5 py-2 pb-2" style="font-size: small; border-radius: 8px; background-color: #0449A6;"><b>Register</b></button>
-            
-                    </form>
-                    </div>
-                    
-            </div>
-                
+
+    <div class="row justify-content-center px-5 ">
+        <div class="col-lg-6 mt-3 pb-0 pt-5 px-0 image-container">
+            <img src="img/img-login-register/Admin Authentication.png" alt="Admin Authentication" style="height:600px; width:600px;">
+            <img src="img/img-login-register/PawfectTrackSign.png" alt="Pawfect Track Sign" style="margin-top: -60px; width:450px;">
         </div>
-    </div>  
-      
+        <div class="card pos-fix col-lg-6 mt-5 form-container white-shadow px-4">
+            <div class="col-md-12 px-3 pb-3 mt-4">
+                <div class="pl-4 pr-4">
+                <div class="header-container">
+                        <h2>Register</h2>
+                        <img src="img/img-dashboard/ABC-Sign.png" alt="ABC Sign">
+                    </div>
+                    <div id="alertMessages" class="mt-1"></div>
+                    <form id="registrationForm" method="post" action="backend/pawfectRegistration.php">
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="first-name">First Name<span class="red">*</span></label>
+                                    <input type="text" id="first-name" name="first-name" class="form-control" placeholder="First Name" oninput="preventLeadingSpace(event)" maxlength="50">
+                                    <small id="first-name-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="middle-name">Middle Name</label>
+                                    <input type="text" id="middle-name" name="middle-name" class="form-control" placeholder="Middle Name" oninput="preventLeadingSpace(event)" maxlength="50">
+                                    <small id="middle-name-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="last-name">Last Name<span class="red">*</span></label>
+                                    <input type="text" id="last-name" name="last-name" class="form-control" placeholder="Last Name" oninput="preventLeadingSpace(event)" maxlength="50">
+                                    <small id="last-name-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="username">Username<span class="red">*</span></label>
+                                    <input type="text" id="username" name="username" class="form-control" placeholder="Username" oninput="preventSpaces(event)" maxlength="16">
+                                    <small id="username-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="phone-number">Phone Number<span class="red">*</span></label>
+                                    <input type="text" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789">
+                                    <small id="phone-number-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="email">Email<span class="red">*</span></label>
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="@gmail.com">
+                                    <small id="email-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="password">Password<span class="red">*</span></label>
+                                    <div class="password-input-wrapper">
+                                        <input type="password" id="password" name="password" class="form-control" placeholder="Password" oninput="preventSpaces(event)" maxlength="16">
+                  
+                                        <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('password')">SHOW</button>
+                    
+                                    </div>
+                                    <small id="password-error" class="text-danger"></small>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password<span class="red">*</span></label>
+            <div class="password-input-wrapper">
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm Password" oninput="preventSpaces(event)" maxlength="16">
+                <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('confirmPassword')">SHOW</button>
+            </div>
+            <small id="confirmPassword-error" class="text-danger"></small>
+        </div>
     </div>
 
+                            <div class="col-md-12" >
+                                <div class="form-group justify-content-center d-flex py-4 "style="border-bottom:2px solid #ECECEC;">
+                                    <button type="submit" class="btn btn-primary btn-lg px-4 py-2 pb-2" style="font-size: 15px; border-radius: 30px; background-color: #0449A6;"><b>Register</b></button>
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-2 mb-0 text-center">
+    <small>Already have an account? <a href="Admin Login.php" style="color:#0449A6;"><b>Login</b></a></small>
+</div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -257,31 +278,21 @@
         });
     </script>
      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.getElementById('password');
-            const togglePassword = document.querySelector('.toggle-password');
-        
-            togglePassword.addEventListener('click', function() {
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
-        });
+         function togglePasswordVisibility(id) {
+            const input = document.getElementById(id);
+            const toggleBtn = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                toggleBtn.textContent = 'HIDE';
+                toggleBtn.style.paddingLeft = '17px'; // Add padding-left
+            } else {
+                input.type = 'password';
+                toggleBtn.textContent = 'SHOW';
+                toggleBtn.style.paddingLeft = '10px'; // Add padding-left
+            }
+        }
         </script>
-         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const passwordInput = document.getElementById('confirmPassword');
-                const togglePassword = document.querySelector('.toggle-confirm-password');
-            
-                togglePassword.addEventListener('click', function() {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    this.classList.toggle('fa-eye');
-                    this.classList.toggle('fa-eye-slash');
-                });
-            });
-            </script>
+     
 <script>
          document.addEventListener('DOMContentLoaded', function() {
         function validateForm() {
@@ -346,27 +357,33 @@ if (username.value.trim() === '' && touchedFields['username']) {
                 }
             }
 
-            // Validate Password
-            if ((password.value.trim() === '' || !validatePassword(password.value.trim())) && touchedFields['password']) {
-    isValid = false;
-    if (password.value.trim() === '') {
-        showError(password, 'Please enter a Password.');
-    } else {
-        showError(password, 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).');
-    }
-}
 
-            // Validate Confirm Password
-            if (confirmPassword.value.trim() === '' && touchedFields['confirmPassword']) {
-                isValid = false;
-                showError(confirmPassword, 'Please confirm your Password.');
-            } else if (password.value.trim() !== confirmPassword.value.trim()) {
-                isValid = false;
-                showError(confirmPassword, 'Passwords do not match.');
+        // Validate Password
+        if ((password.value.trim() === '' || !validatePassword(password.value.trim())) && touchedFields['password']) {
+            isValid = false;
+            if (password.value.trim() === '') {
+                showError(password, 'Please enter a Password.');
+            } else {
+                showError(password, 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).');
             }
+        }
+
+        // Validate Confirm Password
+        if (confirmPassword.value.trim() === '' && touchedFields['confirmPassword']) {
+            isValid = false;
+            showError(confirmPassword, 'Please confirm your Password.');
+        } else if (confirmPassword.value.trim() !== password.value.trim() && touchedFields['confirmPassword']) {
+            isValid = false;
+            showError(confirmPassword, 'Passwords do not match.');
+        }
+
+
 
             return isValid;
+            
         }
+        
+        
         const registrationForm = document.getElementById('registrationForm');
 
         // Create an object to track the touched state of each input field
@@ -479,7 +496,7 @@ $(document).ready(function() {
         if (input.id === 'password' || input.id === 'confirmPassword') {
             input.classList.add('error-border'); // Add error-border class for password fields
         } else {
-            input.classList.add('is-invalid'); // Add is-invalid class for other fields
+            input.classList.add('error-border'); // Add is-invalid class for other fields
         }
     }
 }
@@ -493,7 +510,7 @@ $(document).ready(function() {
         }
 
         inputs.forEach(function (input) {
-            input.classList.remove('is-invalid');
+        
             input.classList.remove('error-border');
             const errorElement = document.getElementById(input.id + '-error');
             if (errorElement) {

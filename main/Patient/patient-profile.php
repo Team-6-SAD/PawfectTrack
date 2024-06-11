@@ -126,9 +126,9 @@ $conn->close();
                           <div id="details" class="row">
                           <?php
 // Check if adminPhoto is empty
-if (!empty($adminPhoto)) {
+if (!empty($profilePicture)) {
     // Display the admin photo
-    echo '<img src="../uploads/'. $adminPhoto . '" alt="Admin Photo" class="admin-photo">';
+    echo '<img src="../uploads/'. $profilePicture . '" alt="Admin Photo" class="admin-photo">';
 } else {
     // Display the placeholder image
     echo '<img src="../uploads/placeholder.png" alt="Placeholder Image" class="admin-photo">';
@@ -138,7 +138,7 @@ if (!empty($adminPhoto)) {
             
                             <div class="text-container ml-4 mt-middle ">
                             <h6> <b><?php echo "$firstName" . " ". "$middleName" . " " . "$lastName" ?? "User"; ?></b> </h6>
-                            <h6>Admin </h6>
+                            <h6>Patient </h6>
                             
                             </div>
                             <div class="col text-right mt-3">

@@ -80,7 +80,15 @@ if ($treatmentResult->num_rows > 0) {
     echo "No treatments found for this patient.<br>";
 }
 // Close the database connection
+$stmtProfilePic = $conn->prepare("SELECT profilepicture FROM patient WHERE PatientID = (SELECT PatientID FROM usercredentials WHERE UserID = ?)");
+$stmtProfilePic->bind_param("i", $userID);
+$stmtProfilePic->execute();
+$resultProfilePic = $stmtProfilePic->get_result();
 
+if ($resultProfilePic->num_rows === 1) {
+    $rowProfilePic = $resultProfilePic->fetch_assoc();
+    $profilePicture = $rowProfilePic['profilepicture'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -208,7 +216,7 @@ if ($treatmentResult->num_rows > 0) {
             <!-- Content -->
             <div class="content" id="content">
                 <div class="row mr-5 ml-3 mt-0 pt-0 justify-content-center">
-                    <div class="col-11 mt-0 pt-0 pr-0">
+                    <div class="col-10 mt-0 pt-0 pr-2">
                         <div class="card-body card-image p-0 align-items-center">
                             <div class="row logo-font-color mt-0 pl-2">
                                 <div class="col-md-6 text-left mt-5 ml-4">
@@ -218,12 +226,17 @@ if ($treatmentResult->num_rows > 0) {
                                 <div class="col-md-5 text-right mt-4 pt-2">
                                     <img src="../img/img-dashboard/ABC-Sign-White.png" alt="Description of the image" class="img-logo ml-auto">
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
+                                </div>
+                                </div>
+                                </div>
+                                </div>
+                         
+                
+                         
+                     
+               
                     <div class="row mr-5 ml-3 mt-0 pt-0 mt-3 mb-5 justify-content-center">
-                    <div class="col-11 justify-content-center m-0 p-0">
+                    <div class="col-10 justify-content-center m-0 p-0">
                         <div class="row justify-content-center mr-2 ml-3 equal-height-columns">
                             <div class="col-md-12 col-lg-6 mt-2 pl-0 pr-3">
                                 <div class="card p-3 pt-5 mx-auto table-card" style="height: 380px;">
@@ -261,7 +274,7 @@ if ($treatmentResult->num_rows > 0) {
                                                         $patientID = $row['PatientID'];
 
                                                         // Prepare and execute a query to retrieve appointment information using the PatientID
-                                                        $stmt = $conn->prepare("SELECT SessionDays, Status, AppointmentDate FROM appointmentinformation WHERE PatientID = ?");
+                                                        $stmt = $conn->prepare("SELECT SessionDays, Status, AppointmentDate FROM appointmentinformation WHERE PatientID = ? AND Status ='Pending'");
                                                         $stmt->bind_param("i", $patientID);
                                                         $stmt->execute();
                                                         $result = $stmt->get_result();
@@ -299,7 +312,7 @@ if ($treatmentResult->num_rows > 0) {
                                 </div>
                             </div>
 
-                            <div class="col-md-12 col-lg-6 mt-2 pl-4 pr-0">
+                            <div class="col-md-12 col-lg-6 mt-2 pl-4 pr-0 justify-content-end d-flex">
                                 <div id="carouselExampleSlidesOnly" class="carousel slide h-100" data-ride="carousel">
                                     <!-- Carousel Indicators -->
                                     <ol class="carousel-indicators">

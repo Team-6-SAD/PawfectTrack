@@ -40,52 +40,38 @@ if ($row = mysqli_fetch_assoc($result)) {
 // Check if the patientID is set in the URL
 if(isset($_GET['patientID'])) {
     $patientID = $_GET['patientID'];
+    $sqlPatientDetails = "SELECT p.FirstName, p.MiddleName, p.LastName, p.Sex, c.LineNumber, c.EmailAddress
+                          FROM patient AS p
+                          LEFT JOIN contactinformation AS c ON p.PatientID = c.PatientID
+                          WHERE p.PatientID = ?";
 
-    // Prepare and execute the SQL query to fetch patient and bite details
-    $sqlPatientBite = "SELECT p.FirstName, p.MiddleName, p.LastName, p.Sex,
-                              c.LineNumber, c.EmailAddress,
-                              b.AnimalType, b.ExposureType, b.ExposureDate, b.BiteLocation, b.ExposureMethod, b.BitePicture,
-                              t.DateofTreatment
-                       FROM patient AS p
-                       LEFT JOIN contactinformation AS c ON p.PatientID = c.PatientID
-                       LEFT JOIN bitedetails AS b ON p.PatientID = b.PatientID
-                       LEFT JOIN treatment AS t ON p.PatientID = t.PatientID
-                       WHERE p.PatientID = ?";
-    
-    $stmtPatientBite = mysqli_prepare($conn, $sqlPatientBite);
-    mysqli_stmt_bind_param($stmtPatientBite, "i", $patientID);
-    mysqli_stmt_execute($stmtPatientBite);
-    $resultPatientBite = mysqli_stmt_get_result($stmtPatientBite);
+    $stmtPatientDetails = mysqli_prepare($conn, $sqlPatientDetails);
+    mysqli_stmt_bind_param($stmtPatientDetails, "i", $patientID);
+    mysqli_stmt_execute($stmtPatientDetails);
+    $resultPatientDetails = mysqli_stmt_get_result($stmtPatientDetails);
 
-    // Check if there is a row returned for patient and bite details
-    if ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
-        // Patient and bite details retrieved successfully
-        $pfirstName = $rowPatientBite['FirstName'];
-        $pmiddleName = $rowPatientBite['MiddleName'];
-        $plastName = $rowPatientBite['LastName'];
-        $sex = $rowPatientBite['Sex'];
-        $lineNumber = $rowPatientBite['LineNumber'];
-        $emailAddress = $rowPatientBite['EmailAddress'];
-        $animalType = $rowPatientBite['AnimalType'];
-        $exposureType = $rowPatientBite['ExposureType'];
-        $exposureDate = $rowPatientBite['ExposureDate'];
-        $biteLocation = $rowPatientBite['BiteLocation'];
-        $exposureMethod = $rowPatientBite['ExposureMethod'];
-        $bitePicture = $rowPatientBite['BitePicture'];
-        $dateofTreatment = $rowPatientBite['DateofTreatment'];
-
-        // Now you can use these variables to display the patient and bite details in your HTML
+    // Check if there is a row returned for patient details
+    if ($rowPatientDetails = mysqli_fetch_assoc($resultPatientDetails)) {
+        // Patient details retrieved successfully
+        $pfirstName = $rowPatientDetails['FirstName'];
+        $pmiddleName = $rowPatientDetails['MiddleName'];
+        $plastName = $rowPatientDetails['LastName'];
+        $sex = $rowPatientDetails['Sex'];
+        $lineNumber = $rowPatientDetails['LineNumber'];
+        $emailAddress = $rowPatientDetails['EmailAddress'];
     } else {
-        // Patient and bite details not found
-        echo "Patient and bite details not found!";
+        // No data found for the patient ID
+        $error = "No patient details found for the given ID.";
     }
-    
-    // Close the statement for patient and bite details
-    mysqli_stmt_close($stmtPatientBite);
+
+    // Close the statement
+    mysqli_stmt_close($stmtPatientDetails);
+} else {
+    $error = "Invalid patient ID.";
 }
-// Close the database connection
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
+    // Prepare and execute the SQL query to fetch patient and bite details
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -151,97 +137,114 @@ mysqli_close($conn);
         </a>
     </div>
 </div>
+<div class="form-group">
+    <label for="biteDetailsDate">Select Bite Details Date:</label>
+    <select class="form-control" id="biteDetailsDate" onchange="loadBiteDetails(this.value)">
+        <option value="">Select Date</option>
+        <?php
+        // Loop through all the bite details dates and populate the dropdown
+        // Prepare and execute the SQL query to fetch distinct bite details dates
+        $sqlDistinctDates = "SELECT DISTINCT ExposureDate FROM bitedetails WHERE PatientID = ?";
+        $stmtDistinctDates = mysqli_prepare($conn, $sqlDistinctDates);
+        mysqli_stmt_bind_param($stmtDistinctDates, "i", $patientID);
+        mysqli_stmt_execute($stmtDistinctDates);
+        $resultDistinctDates = mysqli_stmt_get_result($stmtDistinctDates);
+
+        // Check if there are any bite details dates fetched
+        if (mysqli_num_rows($resultDistinctDates) > 0) {
+            // Loop through the distinct dates and populate the dropdown
+            while ($rowDistinctDates = mysqli_fetch_assoc($resultDistinctDates)) {
+                echo "<option value='" . $rowDistinctDates['ExposureDate'] . "'>" . $rowDistinctDates['ExposureDate'] . "</option>";
+            }
+        } else {
+            echo "<option value=''>No Dates Found</option>";
+        }
+        ?>
+    </select>
 </div>
-    <div class="row justify-content-center d-flex">
+</div>
+<div class="row justify-content-center d-flex">
     <div class="col-md-11">
-    <div class="row">
-    <div class="col-md-7 pl-0 h-100">
-        <div class="card mt-4">
-            
-            <div class="card-body p-5">
-                <h5 class="main-font-color"><b> Bite Exposure Details</b> </h5>
-                <div class="profile-content-container mb-4">
-                    <div class="col-sm-6 col-md-4">
-                        <div class="profile-category">Type of Animal</div>
-                        <div class="profile-category-content"><?php echo $animalType ?></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="profile-category">Type of Exposure</div>
-                        <div class="profile-category-content"><?php echo $exposureType ?></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="profile-category">Date of Exposure</div>
-                        <div class="profile-category-content"><?php echo $exposureDate ?></div>
+        <div class="row">
+            <div class="col-md-7 pl-0 h-100">
+                <div class="card mt-4">
+                    <div class="card-body p-5">
+                        <h5 class="main-font-color"><b>Bite Exposure Details</b></h5>
+                        <div class="profile-content-container mb-4">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="profile-category">Type of Animal</div>
+                                <div class="profile-category-content" id="animalType"><?php echo isset($animalType) ? $animalType : ''; ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="profile-category">Type of Exposure</div>
+                                <div class="profile-category-content" id="exposureType"><?php echo isset($exposureType) ? $exposureType : ''; ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="profile-category">Date of Exposure</div>
+                                <div class="profile-category-content" id="exposureDate"><?php echo isset($exposureDate) ? $exposureDate : ''; ?></div>
+                            </div>
+                        </div>
+                        <div class="profile-content-container">
+                            <div class="col-md-4">
+                                <div class="profile-category">Bite Location</div>
+                                <div class="profile-category-content" id="biteLocation"><?php echo isset($biteLocation) ? $biteLocation : ''; ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="profile-category">Exposure by</div>
+                                <div class="profile-category-content" id="exposureMethod"><?php echo isset($exposureMethod) ? $exposureMethod : ''; ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="profile-category">Date of Treatment</div>
+                                <div class="profile-category-content" id="dateofTreatment"><?php echo isset($dateofTreatment) ? $dateofTreatment : ''; ?></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="profile-content-container">
-                    <div class="col-md-4">
-                        <div class="profile-category">Bite Location</div>
-                        <div class="profile-category-content"><?php echo $biteLocation ?></div>
+            </div>
+            <div class="col-md-5 pt-4 d-flex justify-content-center" style="height: 340px; width:450px;">
+                <?php
+                // Check if $bitePicture is empty
+                if (!isset($bitePicture) || $bitePicture === "uploads/") {
+                    // If empty, set the path to the placeholder image
+                    $placeholderImagePath = "uploads/placeholder.png";
+                } else {
+                    // If not empty, use the value of $bitePicture
+                    $placeholderImagePath = $bitePicture;
+                }
+                ?>
+                <img id="bitePicture" src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-11 mt-4 pl-0 mb-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="profile-content-container p-3">
+                    <div class="col-md-3">
+                        <div class="profile-category">Full Name</div>
+                        <div class="profile-category-content"><?php echo isset($pfirstName) ? $pfirstName . ' ' . $pmiddleName . ' ' . $plastName : ''; ?></div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="profile-category">Exposure by</div>
-                        <div class="profile-category-content"><?php echo $exposureMethod?></div>
+                    <div class="col-md-2">
+                        <div class="profile-category">Patient ID</div>
+                        <div class="profile-category-content"><?php echo isset($patientID) ? $patientID : ''; ?></div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="profile-category">Date of Treatment</div>
-                        <div class="profile-category-content"><?php echo $dateofTreatment ?></div>
+                    <div class="col-md-2">
+                        <div class="profile-category">Gender</div>
+                        <div class="profile-category-content"><?php echo isset($sex) ? $sex : ''; ?></div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="profile-category">Contact Number</div>
+                        <div class="profile-category-content"><?php echo isset($phoneNumber) ? $phoneNumber : ''; ?></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="profile-category">Email Address</div>
+                        <div class="profile-category-content"><?php echo isset($emailAddress) ? $emailAddress : ''; ?></div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
-     
-        <div class="col-md-5 pt-4 d-flex justify-content-center" style="height: 340px; width:450px;">
-        <?php
-// Check if $bitePicture is empty
-if ($bitePicture === "uploads/") {
-    // If empty, set the path to the placeholder image
-    $placeholderImagePath = "uploads/placeholder.png";
-} else {
-    // If not empty, use the value of $bitePicture
-    $placeholderImagePath = $bitePicture;
-}
-?>
-
-<img src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
-
     </div>
 </div>
-</div>
-
-<div class="col-md-11 mt-4 pl-0 mb-5">
-
-<div class="card">
-    <div class="card-body">
-<div class="profile-content-container  p-3">
-                    <div class="col-md-3">
-                        <div class="profile-category">Fulll Name</div>
-                        <div class="profile-category-content"><?php echo $pfirstName . ' ' . $pmiddleName . ' ' . $plastName ?></div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="profile-category">Patient ID</div>
-                        <div class="profile-category-content">000-001</div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="profile-category">Gender</div>
-                        <div class="profile-category-content">Male</div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="profile-category">Contact Number</div>
-                        <div class="profile-category-content">09898761521</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="profile-category">Email Address</div>
-                        <div class="profile-category-content">peterwilrexewow0968@gmail.com</div>
-                    </div>
-              
-                </div>
-</div>
-</div>    
-</div>
-</div>        
- 
 
 
 
@@ -272,6 +275,46 @@ if ($bitePicture === "uploads/") {
 
 <!-- Include jQuery -->
 
+<script>
+function loadBiteDetails(selectedDate) {
+    // Get the patient ID from a hidden input or another source in your HTML
+    var patientID = '<?php echo $patientID; ?>';
+
+    // Make an AJAX request
+    $.ajax({
+        url: 'backend/fetch-bite-details.php',
+        type: 'GET',
+        data: {
+            date: selectedDate,
+            patientID: patientID
+        },
+        success: function(response) {
+            // Parse the JSON response
+            var data = JSON.parse(response);
+
+            // Check for an error in the response
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            // Update HTML content with response data
+            $('#animalType').text(data.AnimalType);
+            $('#exposureType').text(data.ExposureType);
+            $('#exposureDate').text(data.ExposureDate);
+            $('#biteLocation').text(data.BiteLocation);
+            $('#exposureMethod').text(data.ExposureMethod);
+            $('#dateofTreatment').text(data.DateofTreatment);
+            $('#bitePicture').attr('src', data.BitePicture !== "uploads/" ? data.BitePicture : "uploads/placeholder.png");
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+}
+
+
+</script>
 
 
 <script>

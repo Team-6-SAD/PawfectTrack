@@ -20,50 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo "Sorry, there was an error uploading your file.";
     }
+
     // Extract patient data from the form
-    $fName = $_POST['fName'];
-    $mName = $_POST['mName'];
-    $lName = $_POST['lName'];
-    $birthDate = $_POST['birthDate'];
-    $age = $_POST['age'];
-    $sex = $_POST['sex'];
-    $weight = $_POST['weight'];
-    $phoneNumber = $_POST['phoneNumber'];
-    $email = $_POST['email'];
-    $province = $_POST['province'];
-    $city = $_POST['city'];
-    $address = $_POST['address'];
-    $emergencyContact = $_POST['emergencyContact'];
-    $emergencyContactRelationship = $_POST['emergency_contact_relationship'];
-    $emergencyPhoneNumber = $_POST['emergencyPhoneNumber'];
-
-    // Insert patient data into the database
-    $patientInsertQuery = "INSERT INTO patient (FirstName, MiddleName, LastName, BirthDate, Age, Sex, Weight) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $patientStmt = mysqli_prepare($conn, $patientInsertQuery);
-    mysqli_stmt_bind_param($patientStmt, "sssssss", $fName, $mName, $lName, $birthDate, $age, $sex, $weight);
-    mysqli_stmt_execute($patientStmt);
-    $patientId = mysqli_insert_id($conn); // Get the last inserted patient ID
-
-    // Insert contact information with patient ID
-    $contactInsertQuery = "INSERT INTO contactinformation (PatientID, LineNumber, EmailAddress) VALUES (?, ?, ?)";
-    $contactStmt = mysqli_prepare($conn, $contactInsertQuery);
-    mysqli_stmt_bind_param($contactStmt, "iss", $patientId, $phoneNumber, $email);
-    mysqli_stmt_execute($contactStmt);
-    $contactId = mysqli_insert_id($conn); // Get the last inserted contact ID
-
-    // Insert patient address with patient ID
-    $addressInsertQuery = "INSERT INTO patientaddress (PatientID, Province, City, Address) VALUES (?, ?, ?, ?)";
-    $addressStmt = mysqli_prepare($conn, $addressInsertQuery);
-    mysqli_stmt_bind_param($addressStmt, "isss", $patientId, $province, $city, $address);
-    mysqli_stmt_execute($addressStmt);
-    $addressId = mysqli_insert_id($conn); // Get the last inserted address ID
-
-    // Insert emergency contact with patient ID
-    $emergencyInsertQuery = "INSERT INTO emergencycontact (PatientID, FullName, Relationship, LineNumber) VALUES (?, ?, ?, ?)";
-    $emergencyStmt = mysqli_prepare($conn, $emergencyInsertQuery);
-    mysqli_stmt_bind_param($emergencyStmt, "isss", $patientId, $emergencyContact, $emergencyContactRelationship, $emergencyPhoneNumber);
-    mysqli_stmt_execute($emergencyStmt);
-    $emergencyId = mysqli_insert_id($conn); // Get the last inserted emergency contact ID
+    $patientId = $_POST['patientID']; // Assuming you have a hidden input field with name="patientID"
 
     // Handle uploaded image
     $bitePicture = $targetFile;
@@ -94,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_stmt_bind_param($treatmentStmt, "iisiss", $patientId, $exposureId, $treatmentCategory, $sessions, $treatmentDate, $doctorRemarks);
     mysqli_stmt_execute($treatmentStmt);
     $treatmentId = mysqli_insert_id($conn); // Get the last inserted treatment ID
-
+    
     $status = "Done"; // Default status for the first appointment
     $today = date("Y-m-d"); // Current date
     for ($i = 0; $i < $sessions; $i++) {
@@ -134,10 +93,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Insert appointment information into the database
         $appointmentInsertQuery = "INSERT INTO appointmentinformation (TreatmentID, PatientID, AppointmentDate, Status, SessionDays) VALUES (?, ?, ?, ?, ?)";
         $appointmentStmt = mysqli_prepare($conn, $appointmentInsertQuery);
-        mysqli_stmt_bind_param($appointmentStmt, "iissi",$treatmentId, $patientId, $appointmentDate, $status, $sessionDays);
+        mysqli_stmt_bind_param($appointmentStmt, "iissi", $treatmentId, $patientId, $appointmentDate, $status, $sessionDays);
         mysqli_stmt_execute($appointmentStmt);
         $appointmentId = mysqli_insert_id($conn); // Get the last inserted appointment ID
     }
+
     // Extract medicine data from the form
     $medicineTypes = $_POST['medicineType'];
     $medicineGivens = $_POST['medicineGiven'];
@@ -154,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_bind_result($getBrandNameStmt, $brandName);
         mysqli_stmt_fetch($getBrandNameStmt);
         mysqli_stmt_close($getBrandNameStmt);
-    
+
         // Fetch MedicineName based on MedicineID
         $getMedicineNameQuery = "SELECT MedicineName FROM medicine WHERE MedicineID = ?";
         $getMedicineNameStmt = mysqli_prepare($conn, $getMedicineNameQuery);
@@ -163,23 +123,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_bind_result($getMedicineNameStmt, $medicineName);
         mysqli_stmt_fetch($getMedicineNameStmt);
         mysqli_stmt_close($getMedicineNameStmt);
-    
+
         // Insert into medicineusage table with MedicineBrand Name and Medicine Name
         $medicineInsertQuery = "INSERT INTO medicineusage (TreatmentID, MedicineBrand, MedicineName, Dosage, Quantity) VALUES (?, ?, ?, ?, ?)";
         $medicineStmt = mysqli_prepare($conn, $medicineInsertQuery);
         mysqli_stmt_bind_param($medicineStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
         mysqli_stmt_execute($medicineStmt);
         $medicineUsageId = mysqli_insert_id($conn);
+
+        // Insert into machinelearning table
         $machineLearningInsertQuery = "INSERT INTO machinelearning (TreatmentID, MedicineBrand, MedicineName, Dosage, Quantity) VALUES (?, ?, ?, ?, ?)";
-$machineLearningStmt = mysqli_prepare($conn, $machineLearningInsertQuery);
-mysqli_stmt_bind_param($machineLearningStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
+        $machineLearningStmt = mysqli_prepare($conn, $machineLearningInsertQuery);
+        mysqli_stmt_bind_param($machineLearningStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
+        mysqli_stmt_execute($machineLearningStmt);
+        $machineLearningId = mysqli_insert_id($conn);
 
-// Execute the insert query for machinelearning table
-mysqli_stmt_execute($machineLearningStmt);
-
-// Get the last inserted ID for machinelearning table
-$machineLearningId = mysqli_insert_id($conn);
-    
         // Fetch current stock quantity and closest expiry date
         $getStockQuery = "SELECT StockQuantity, StockExpiryDate FROM medicineinventory WHERE MedicineBrandID = ? ORDER BY StockExpiryDate ASC LIMIT 1";
         $getStockStmt = mysqli_prepare($conn, $getStockQuery);
@@ -188,10 +146,10 @@ $machineLearningId = mysqli_insert_id($conn);
         mysqli_stmt_bind_result($getStockStmt, $stockQuantity, $stockExpiryDate);
         mysqli_stmt_fetch($getStockStmt);
         mysqli_stmt_close($getStockStmt);
-    
+
         // Calculate new stock quantity after usage
         $newStockQuantity = $stockQuantity - $quantities[$i];
-    
+
         // Update stock quantity in medicineinventory table
         $updateStockQuery = "UPDATE medicineinventory SET StockQuantity = ? WHERE MedicineBrandID = ? AND StockExpiryDate = ?";
         $updateStockStmt = mysqli_prepare($conn, $updateStockQuery);
@@ -199,8 +157,6 @@ $machineLearningId = mysqli_insert_id($conn);
         mysqli_stmt_execute($updateStockStmt);
         mysqli_stmt_close($updateStockStmt);
     }
-    
-
 
     // Extract equipment data from the form
     $equipmentTypes = $_POST['equipmentType'];

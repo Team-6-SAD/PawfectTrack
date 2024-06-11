@@ -122,14 +122,15 @@ if ($result->num_rows > 0) {
     echo "Patient information not found.";
 }
 
+
 require('../includes/fpdf/fpdf.php');
 
 $pdf = new FPDF();
 $pdf->AddPage();
-$pdf->AddFont('Poppins', '', 'C:\xampp2\htdocs\pawfect\main\includes\fpdf\font\Poppins-Regular.afm');
-$pdf->AddFont('Poppins', 'B','../Poppins-Bold.afm');
+$pdf->AddFont('Poppins','','Poppins-Regular.php');
+$pdf->AddFont('Poppins','B','Poppins-Bold.php');
 // Set font
-$pdf->SetFont('Arial', '', 12);
+$pdf->SetFont('Poppins', '', 12);
 
 // Header
 $pdf->Image('ABC-Vax-Header.png', 10, 10, 0, 0, 'PNG');
@@ -141,34 +142,274 @@ $pdf->Line(10,50, 200, 50); // Draw line (adjust coordinates as needed)
 $pdf->Ln(10); // Add space after the line
 
 // Personal Information section
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0,30, 'Personal Information', 0, 1, 'C');
+$pdf->SetFont('Poppins', 'B', 12);
+$red = hexdec("04");   // Red value in decimal (4)
+$green = hexdec("49"); // Green value in decimal (73)
+$blue = hexdec("A6");  // Blue value in decimal (166)
+
+// Set text color using RGB values
+$pdf->SetTextColor($red, $green, $blue); // Color #0449A6
+$pdf->Cell(50, 30, 'Personal Information', 0, 1, 'C');
 $pdf->Ln(5);
 
+$pdf->SetTextColor(0, 0, 0); // Reset text color
+$pdf->SetFont('Poppins', '', 10);
+
 // Patient Name
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(50, 10, 'Patient Name:', 0, 0);
-$pdf->Cell(0, 10, $firstName . ' ' . $middleName . ' ' . $lastName, 0, 1);
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(30, -20, 'Patient Name:', 0, 0);
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, -20, $firstName . ' ' . $middleName . ' ' . $lastName, 0, 1);
 
 // Age
-$pdf->Cell(50, 10, 'Age:', 0, 0);
-$pdf->Cell(0, 10, $age, 0, 1);
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(10, 30, 'Age:', 0, 0);
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, 30, $age, 0, 1);
 
 // Sex
-$pdf->Cell(50, 10, 'Sex:', 0, 0);
-$pdf->Cell(0, 10, $sex, 0, 1);
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(10, -20, 'Sex:', 0, 0);
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, -20, $sex, 0, 1);
 
 // Weight
-$pdf->Cell(50, 10, 'Weight:', 0, 0);
-$pdf->Cell(0, 10, $weight, 0, 1);
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(16, 30, 'Weight:', 0, 0);
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, 30, $weight, 0, 1);
 
 // Phone Number
-$pdf->Cell(50, 10, 'Phone Number:', 0, 0);
-$pdf->Cell(0, 10, $contactLineNumber, 0, 1);
+$pdf->Cell(100); // Move the cursor to the right
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(60, -60, 'Phone Number:', 0, 0, 'R'); // Add the text aligned to the right
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, -60, $contactLineNumber, 0, 1); // Change 0 to 1 for line break
 
 // Birth Date
-$pdf->Cell(50, 10, 'Birth Date:', 0, 0);
-$pdf->Cell(0, 10, $birthDate, 0, 1);
+$pdf->Cell(100); // Move the cursor to the right
+$pdf->SetFont('Poppins', 'B', 10);
+$pdf->Cell(60, 70, 'Birth Date:', 0, 0, 'R'); // Add the text aligned to the right
+$pdf->SetFont('Poppins', '', 10);
+$pdf->Cell(0, 70, $birthDate, 0, 1); // Change 0 to 1 for line break
+// Address label
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Address:', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+
+// Draw form field box with background color
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(60,10, $address, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(75);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'City:', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+
+
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(75);
+$pdf->MultiCell(60,10, $city, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(140);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Province:', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(140);
+$pdf->MultiCell(60,10, $province, 0, 'L', true); // Add address inside the box with background color
+$pdf->Ln(20);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'In case of Emergency, notify', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+
+// Draw form field box with background color
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(60,10, $emergencyContactFullName, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(75);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Relationship', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(75);
+$pdf->MultiCell(60,10, $emergencyContactRelationship, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(140);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Phone Number', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(140);
+$pdf->MultiCell(60,10, $emergencyContactLineNumber, 0, 'L', true); // Add address inside the box with background color
+
+$pdf->Ln(15);
+
+$pdf->SetLineWidth(0.5); // Set line width
+$pdf->SetDrawColor(0, 0, 0); // Set line color (black)
+$pdf->Line(10,135, 200, 135); // Draw line (adjust coordinates as needed)
+$pdf->SetFont('Poppins', 'B', 12);
+$pdf->SetTextColor($red, $green, $blue); // Color #0449A6
+$pdf->Cell(50, 0, 'Bite Exposure Details', 0, 1, 'C');
+$pdf->Ln(22);
+
+$pdf->SetTextColor(0, 0, 0); // Reset text color
+$pdf->SetFont('Poppins', 'B', 8);
+
+// Draw form field box with background color
+$pdf->Cell(0, -30, 'Date of Exposure', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(90,10, $exposureDate, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(110);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Date of Treatment', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(110);
+$pdf->MultiCell(90,10, $dateOfTreatment, 0, 'L', true); // Add address inside the box with background color
+
+$pdf->Ln(20);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Type of Exposure', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+
+// Draw form field box with background color
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(43,10, $exposureType, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(58);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Exposure By', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(58);
+$pdf->MultiCell(44,10, $exposureMethod, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(107);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Type of Animal', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(107);
+
+$pdf->MultiCell(44,10, $animalType, 0, 'L', true); // Add address inside the box with background color
+
+$pdf->SetX(156);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Bite Location', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(156);
+$pdf->MultiCell(44,10, $biteLocation, 0, 'L', true); // Add address inside the box with background color
+$pdf->Ln(20);
+
+$pdf->SetLineWidth(0.5); // Set line width
+$pdf->SetDrawColor(0, 0, 0); // Set line color (black)
+$pdf->Line(10,195, 200, 195); // Draw line (adjust coordinates as needed)
+$pdf->SetFont('Poppins', 'B', 12);
+$pdf->SetTextColor($red, $green, $blue); // Color #0449A6
+$pdf->Cell(43, 0, 'Treatment Given', 0, 1, 'C');
+$pdf->Ln(21);
+$pdf->SetTextColor(0, 0, 0); // Reset text color
+$pdf->SetFont('Poppins', 'B', 8);
+
+// Draw form field box with background color
+$medicineNames = array();
+foreach ($medicines as $medicine) {
+    $medicineNames[] = $medicine['MedicineName'];
+}
+$medicineNamesString = implode(', ', $medicineNames);
+$pdf->Cell(0, -30, 'Type of Medicine', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(90,10, $medicineNamesString, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(110);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Medicine Given', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$medicineBrands = array();
+foreach ($medicines as $medicine) {
+    $medicineBrands[] = $medicine['MedicineBrand'];
+}
+$medicineBrandsString = implode(', ', $medicineBrands);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(110);
+$pdf->MultiCell(90,10, $medicineBrandsString, 0, 'L', true); // Add address inside the box with background color
+
+$pdf->Ln(20);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Treatment Category', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+
+// Draw form field box with background color
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$pdf->MultiCell(60,10, $category, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(75);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Sessions', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->Ln(20);
+$pdf->SetX(75);
+$pdf->MultiCell(60,10, $session, 0, 'L', true); // Add address inside the box with background color
+$pdf->SetX(140);
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Route', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+$routes = array();
+foreach ($medicines as $medicine) {
+    $routes[] = $medicine['Route'];
+}
+$routesString = implode(', ', $routes);
+$pdf->Ln(20);
+$pdf->SetX(140);
+$pdf->MultiCell(60,10, $routesString, 0, 'L', true); // Add address inside the box with background color
+$pdf->Ln(20); // Add some space after the address
+// Draw form field box with background color
+$pdf->SetFont('Poppins', 'B', 8);
+$pdf->Cell(0, -30, 'Doctor Remarks', 0, 1); // Add the label
+$pdf->SetFont('Poppins', '', 8);
+// Address
+$pdf->Ln(20); // Add some space after the address
+$pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
+
+$pdf->MultiCell(190,20, $recommendation ?? "None", 0,'L', true); // Add address inside the box with background color
+
+
+
+// Address
 
 $pdf->Output();
+
 ?>
