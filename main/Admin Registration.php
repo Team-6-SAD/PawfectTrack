@@ -144,10 +144,10 @@
     </style>
 </head>
 <body>
-
+<div class="container mb-5">
     <div class="row justify-content-center px-5 ">
         <div class="col-lg-6 mt-3 pb-0 pt-5 px-0 image-container">
-            <img src="img/img-login-register/Admin Authentication.png" alt="Admin Authentication" style="height:600px; width:600px;">
+            <img src="img/img-login-register/Admin Authentication.png" alt="Admin Authentication" style="height:522px; width:600px;">
             <img src="img/img-login-register/PawfectTrackSign.png" alt="Pawfect Track Sign" style="margin-top: -60px; width:450px;">
         </div>
         <div class="card pos-fix col-lg-6 mt-5 form-container white-shadow px-4">
@@ -229,7 +229,7 @@
 
                             <div class="col-md-12" >
                                 <div class="form-group justify-content-center d-flex py-4 "style="border-bottom:2px solid #ECECEC;">
-                                    <button type="submit" class="btn btn-primary btn-lg px-4 py-2 pb-2" style="font-size: 15px; border-radius: 30px; background-color: #0449A6;"><b>Register</b></button>
+                                    <button type="submit" id="submit-button" class="btn btn-primary btn-lg px-4 py-2 pb-2" style="font-size: 15px; border-radius: 30px; background-color: #0449A6;" disabled><b>Register</b></button>
                                 </div>
                             </div>
                             <div class="col-md-12 mt-2 mb-0 text-center">
@@ -292,361 +292,220 @@
             }
         }
         </script>
-     
-<script>
-         document.addEventListener('DOMContentLoaded', function() {
-        function validateForm() {
-            // Get form inputs
-            const firstName = document.getElementById('first-name');
-            const middleName = document.getElementById('middle-name');
-            const lastName = document.getElementById('last-name');
-            const username = document.getElementById('username');
-            const phoneNumber = document.getElementById('phone-number');
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-            const confirmPassword = document.getElementById('confirmPassword');
+        <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registrationForm');
+    const submitButton = document.getElementById('submit-button');
 
-            // Remove existing error styles
-            removeError([firstName, middleName, lastName, username, phoneNumber, email, password, confirmPassword]);
+    const touchedFields = {
+        'first-name': false,
+        'middle-name': false,
+        'last-name': false,
+        'username': false,
+        'phone-number': false,
+        'email': false,
+        'password': false,
+        'confirmPassword': false
+    };
 
-            // Validation flag
-            let isValid = true;
+    function validateField(field) {
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+        let successMessage = '';
 
-            // Validate First Name
-            if (firstName.value.trim() === '' && touchedFields['first-name']) {
-                isValid = false;
-                showError(firstName, 'Please enter your First Name.');
-            }
-
-            // Validate Last Name
-            if (lastName.value.trim() === '' && touchedFields['last-name']) {
-                isValid = false;
-                showError(lastName, 'Please enter your Last Name.');
-            }
-
-            // Validate Username
-// Validate Username
-// Validate Username
-if (username.value.trim() === '' && touchedFields['username']) {
-    isValid = false;
-    showError(username, 'Please enter a Username.');
-} else if ((username.value.trim().length < 8 || username.value.trim().length > 16) && touchedFields['username'])  {
-    isValid = false;
-    showError(username, 'Username must be between 8 and 16 characters.');
-}
-
-
-
-            // Validate Phone Number
-            if ((phoneNumber.value.trim() === '' || !validatePhoneNumber(phoneNumber.value.trim())) && touchedFields['phone-number']) {
-                isValid = false;
-                if (phoneNumber.value.trim() === '') {
-                    showError(phoneNumber, 'Please enter your Phone Number.');
-                } else {
-                    showError(phoneNumber, 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.');
+        switch (field.id) {
+            case 'first-name':
+                if (value === '') {
+                    isValid = false;
+                    errorMessage = 'Please enter your First Name.';
                 }
-            }
-
-            // Validate Email
-            if ((email.value.trim() === '' || !validateEmail(email.value.trim())) && touchedFields['email']) {
-                isValid = false;
-                if (email.value.trim() === '') {
-                    showError(email, 'Please enter your Email.');
-                } else {
-                    showError(email, 'Please enter a valid Email.');
+                break;
+            case 'last-name':
+                if (value === '') {
+                    isValid = false;
+                    errorMessage = 'Please enter your Last Name.';
                 }
+                break;
+            case 'username':
+                if (value === '') {
+                    isValid = false;
+                    errorMessage = 'Please enter a Username.';
+                } else if (value.length < 8 || value.length > 16) {
+                    isValid = false;
+                    errorMessage = 'Username must be between 8 and 16 characters.';
+                }
+                break;
+            case 'phone-number':
+                if (value === '' || !validatePhoneNumber(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.';
+                }
+                break;
+            case 'email':
+                if (value === '' || !validateEmail(value)) {
+                    isValid = false;
+                    errorMessage = 'Please enter a valid Email.';
+                }
+                break;
+            case 'password':
+                if (value === '' || !validatePassword(value)) {
+                    isValid = false;
+                    errorMessage = 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).';
+                }
+                break;
+            case 'confirmPassword':
+                const password = document.getElementById('password').value.trim();
+                if (value === '') {
+                    isValid = false;
+                    errorMessage = 'Please confirm your Password.';
+                } else if (value !== password) {
+                    isValid = false;
+                    errorMessage = 'Passwords do not match.';
+                } else {
+                    successMessage = 'Passwords match!';
+                }
+                
+                break;
+        }
+
+        if (!isValid && touchedFields[field.id]) {
+            showError(field, errorMessage);
+        } else if (isValid && touchedFields[field.id]) {
+            removeError(field);
+            if (field.id === 'confirmPassword') {
+                showSuccess(field, successMessage);
             }
+        }
 
+        return isValid;
+    }
 
-        // Validate Password
-        if ((password.value.trim() === '' || !validatePassword(password.value.trim())) && touchedFields['password']) {
-            isValid = false;
-            if (password.value.trim() === '') {
-                showError(password, 'Please enter a Password.');
-            } else {
-                showError(password, 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).');
+    function validateForm() {
+        let isFormValid = true;
+
+        form.querySelectorAll('input').forEach(function(field) {
+            if (!validateField(field)) {
+                isFormValid = false;
             }
-        }
-
-        // Validate Confirm Password
-        if (confirmPassword.value.trim() === '' && touchedFields['confirmPassword']) {
-            isValid = false;
-            showError(confirmPassword, 'Please confirm your Password.');
-        } else if (confirmPassword.value.trim() !== password.value.trim() && touchedFields['confirmPassword']) {
-            isValid = false;
-            showError(confirmPassword, 'Passwords do not match.');
-        }
-
-
-
-            return isValid;
-            
-        }
-        
-        
-        const registrationForm = document.getElementById('registrationForm');
-
-        // Create an object to track the touched state of each input field
-        const touchedFields = {
-            'first-name': false,
-            'middle-name': false,
-            'last-name': false,
-            'username': false,
-            'phone-number': false,
-            'email': false,
-            'password': false,
-            'confirmPassword': false
-        };
-
-        // Define a function to handle form validation
-       
-
-        // Add event listeners for real-time validation
-        const formFields = document.querySelectorAll('input, select, textarea');
-        formFields.forEach(function(field) {
-            field.addEventListener('input', function () {
-                // Set the touched flag to true for the current field
-                touchedFields[field.id] = true;
-                validateForm(); // Trigger form validation on input event
-            });
         });
 
-        // Add submit event listener to the form
-        registrationForm.addEventListener('submit', function(event) {
-            // Set the touched flag to true for all fields when the form is submitted
-            for (const field in touchedFields) {
-                touchedFields[field] = true;
-            }
+        submitButton.disabled = !isFormValid;
 
-            // Prevent form submission if the form is not valid
-            if (!validateForm()) {
-                event.preventDefault();
-            }
+        return isFormValid;
+    }
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        for (const field in touchedFields) {
+            touchedFields[field] = true;
+        }
+
+        if (validateForm()) {
+            submitForm();
+        }
+    });
+
+    form.querySelectorAll('input').forEach(function(field) {
+        field.addEventListener('input', function() {
+            touchedFields[field.id] = true;
+            validateField(field);
+            validateForm();
         });
-    
+    });
 
-    // Function to validate email format
+    // Validation functions
     function validateEmail(email) {
-    const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
-    return re.test(email);
-}
+        const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
+        return re.test(email);
+    }
 
-
-    // Function to validate phone number format
     function validatePhoneNumber(phoneNumber) {
         const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
         return re.test(phoneNumber);
     }
+
     function validatePassword(password) {
-    const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-    return re.test(password);
-}
+        const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        return re.test(password);
+    }
 
-$(document).ready(function() {
-    // Submit form via AJAX
-    $('#registrationForm').submit(function(event) {
-        // Prevent default form submission
-        event.preventDefault();
-
-        // Validate form
-        if (!validateForm()) {
-            return; // Exit if validation fails
-        }
-
-        // AJAX request to register.php
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(), // Serialize form data
-            success: function(response) {
-                console.log(response);
-                try {
-                    var result = JSON.parse(response);
-                    $('#alertMessages').html('');
-                    if (result.status === 'success') {
-                        // Redirect on success
-                        window.location.href = 'Admin Login.php';
-                    } else if (result.status === 'error') {
-                        // Display error message
-                        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                            result.message +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                            '<span aria-hidden="true">&times;</span>' +
-                            '</button>' +
-                            '</div>');
-                    }
-                } catch (error) {
-                    // Handle parsing error here, maybe display a generic error message
-                    console.error('Error parsing JSON:', error);
-                }
-            }
-        });
-    });
-});
-
-
-
-  
-
-    // Function to show error message and apply error styles
     function showError(input, message) {
-    const errorElement = document.getElementById(input.id + '-error');
-    if (errorElement) {
-        errorElement.textContent = message;
-        if (input.id === 'password' || input.id === 'confirmPassword') {
-            input.classList.add('error-border'); // Add error-border class for password fields
-        } else {
-            input.classList.add('error-border'); // Add is-invalid class for other fields
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.remove('text-success');
+            errorElement.classList.add('text-danger');
+            input.classList.add('error-border'); // Add error-border class
         }
     }
-}
 
-
-    // Function to remove error styles
-    function removeError(inputs) {
-        // Ensure inputs is an array
-        if (!Array.isArray(inputs)) {
-            inputs = [inputs]; // Convert single input to an array with one element
+    function removeError(input) {
+        input.classList.remove('error-border');
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+            errorElement.textContent = '';
         }
-
-        inputs.forEach(function (input) {
-        
-            input.classList.remove('error-border');
-            const errorElement = document.getElementById(input.id + '-error');
-            if (errorElement) {
-                errorElement.textContent = '';
-            }
-        });
+    }
+    function showSuccess(input, message) {
+        const errorElement = document.getElementById(input.id + '-error');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.remove('text-danger');
+            errorElement.classList.add('text-success'); // Add success class
+        }
     }
 
-$(document).ready(function() {
-    
-    // Submit form via AJAX
-    $('#registrationForm').submit(function(event) {
-        // Prevent default form submission
-        event.preventDefault();
+    function submitForm() {
+        const formData = new FormData(form);
 
-        // Validate form
-        if (!validateForm()) {
-            return; // Exit if validation fails
-        }
-
-        // AJAX request to register.php
-        $.ajax({
-            type: 'POST',
-            url: $(this).attr('action'),
-            data: $(this).serialize(), // Serialize form data
-            success: function(response) {
-                console.log(response);
-                try {
-                    var result = JSON.parse(response);
-                    $('#alertMessages').html('');
-                    if (result.status === 'success') {
-                        // Redirect on success
-                        window.location.href = 'Admin Login.php';
-                    } else if (result.status === 'error') {
-                        // Display error message
-                        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                            result.message +
-                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                            '<span aria-hidden="true">&times;</span>' +
-                            '</button>' +
-                            '</div>');
-                    }
-                } catch (error) {
-                    // Handle parsing error here, maybe display a generic error message
-                    console.error('Error parsing JSON:', error);
-                }
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                window.location.href = 'Registration Success.php';
+            } else if (result.status === 'error') {
+                const alertMessages = document.getElementById('alertMessages');
+                alertMessages.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                    result.message +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                    '<span aria-hidden="true">&times;</span>' +
+                    '</button>' +
+                    '</div>';
             }
+        })
+        .catch(error => {
+            console.error('Error submitting form:', error);
         });
-    });
-});
+    }
 });
 
-</script>
-<script>
-  
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var phoneNumberInput = document.getElementById("phone-number");
-        var phoneNumberError = document.getElementById("phone-number-error");
 
-        phoneNumberInput.addEventListener("keypress", function(event) {
-            var key = event.key;
-            if (!/^\d$/.test(key)) {
-                event.preventDefault();
-                phoneNumberError.textContent = "Please enter numbers only.";
-            } else {
-                phoneNumberError.textContent = "";
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var emailInput = document.getElementById("email");
-        var emailError = document.getElementById("email-error");
-
-        emailInput.addEventListener("keypress", function(event) {
-            if (event.key === ' ') {
-                event.preventDefault();
-            }
-        });
-
-        emailInput.addEventListener("input", function() {
-            var inputValue = emailInput.value.trim(); // Remove leading and trailing spaces
-            var atIndex = inputValue.indexOf('@');
-            var domainPart = atIndex !== -1 ? inputValue.substring(atIndex) : "";
-
-            var allowedDomains = ["@gmail.com", "@yahoo.com", "@outlook.com"];
-            var isValid = atIndex > 0 && allowedDomains.includes(domainPart);
-
-            if (!isValid) {
-                emailError.textContent = "Please enter a valid email address with @gmail.com, @yahoo.com, or @outlook.com domain.";
-            } else {
-                emailError.textContent = "";
-            }
-        });
-    });
-    
-</script>
-<script>
-function preventLeadingSpace(event) {
-    const input = event.target;
-    if (input.value.startsWith(' ')) {
-        input.value = input.value.trim(); // Remove leading space
-    }
-    // Replace multiple consecutive spaces with a single space
-    input.value = input.value.replace(/\s{2,}/g, ' ');
-}
-
-
-
-
-
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    const phoneNumberInput = document.getElementById('phone-number');
-
-    phoneNumberInput.addEventListener('input', function(event) {
+    function preventLeadingSpace(event) {
         const input = event.target;
-        const maxLength = 11; // Maximum allowed length
-
-        if (input.value.length > maxLength) {
-            input.value = input.value.slice(0, maxLength); // Truncate input if it exceeds maxLength
+        if (input.value.startsWith(' ')) {
+            input.value = input.value.trim(); // Remove leading space
         }
-    });
-});
-
+        // Replace multiple consecutive spaces with a single space
+        input.value = input.value.replace(/\s{2,}/g, ' ');
+    }
     function preventSpaces(event) {
         const input = event.target;
         if (input.value.includes(' ')) {
             input.value = input.value.replace(/\s/g, ''); // Remove all spaces
         }
     }
+
 </script>
+
+
+
+
+
 
 </body>
 </html>

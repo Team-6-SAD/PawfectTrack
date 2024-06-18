@@ -76,7 +76,7 @@ table.dataTable thead{
       }
       .card{
         
-          border-radius: 5px;
+          border-radius: 8px !important;
           border:none;
       }
       .table thead th{
@@ -231,6 +231,14 @@ div.dataTables_wrapper div.dataTables_length label {
   background-color: #003D8F;
 }
 
+.btn-inventory{
+  border-radius: 25px !important;
+  background-color: #003D8F;
+  border-color: none !important;
+  font-size: 13px;
+  padding-left: 50px !important;
+  padding-right: 50px !important;
+}
 .invisible-element {
   visibility: hidden;
 }
@@ -524,6 +532,12 @@ padding: 0;
   justify-content: center;
   align-items: flex-start;
  
+}
+.text-content {
+  width: 100%;
+  text-align: left;
+  padding-left: calc(50% - 50%);
+  box-sizing: border-box;
 }
 .flex-direct{
   flex-direction:column;
@@ -1065,6 +1079,9 @@ height: 20px;
       .select-checkbox {
           display: none;
       }
+      .select-Equip {
+        display: none;
+    }
 /* Custom CSS to style the page length dropdown */
 .dataTables_length select {
   /* Your styles here */

@@ -73,7 +73,7 @@ if ($treatmentResult->num_rows > 0) {
                 // Output medicine name
             }
         } else {
-            echo "No medicines found for this treatment.<br>";
+   
         }
     }
 } else {
@@ -101,14 +101,15 @@ if ($resultProfilePic->num_rows === 1) {
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="hamburgers.css" rel="stylesheet">
   <link href="patient.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <title>Patient Dashboard</title>
   <style>
+
     table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
         display: none !important;
     }
@@ -204,6 +205,11 @@ if ($resultProfilePic->num_rows === 1) {
         
           
       }
+
+
+
+
+
       
   </style>
 </head>
@@ -214,7 +220,7 @@ if ($resultProfilePic->num_rows === 1) {
             <?php include 'patient_header.php'; ?>
 
             <!-- Content -->
-            <div class="content" id="content">
+            <div class="content mb-5" id="content">
                 <div class="row mr-5 ml-3 mt-0 pt-0 justify-content-center">
                     <div class="col-10 mt-0 pt-0 pr-2">
                         <div class="card-body card-image p-0 align-items-center">
@@ -246,7 +252,7 @@ if ($resultProfilePic->num_rows === 1) {
                                             <h6 class="card-title"><?php echo $medicineName . "<br>"; ?></h6>
                                         </div>
                                         <div class="col-md-6 px-3 justify-content-end d-flex">
-                                            <button id="editButton" class="btn btn-lg btn-primary" style="color:white; background-color:#0449A6;" onclick="redirectToAppointments()">View History</button>
+                                            <button id="editButton" class="btn btn-primary" style="color:white; background-color:#0449A6;" onclick="redirectToAppointments()">View History</button>
                                         </div>
                                     </div>
                                     <div class="table-responsive">
@@ -354,7 +360,9 @@ if ($resultProfilePic->num_rows === 1) {
         </div> <!-- End of main-container -->
     </div> <!-- End of container-fluid -->
                 
-             
+    <?php include 'patient-footer.php'; ?>
+
+
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
     <script src='https://cdn.datatables.net/1.13.5/js/dataTables.bootstrap5.min.js'></script>

@@ -48,6 +48,9 @@ def evaluate_model(model, X_test, y_test):
     """Evaluate the trained model."""
     try:
         y_pred = model.predict(X_test)
+        # Ensure predictions are whole numbers and not negative
+        y_pred = [max(0, round(pred)) for pred in y_pred]
+
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
         mae = mean_absolute_error(y_test, y_pred)
@@ -67,7 +70,9 @@ def predict_next_day(model, latest_data_point):
         latest_features = latest_data_point.drop(['TotalQuantity', 'UsageDate'])
         latest_features = latest_features.values.reshape(1, -1)
         next_day_prediction = model.predict(latest_features)
-        return next_day_prediction[0]  # Return the prediction
+        # Ensure prediction is a whole number and not negative
+        next_day_prediction = max(0, round(next_day_prediction[0]))
+        return next_day_prediction  # Return the prediction
     except Exception as e:
         print(f"Error predicting next day: {e}")
 
@@ -79,10 +84,12 @@ def predict_next_days(model, latest_data_point):
         latest_features = latest_features.values.reshape(1, -1)
         for _ in range(7):
             next_day_prediction = model.predict(latest_features)
-            predictions.append(next_day_prediction[0])
+            # Ensure prediction is a whole number and not negative
+            next_day_prediction = max(0, round(next_day_prediction[0]))
+            predictions.append(next_day_prediction)
             # Shift the lagged features to the right and update the last lagged feature with the predicted value
             latest_features[0, 1:] = latest_features[0, :-1]
-            latest_features[0, 0] = next_day_prediction[0]
+            latest_features[0, 0] = next_day_prediction
         return sum(predictions)  # Return the sum prediction for the next 7 days
     except Exception as e:
         print(f"Error predicting next days: {e}")

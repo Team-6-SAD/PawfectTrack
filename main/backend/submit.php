@@ -3,8 +3,10 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Include database connection
     include_once 'pawfect_connect.php';
-    $targetDir = "uploads/";
+    $targetDir = "../uploads/";  // Save file to ../uploads/
+    $webDir = "uploads/";        // URL for accessing the file
     $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
+    $webFile = $webDir . basename($_FILES["uploadImage"]["name"]);  // File path for database
 
     // Check if the uploaded file is an image
     $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
@@ -66,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $emergencyId = mysqli_insert_id($conn); // Get the last inserted emergency contact ID
 
     // Handle uploaded image
-    $bitePicture = $targetFile;
+    $bitePicture = $webFile;
 
     // Extract exposure data from the form
     $exposureDate = $_POST['exposureDate'];
@@ -134,19 +136,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Insert appointment information into the database
         $appointmentInsertQuery = "INSERT INTO appointmentinformation (TreatmentID, PatientID, AppointmentDate, Status, SessionDays) VALUES (?, ?, ?, ?, ?)";
         $appointmentStmt = mysqli_prepare($conn, $appointmentInsertQuery);
-        mysqli_stmt_bind_param($appointmentStmt, "iissi",$treatmentId, $patientId, $appointmentDate, $status, $sessionDays);
+        mysqli_stmt_bind_param($appointmentStmt, "iissi", $treatmentId, $patientId, $appointmentDate, $status, $sessionDays);
         mysqli_stmt_execute($appointmentStmt);
         $appointmentId = mysqli_insert_id($conn); // Get the last inserted appointment ID
     }
+
     // Extract medicine data from the form
-    $medicineTypes = $_POST['medicineType'];
     $medicineGivens = $_POST['medicineGiven'];
     $dosageQuantities = $_POST['dosageQuantity'];
-    $routes = $_POST['route'];
     $quantities = $_POST['quantity'];
+    $medicineTypes = $_POST['medicineType'];
 
-    for ($i = 0; $i < count($medicineTypes); $i++) {
-        // Fetch BrandName based on MedicineBrandID
+    // Insert medicine data with patient ID
+    for ($i = 0; $i < count($medicineGivens); $i++) {
+        // Fetch MedicineBrand name based on MedicineBrandID
         $getBrandNameQuery = "SELECT BrandName FROM medicinebrand WHERE MedicineBrandID = ?";
         $getBrandNameStmt = mysqli_prepare($conn, $getBrandNameQuery);
         mysqli_stmt_bind_param($getBrandNameStmt, "i", $medicineGivens[$i]);
@@ -154,8 +157,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_bind_result($getBrandNameStmt, $brandName);
         mysqli_stmt_fetch($getBrandNameStmt);
         mysqli_stmt_close($getBrandNameStmt);
-    
-        // Fetch MedicineName based on MedicineID
+
+        // Fetch Medicine name based on MedicineID
         $getMedicineNameQuery = "SELECT MedicineName FROM medicine WHERE MedicineID = ?";
         $getMedicineNameStmt = mysqli_prepare($conn, $getMedicineNameQuery);
         mysqli_stmt_bind_param($getMedicineNameStmt, "i", $medicineTypes[$i]);
@@ -163,45 +166,58 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_bind_result($getMedicineNameStmt, $medicineName);
         mysqli_stmt_fetch($getMedicineNameStmt);
         mysqli_stmt_close($getMedicineNameStmt);
-    
+
         // Insert into medicineusage table with MedicineBrand Name and Medicine Name
         $medicineInsertQuery = "INSERT INTO medicineusage (TreatmentID, MedicineBrand, MedicineName, Dosage, Quantity) VALUES (?, ?, ?, ?, ?)";
         $medicineStmt = mysqli_prepare($conn, $medicineInsertQuery);
         mysqli_stmt_bind_param($medicineStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
         mysqli_stmt_execute($medicineStmt);
         $medicineUsageId = mysqli_insert_id($conn);
+
+        // Insert into machinelearning table
         $machineLearningInsertQuery = "INSERT INTO machinelearning (TreatmentID, MedicineBrand, MedicineName, Dosage, Quantity) VALUES (?, ?, ?, ?, ?)";
-$machineLearningStmt = mysqli_prepare($conn, $machineLearningInsertQuery);
-mysqli_stmt_bind_param($machineLearningStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
+        $machineLearningStmt = mysqli_prepare($conn, $machineLearningInsertQuery);
+        mysqli_stmt_bind_param($machineLearningStmt, "issii", $treatmentId, $brandName, $medicineName, $dosageQuantities[$i], $quantities[$i]);
+        mysqli_stmt_execute($machineLearningStmt);
+        mysqli_stmt_close($machineLearningStmt);
 
-// Execute the insert query for machinelearning table
-mysqli_stmt_execute($machineLearningStmt);
+        // Fetch and update stock quantity
+        $remainingQuantity = $quantities[$i];
+        while ($remainingQuantity > 0) {
+            // Fetch current stock quantity and closest expiry date
+            $getStockQuery = "SELECT StockQuantity, StockExpiryDate FROM medicineinventory WHERE MedicineBrandID = ? AND StockQuantity > 0 ORDER BY StockExpiryDate ASC LIMIT 1";
+            $getStockStmt = mysqli_prepare($conn, $getStockQuery);
+            mysqli_stmt_bind_param($getStockStmt, "i", $medicineGivens[$i]);
+            mysqli_stmt_execute($getStockStmt);
+            mysqli_stmt_bind_result($getStockStmt, $stockQuantity, $stockExpiryDate);
+            mysqli_stmt_fetch($getStockStmt);
+            mysqli_stmt_close($getStockStmt);
 
-// Get the last inserted ID for machinelearning table
-$machineLearningId = mysqli_insert_id($conn);
-    
-        // Fetch current stock quantity and closest expiry date
-        $getStockQuery = "SELECT StockQuantity, StockExpiryDate FROM medicineinventory WHERE MedicineBrandID = ? ORDER BY StockExpiryDate ASC LIMIT 1";
-        $getStockStmt = mysqli_prepare($conn, $getStockQuery);
-        mysqli_stmt_bind_param($getStockStmt, "i", $medicineGivens[$i]);
-        mysqli_stmt_execute($getStockStmt);
-        mysqli_stmt_bind_result($getStockStmt, $stockQuantity, $stockExpiryDate);
-        mysqli_stmt_fetch($getStockStmt);
-        mysqli_stmt_close($getStockStmt);
-    
-        // Calculate new stock quantity after usage
-        $newStockQuantity = $stockQuantity - $quantities[$i];
-    
-        // Update stock quantity in medicineinventory table
-        $updateStockQuery = "UPDATE medicineinventory SET StockQuantity = ? WHERE MedicineBrandID = ? AND StockExpiryDate = ?";
-        $updateStockStmt = mysqli_prepare($conn, $updateStockQuery);
-        mysqli_stmt_bind_param($updateStockStmt, "iis", $newStockQuantity, $medicineGivens[$i], $stockExpiryDate);
-        mysqli_stmt_execute($updateStockStmt);
-        mysqli_stmt_close($updateStockStmt);
+            if ($stockQuantity > 0) {
+                if ($remainingQuantity <= $stockQuantity) {
+                    // Update stock quantity in medicineinventory table
+                    $newStockQuantity = $stockQuantity - $remainingQuantity;
+                    $updateStockQuery = "UPDATE medicineinventory SET StockQuantity = ? WHERE MedicineBrandID = ? AND StockExpiryDate = ?";
+                    $updateStockStmt = mysqli_prepare($conn, $updateStockQuery);
+                    mysqli_stmt_bind_param($updateStockStmt, "iis", $newStockQuantity, $medicineGivens[$i], $stockExpiryDate);
+                    mysqli_stmt_execute($updateStockStmt);
+                    mysqli_stmt_close($updateStockStmt);
+                    $remainingQuantity = 0;
+                } else {
+                    // Deplete the current stock and move to the next batch
+                    $remainingQuantity -= $stockQuantity;
+                    $updateStockQuery = "UPDATE medicineinventory SET StockQuantity = 0 WHERE MedicineBrandID = ? AND StockExpiryDate = ?";
+                    $updateStockStmt = mysqli_prepare($conn, $updateStockQuery);
+                    mysqli_stmt_bind_param($updateStockStmt, "is", $medicineGivens[$i], $stockExpiryDate);
+                    mysqli_stmt_execute($updateStockStmt);
+                    mysqli_stmt_close($updateStockStmt);
+                }
+            } else {
+                break;
+            }
+        }
     }
     
-
-
     // Extract equipment data from the form
     $equipmentTypes = $_POST['equipmentType'];
     $equipmentAmounts = $_POST['equipmentAmount'];
@@ -213,6 +229,25 @@ $machineLearningId = mysqli_insert_id($conn);
         mysqli_stmt_bind_param($equipmentStmt, "iii", $treatmentId, $equipmentTypes[$i], $equipmentAmounts[$i]);
         mysqli_stmt_execute($equipmentStmt);
         $equipmentId = mysqli_insert_id($conn);
+
+        // Fetch current stock quantity
+        $getEquipmentStockQuery = "SELECT Quantity FROM equipmentstock WHERE EquipmentID = ? LIMIT 1";
+        $getEquipmentStockStmt = mysqli_prepare($conn, $getEquipmentStockQuery);
+        mysqli_stmt_bind_param($getEquipmentStockStmt, "i", $equipmentTypes[$i]);
+        mysqli_stmt_execute($getEquipmentStockStmt);
+        mysqli_stmt_bind_result($getEquipmentStockStmt, $equipmentStockQuantity);
+        mysqli_stmt_fetch($getEquipmentStockStmt);
+        mysqli_stmt_close($getEquipmentStockStmt);
+
+        // Calculate new stock quantity after usage
+        $newEquipmentStockQuantity = $equipmentStockQuantity - $equipmentAmounts[$i];
+
+        // Update stock quantity in equipmentstock table
+        $updateEquipmentStockQuery = "UPDATE equipmentstock SET Quantity = ? WHERE EquipmentID = ?";
+        $updateEquipmentStockStmt = mysqli_prepare($conn, $updateEquipmentStockQuery);
+        mysqli_stmt_bind_param($updateEquipmentStockStmt, "ii", $newEquipmentStockQuantity, $equipmentTypes[$i]);
+        mysqli_stmt_execute($updateEquipmentStockStmt);
+        mysqli_stmt_close($updateEquipmentStockStmt);
     }
 
     // Close database connection

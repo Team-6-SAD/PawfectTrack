@@ -42,7 +42,9 @@ def predict_next_day(model, latest_data_point):
     try:
         latest_features = latest_data_point.index.astype('int64').values[-1].reshape(1, -1)
         next_day_prediction = model.predict(latest_features)
-        return next_day_prediction[0]
+        # Ensure non-negative and round to the nearest integer
+        next_day_prediction = max(0, round(next_day_prediction[0]))
+        return next_day_prediction
     except Exception as e:
         print(f"Error predicting next day: {e}")
         return None
@@ -54,7 +56,9 @@ def predict_next_days(model, latest_data_point):
         latest_features = latest_data_point.index.astype('int64').values[-1].reshape(1, -1)
         for _ in range(7):
             next_day_prediction = model.predict(latest_features)
-            predictions.append(next_day_prediction[0])
+            # Ensure non-negative and round to the nearest integer
+            next_day_prediction = max(0, round(next_day_prediction[0]))
+            predictions.append(next_day_prediction)
             # Increment the date by one day
             latest_features[0, 0] += 1
         return sum(predictions)  # Return the sum prediction for the next 7 days
@@ -75,16 +79,11 @@ def main():
         )
 
         if conn.is_connected():
-           
-
             # Retrieve patient data
             patient_data = retrieve_patient_data(conn)
             if patient_data is not None:
                 # Preprocess data
-            
-                
-                # Print patient data
-              
+                patient_data = preprocess_data(patient_data)
 
                 # Split data into independent and dependent variables
                 X = patient_data.index.astype('int64').values.reshape(-1, 1)
@@ -98,18 +97,16 @@ def main():
 
                     # Predict patient count for the next day
                     next_day_prediction = predict_next_day(model, latest_data_point)
-                   
 
                     # Predict patient count for the next 7 days (weekly prediction)
                     weekly_predictions = predict_next_days(model, latest_data_point)
-                   
-                    
+
                     # Convert predictions to JSON
                     predictions_json = json.dumps({
                         "next_day_prediction": next_day_prediction,
                         "weekly_prediction": weekly_predictions
                     })
-                
+
                     print(predictions_json)
 
                 else:

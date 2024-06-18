@@ -4,10 +4,10 @@ html, body {
 .main-container{
   overflow-x: hidden !important;
 }
-body {
-  font-family: 'Poppins', sans-serif;
+body{
+  font-family: "Rubik";
   background-color: #EAEFF6;
-
+  overflow-y: hidden;
 }
 .images-card{
   height: 100%;
@@ -1005,4 +1005,33 @@ margin-bottom: 5px;
 .text-indicator{
 
   color: #0449A6;
+}
+
+.footer {
+  background-image: url('footer-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 50px 0; /* Adjust padding as needed */
+  height:350px;
+  text-align: center;
+  color: #ffffff;
+
+}
+
+.footer-content {
+  position: relative;
+  z-index: 1;
+  padding: 20px; /* Adjust as needed */
+  margin-top: 100px;
+  background-color: #B4C4D9 !important;
+
+}
+
+
+.footer-content img {
+  width: 100px; /* Ensure image doesn't exceed container width */
+  height: 100%; /* Maintain aspect ratio */
+  display: block; /* Remove any inline spacing */
+  margin: 0 auto; /* Center the image horizontally */
 }

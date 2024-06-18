@@ -37,26 +37,8 @@ if ($row = mysqli_fetch_assoc($result)) {
     echo "Admin information not found!";
 }
 
-$sql = "SELECT 
-            ai.AppointmentDate, 
-            ai.SessionDays, 
-            ai.PatientID, 
-            CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
-            bd.ExposureType
-        FROM 
-            appointmentinformation AS ai
-        JOIN 
-            patient AS p ON ai.PatientID = p.PatientID
-        JOIN 
-            bitedetails AS bd ON ai.PatientID = bd.PatientID
-        WHERE 
-            ai.Status = 'Pending'
-        ORDER BY 
-            ABS(DATEDIFF(NOW(), ai.AppointmentDate))
-        LIMIT 5";
 
-// Execute the SQL query
-$result = mysqli_query($conn, $sql);
+
 // Close the database connection
 ?>
 
@@ -261,7 +243,7 @@ if ($result) {
                                 <form id="deleteForm" action="delete.php" method="post">
                                     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
                                     <div class="card-body">
-                                 <?php   $sql = "SELECT 
+                                 <?php  $sql = "SELECT DISTINCT
             ai.AppointmentDate, 
             ai.SessionDays, 
             ai.PatientID, 

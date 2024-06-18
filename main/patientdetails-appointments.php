@@ -38,26 +38,37 @@ if ($row = mysqli_fetch_assoc($result)) {
 }
 
 // Check if the patientID is set in the URL
-if(isset($_GET['patientID'])) {
+if (isset($_GET['patientID'])) {
     $patientID = $_GET['patientID'];
+
+    // SQL query to select appointments and associated medicines
     $sql = "SELECT 
-            ai.AppointmentID, 
-            ai.AppointmentDate, 
-            ai.SessionDays,
-            ai.Status,
-            GROUP_CONCAT(DISTINCT mu.MedicineName SEPARATOR ', ') AS MedicineNames
-        FROM 
-            appointmentinformation AS ai
-        JOIN 
-            medicineusage AS mu ON ai.TreatmentID = mu.TreatmentID
-        WHERE 
-            ai.PatientID = ?
-        GROUP BY 
-            ai.AppointmentID, ai.AppointmentDate, ai.SessionDays, ai.Status";
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $patientID);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+                ai.AppointmentID, 
+                ai.AppointmentDate, 
+                ai.SessionDays,
+                ai.Status,
+                GROUP_CONCAT(DISTINCT mu.MedicineName SEPARATOR ', ') AS MedicineNames,
+                ai.TreatmentID
+            FROM 
+                appointmentinformation AS ai
+            LEFT JOIN 
+                medicineusage AS mu ON ai.TreatmentID = mu.TreatmentID
+            WHERE 
+                ai.PatientID = ?
+            GROUP BY 
+                ai.AppointmentID, ai.AppointmentDate, ai.SessionDays, ai.Status, ai.TreatmentID";
+
+    // Prepare the SQL statement
+    $stmt = mysqli_prepare($conn, $sql);
+
+    // Bind the patientID parameter to the SQL query
+    mysqli_stmt_bind_param($stmt, "i", $patientID);
+
+    // Execute the SQL statement
+    mysqli_stmt_execute($stmt);
+
+    // Get the result set
+    $result = mysqli_stmt_get_result($stmt);
 }
 ?>
 
@@ -84,7 +95,7 @@ $result = mysqli_stmt_get_result($stmt);
   
 </head>
 <body>
-<div class="container-fluid">
+<div class="container-fluid mb-5 ">
     <div class="main-container">
         <!-- Header and Sidebar -->
         <?php include 'includes/admin_header.php'; ?>

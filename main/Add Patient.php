@@ -152,9 +152,36 @@ $provincesAndCities = array(
   .error-border {
   border: 1px solid red !important;
 }
+.invalid-feedback {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+    display: none;
+}
 
   </style>
-
+ <script>
+    function calculateAge() {
+      const birthDate = document.getElementById('birthDate').value;
+      const ageField = document.getElementById('age');
+      if (birthDate) {
+        const birthDateObj = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+          age--;
+        }
+        ageField.value = age;
+      } else {
+        ageField.value = '';
+      }
+    }
+  </script>
 </head>
 <body>
 <div class="container-fluid">
@@ -233,13 +260,14 @@ $provincesAndCities = array(
     <div class="row justify-content-center px-3">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="birthDate">Birth Date<span class="red">*</span></label>
-        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year')); ?>"onkeydown="return false">
+        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year -1 day')); ?>" onkeydown="return false" onchange="calculateAge()">
+
 
       </div>
   
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="age">Age<span class="red">*</span></label>
-        <input type="tel" id="age" name="age" placeholder="Age" class="form-control"required >
+        <input type="tel" id="age" name="age" placeholder="Age" class="form-control"required readonly>
       </div>
    
       <div class="col-lg-4 form-group px-4 mb-3">
@@ -259,16 +287,7 @@ $provincesAndCities = array(
       </div>
          <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="phoneNumber">Phone Number<span class="red">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
-                                    </div>
-
                                     <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
-                                   <div>
-
-                                   </div>
-                                </div>
                                 <small id="phone-number-error" class="error-message"></small>
                             
                             </div>
@@ -328,16 +347,10 @@ $provincesAndCities = array(
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="emergencyPhoneNumber">Phone Number<span class="red">*</span></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
-                                    </div>
+                          
 
                                     <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
-                                   <div>
-
-                                   </div>
-                                </div>
+                          
                                 <small id="emergency-phone-number-error" class="error-message"></small>
                             
                             </div>
@@ -461,35 +474,37 @@ $provincesAndCities = array(
 <div id="equipmentItems">
     <!-- Initial equipment item row -->
     <div class="row mx-auto justify-content-center align-items-end mt-3 equipment-item">
-        <div class="col-lg-7 form-group mx-auto mb-0 pb-0 pl-0 mr-3">
-            <label for="equipmentType">Type of Equipment</label>
-            <select name="equipmentType[]" class="form-control equipmentType" required>
-                <option value="">Select Type of Equipment</option>
-                <?php
-                // Assuming you have a connection to your database
-                // Fetch data from the "equipment" table
-                $sql = "SELECT * FROM equipment";
-                $result = mysqli_query($conn, $sql);
+    <div class="col-lg-7 form-group mx-auto mb-0 pb-0 pl-0 mr-3">
+        <label for="equipmentType">Type of Equipment</label>
+        <select name="equipmentType[]" class="form-control equipmentType" required>
+            <option value="">Select Type of Equipment</option>
+            <?php
+            // Assuming you have a connection to your database
+            // Fetch data from the "equipment" table
+            $sql = "SELECT * FROM equipment";
+            $result = mysqli_query($conn, $sql);
 
-                // Loop through the results and generate options for the dropdown
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<option value='" . $row['EquipmentID'] . "'>" . $row['Name'] . "</option>";
-                }
-                ?>
-            </select>
-        </div>
-        <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="equipmentAmount">Equipment Amount</label>
-            <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount" required>
-        </div>
-        <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">
-            <div class="d-flex justify-content-center">
-                <button class="btn btn-add btn-success align-self-end mr-3 addEquipmentItem">+</button>
-                <button class="btn btn-add btn-danger align-self-end removeEquipmentItem">-</button>
-            </div>
+            // Loop through the results and generate options for the dropdown
+            while ($row = mysqli_fetch_assoc($result)) {
+                echo "<option value='" . $row['EquipmentID'] . "'>" . $row['Name'] . "</option>";
+            }
+            ?>
+        </select>
+    </div>
+    <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
+        <label for="equipmentAmount">Equipment Amount</label>
+        <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount" required>
+        <div class="invalid-feedback"></div>
+    </div>
+    <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-add btn-success align-self-end mr-3 addEquipmentItem">+</button>
+            <button class="btn btn-add btn-danger align-self-end removeEquipmentItem">-</button>
         </div>
     </div>
 </div>
+</div>
+
 
 
 
@@ -897,7 +912,7 @@ function validateStep3Fields() {
     if (missingFields.length > 0) {
         const errorMessage = document.createElement('div');
         errorMessage.classList.add('error-message');
-        errorMessage.textContent = 'Incorrect field(s): ' + missingFields.map(field => field.name).join(', ');
+        errorMessage.textContent = 'Please fill in all required fields correctly.';
         errorContainer.appendChild(errorMessage);
         
         // Add error border to missing fields
@@ -907,42 +922,335 @@ function validateStep3Fields() {
     }
 }
 
+$(document).ready(function () {
+  function saveFormData() {
+        const formData = {};
+        $('#multi-step-form').find('input, select, textarea').each(function () {
+            formData[$(this).attr('name')] = $(this).val();
+        });
+        sessionStorage.setItem('formData', JSON.stringify(formData));
+    }
 
-// Add event listener to submit button
-document.getElementById('submit-button').addEventListener('click', function(e) {
-    e.preventDefault();
+    // Function to load form data from sessionStorage
+    function loadFormData() {
+        const formData = JSON.parse(sessionStorage.getItem('formData'));
+        if (formData) {
+            $('#multi-step-form').find('input, select, textarea').each(function () {
+                if (formData[$(this).attr('name')]) {
+                    $(this).val(formData[$(this).attr('name')]);
+                }
+            });
+        }
+    }
 
-    // Validate Step 3 fields
-    validateStep3Fields();
+    // Save form data on input change
+    $('#multi-step-form').on('input change', 'input, select, textarea', function () {
+        saveFormData();
+    });
 
-    // Check if there are still errors
-    const errorMessages = document.querySelectorAll('.step3-error-messages .error-message');
-    if (errorMessages.length === 0) {
-        // If no errors, proceed with form submission using AJAX
-        const formData = new FormData(document.getElementById('multi-step-form'));
+    // Load form data on page load
+    loadFormData();
+    // Function to fetch brands and quantity based on selected medicine type
+    function fetchBrandsAndQuantity(medicineTypeDropdown, medicineGivenDropdown, totalQuantityContainer) {
+        const medicineId = medicineTypeDropdown.val();
+        console.log("Sending AJAX request with medicineType:", medicineId);
 
         $.ajax({
-            url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
+            url: 'backend/fetch-brands.php',
             method: 'POST',
-            data: formData,
-            contentType: false, // Important for file uploads
-            processData: false, // Important for file uploads
-            success: function(response) {
-                // Handle success response
-                console.log(response);
-                // Optionally, you can reset the form after successful submission
-                window.location.href = 'patient-list.php'; // Replace 'patient-list.php' with the actual URL of your Patient List page
+            data: { medicineType: medicineId },
+            dataType: 'json',
+            success: function (response) {
+                medicineGivenDropdown.empty().append('<option value="">Select Brand</option>');
+                $.each(response, function (index, value) {
+                    if (!medicineGivenDropdown.find(`option[value="${value.MedicineBrandID}"]`).length) {
+                        medicineGivenDropdown.append(`<option value="${value.MedicineBrandID}">${value.BrandName}</option>`);
+                    }
+                });
+
+                updateDropdownOptions();
             },
-            error: function(xhr, status, error) {
-                // Handle error response
-                console.error(error);
+            error: function (xhr) {
+                console.error(xhr.responseText);
             }
         });
-    } else {
-        // If there are errors, prevent form submission
-        console.log('Please fill in all required fields correctly.');
+
+        // Event listener for the change event on medicine given dropdown
+        medicineGivenDropdown.off('change').on('change', function () {
+            const routeInput = $(this).closest('.medicine-item').find('.route');
+            const selectedBrandID = $(this).val();
+            fetchQuantity(selectedBrandID, totalQuantityContainer, routeInput);
+            updateDropdownOptions();
+        });
     }
+
+    // Function to fetch quantity based on selected brand
+    function fetchQuantity(medicineBrandID, totalQuantityContainer, routeInput) {
+        $.ajax({
+            url: 'backend/fetch-quantity.php',
+            method: 'POST',
+            data: { medicineBrandID: medicineBrandID },
+            dataType: 'json',
+            success: function (response) {
+                totalQuantityContainer.text(`Total Quantity: ${response.TotalQuantity}`);
+                routeInput.val(response.Route);
+                validateQuantity(totalQuantityContainer);
+            },
+            error: function (xhr) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+
+    // Function to validate quantity input for a specific medicine item
+    function validateQuantity(inputField, totalQuantity) {
+        const enteredQuantity = parseInt(inputField.val());
+        const invalidFeedback = inputField.closest('.form-group').find('.invalid-feedback');
+
+        if (isNaN(enteredQuantity) || enteredQuantity < 0 || enteredQuantity > totalQuantity) {
+            inputField.addClass('is-invalid');
+            invalidFeedback.text(`Quantity must be between 0 and ${totalQuantity}`);
+        } else {
+            inputField.removeClass('is-invalid');
+            invalidFeedback.text('');
+        }
+    }
+
+    // Function to apply input validation to a specific medicine item
+    function applyInputValidation(element) {
+        element.find('input[name="quantity[]"]').each(function () {
+            const inputField = $(this);
+            const totalQuantityContainer = element.find('.total-quantity');
+            const totalQuantity = parseInt(totalQuantityContainer.text().replace('Total Quantity: ', ''));
+            validateQuantity(inputField, totalQuantity);
+        });
+    }
+
+    // Function to add a new medicine item
+    function addMedicineItem() {
+        const newMedicineItem = $('#medicineItems .medicine-item').first().clone();
+        newMedicineItem.find('input').val('');
+        newMedicineItem.find('.total-quantity').text('Total Quantity: ');
+
+        newMedicineItem.appendTo('#medicineItems');
+        newMedicineItem.find('.medicineType').trigger('change');
+        applyInputValidation(newMedicineItem);
+    }
+
+    // Function to add a new equipment item
+    function addEquipmentItem() {
+        const newEquipmentItem = $('#equipmentItems .equipment-item').first().clone();
+        newEquipmentItem.find('input').val('');
+        newEquipmentItem.find('input').val('').removeClass('is-invalid'); // Clear input and remove validation class
+        newEquipmentItem.find('.invalid-feedback').text(''); // Clear validation message
+        newEquipmentItem.appendTo('#equipmentItems');
+        applyInputValidation(newEquipmentItem);
+    }
+
+    // Function to update dropdown options to prevent duplicate selection
+    function updateDropdownOptions() {
+        const selectedOptions = [];
+        $('.medicineGiven').each(function () {
+            const selectedValue = $(this).val();
+            if (selectedValue) {
+                selectedOptions.push(selectedValue);
+            }
+        });
+
+        $('.medicineGiven').each(function () {
+            const currentDropdown = $(this);
+            currentDropdown.find('option').each(function () {
+                if (selectedOptions.includes($(this).val()) && $(this).val() !== currentDropdown.val()) {
+                    $(this).attr('disabled', 'disabled');
+                } else {
+                    $(this).removeAttr('disabled');
+                }
+            });
+        });
+    }
+
+    // Event listener for the change event on medicine type dropdown
+    $(document).on('change', '.medicineType', function () {
+        const medicineItem = $(this).closest('.medicine-item');
+        const medicineGivenDropdown = medicineItem.find('.medicineGiven');
+        const totalQuantityContainer = medicineItem.find('.total-quantity');
+        fetchBrandsAndQuantity($(this), medicineGivenDropdown, totalQuantityContainer);
+    });
+
+    // Event listener for the input event on quantity input
+    $(document).on('input', 'input[name="quantity[]"]', function () {
+        const inputField = $(this);
+        const medicineItem = inputField.closest('.medicine-item');
+        const totalQuantityContainer = medicineItem.find('.total-quantity');
+        const totalQuantity = parseInt(totalQuantityContainer.text().replace('Total Quantity: ', ''));
+        validateQuantity(inputField, totalQuantity);
+    });
+
+    // Function to apply input validation event listeners
+    function applyInputValidation(element) {
+        const allowNumericInput = (event) => {
+            const key = event.key;
+            if (!/[0-9.]/.test(key) && key !== 'Backspace' && key !== 'Delete' && !['ArrowLeft', 'ArrowRight'].includes(key)) {
+                event.preventDefault();
+            }
+        };
+
+        element.find('input[name="dosageQuantity[]"], input[name="quantity[]"], input[name="equipmentAmount[]"]').on('keydown', allowNumericInput);
+
+        element.find('input[type="number"]').on('input', function () {
+            if (this.value < 0 || isNaN(this.value)) {
+                this.value = 0;
+            }
+        });
+    }
+
+    // Event listener for the "Add Medicine" button
+    $(document).on('click', '.addMedicineItem', addMedicineItem);
+
+    // Event listener for the "Add Equipment" button
+    $(document).on('click', '.addEquipmentItem', addEquipmentItem);
+
+    // Event listener for the "Remove Equipment" button
+    $(document).on('click', '.removeEquipmentItem', function () {
+        if ($('.equipment-item').length > 1) {
+            $(this).closest('.equipment-item').remove();
+            updateDropdownOptions();
+        } else {
+            alert("At least one equipment item is required.");
+        }
+    });
+
+    // Event listener for the "Remove Medicine" button
+    $(document).on('click', '.removeMedicineItem', function () {
+        if ($('.medicine-item').length > 1) {
+            $(this).closest('.medicine-item').remove();
+            updateDropdownOptions();
+        } else {
+            alert("At least one medicine item is required.");
+        }
+    });
+
+    // Function to fetch equipment stock based on selected equipment type
+    function fetchEquipmentStock(equipmentTypeDropdown, equipmentAmountInput) {
+        const equipmentId = equipmentTypeDropdown.val();
+        if (equipmentId) {
+            $.ajax({
+                url: 'backend/fetch-equipment-stock.php', // Path to your PHP script to fetch equipment stock
+                method: 'POST',
+                data: { equipmentID: equipmentId },
+                dataType: 'json',
+                success: function (response) {
+                    const totalStock = response.TotalStock;
+                    equipmentAmountInput.data('totalStock', totalStock); // Store the total stock in a data attribute
+                    validateEquipmentAmount(equipmentAmountInput, totalStock);
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    }
+
+    // Function to validate equipment amount input
+    function validateEquipmentAmount(inputField, totalStock) {
+        const enteredAmount = parseInt(inputField.val());
+        const invalidFeedback = inputField.closest('.form-group').find('.invalid-feedback');
+
+        if (isNaN(enteredAmount) || enteredAmount < 0 || enteredAmount > totalStock) {
+            inputField.addClass('is-invalid');
+            invalidFeedback.text(`Max amount is ${totalStock}`);
+        } else {
+            inputField.removeClass('is-invalid');
+            invalidFeedback.text('');
+        }
+    }
+
+    // Event listener for the change event on equipment type dropdown
+    $(document).on('change', '.equipmentType', function () {
+        const equipmentItem = $(this).closest('.equipment-item');
+        const equipmentAmountInput = equipmentItem.find('.equipmentAmount');
+        fetchEquipmentStock($(this), equipmentAmountInput);
+    });
+
+    // Event listener for the input event on equipment amount input
+    $(document).on('input', '.equipmentAmount', function () {
+        const inputField = $(this);
+        const totalStock = inputField.data('totalStock');
+        validateEquipmentAmount(inputField, totalStock);
+    });
+
+    // Function to validate all equipment and medicine fields
+    function validateAllFields() {
+        let isValid = true;
+
+        // Validate equipment fields
+        $('.equipment-item').each(function () {
+            const equipmentAmountInput = $(this).find('.equipmentAmount');
+            const totalStock = equipmentAmountInput.data('totalStock');
+            if (totalStock !== undefined) {
+                validateEquipmentAmount(equipmentAmountInput, totalStock);
+                if (equipmentAmountInput.hasClass('is-invalid')) {
+                    isValid = false;
+                }
+            }
+        });
+
+        // Validate medicine fields
+        $('.medicine-item').each(function () {
+            const quantityInput = $(this).find('input[name="quantity[]"]');
+            const totalQuantityContainer = $(this).find('.total-quantity');
+            const totalQuantity = parseInt(totalQuantityContainer.text().replace('Total Quantity: ', ''));
+            validateQuantity(quantityInput, totalQuantity);
+            if (quantityInput.hasClass('is-invalid')) {
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    // Add event listener to submit button
+    document.getElementById('submit-button').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Validate Step 3 fields
+        validateStep3Fields();
+
+        // Validate equipment and medicine fields
+        const allFieldsValid = validateAllFields();
+
+        // Check if there are still errors
+        const errorMessages = document.querySelectorAll('.step3-error-messages .error-message');
+        if (errorMessages.length === 0 && allFieldsValid) {
+            // If no errors, proceed with form submission using AJAX
+            const formData = new FormData(document.getElementById('multi-step-form'));
+
+            $.ajax({
+                url: 'backend/submit.php', // Replace 'submit.php' with your actual form submission endpoint
+                method: 'POST',
+                data: formData,
+                contentType: false, // Important for file uploads
+                processData: false, // Important for file uploads
+                success: function(response) {
+                    // Handle success response
+                    console.log(response);
+                    // Optionally, you can reset the form after successful submission
+                    sessionStorage.removeItem('formData');
+                    window.location.href = 'patient-list.php'; // Replace 'patient-list.php' with the actual URL of your Patient List page
+                    
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error(error);
+                }
+            });
+        } else {
+            // If there are errors, prevent form submission
+            console.log('Please fill in all required fields correctly.');
+        }
+    });
 });
+
 
 
 
@@ -1140,270 +1448,6 @@ function removeError(field) {
   document.getElementById('emergencyPhoneNumber').addEventListener('input', validateEmergencyPhoneNumberField);
   document.getElementById('weight').addEventListener('input', validateWeightField);
   document.getElementById('email').addEventListener('input', validateEmailField);
-
-  $(document).ready(function() {
-    // Function to fetch brands and quantity based on selected medicine type
-    function fetchBrandsAndQuantity($medicineTypeDropdown, $medicineGivenDropdown, $totalQuantityContainer) {
-        var medicineId = $medicineTypeDropdown.val();
-        console.log("Sending AJAX request with medicineType:", medicineId);
-        $.ajax({
-            url: 'backend/fetch-brands.php', // Path to your PHP script to fetch brands
-            method: 'POST',
-            data: { medicineType: medicineId },
-            dataType: 'json',
-            success: function(response) {
-                $medicineGivenDropdown.empty(); // Clear previous options
-                $medicineGivenDropdown.append('<option value="">Select Brand</option>'); // Add the default option
-                $.each(response, function(index, value) {
-                    // Check if the option is already selected in other fields
-                    var isDuplicate = $medicineGivenDropdown.find('option[value="' + value.MedicineBrandID + '"]').length > 0;
-                    if (!isDuplicate) {
-                        $medicineGivenDropdown.append('<option value="' + value.MedicineBrandID + '">' + value.BrandName + '</option>');
-                    }
-                   
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-                console.log(`Response Text: ${xhr.responseText}`);
-                // Handle errors
-            }
-        });
-
-        // Event listener for the change event on medicine given dropdown
-        $medicineGivenDropdown.on('change', function() {
-          var $routeInput = $(this).closest('.medicine-item').find('.route');
-            var selectedBrandID = $(this).val();
-            fetchQuantity(selectedBrandID, $totalQuantityContainer, $routeInput);
-        });
-    }
-
-    // Function to fetch quantity based on selected brand
-    function fetchQuantity(medicineBrandID, $totalQuantityContainer, $routeInput) {
-        $.ajax({
-            url: 'backend/fetch-quantity.php', // Path to your PHP script to fetch quantity
-            method: 'POST',
-            data: { medicineBrandID: medicineBrandID },
-            dataType: 'json',
-            success: function(response) {
-                // Update the UI to display the fetched total quantity
-                $totalQuantityContainer.text('Total Quantity: ' + response.TotalQuantity);
-                $routeInput.val(response.Route);
-                // Validate the quantity input
-                validateQuantity($totalQuantityContainer);
-            },
-            error: function(xhr, status, error) {
-                console.error(xhr.responseText);
-                console.log(`Response Text: ${xhr.responseText}`);
-                // Handle errors
-            }
-        });
-    }
-
-   // Function to validate quantity input for a specific medicine item
-function validateQuantity($inputField, totalQuantity) {
-    var enteredQuantity = parseInt($inputField.val());
-    if (isNaN(enteredQuantity) || enteredQuantity < 0 || enteredQuantity > totalQuantity) {
-        $inputField.addClass('is-invalid');
-        $inputField.closest('.form-group').find('.invalid-feedback').text('Quantity must be between 0 and ' + totalQuantity);
-    } else {
-        $inputField.removeClass('is-invalid');
-        $inputField.closest('.form-group').find('.invalid-feedback').text('');
-    }
-}
-
-// Event listener for the change event on medicine type dropdown
-$(document).on('change', '.medicineType', function() {
-    var $medicineItem = $(this).closest('.medicine-item');
-    var $medicineGivenDropdown = $medicineItem.find('.medicineGiven');
-    var $totalQuantityContainer = $medicineItem.find('.total-quantity');
-    fetchBrandsAndQuantity($(this), $medicineGivenDropdown, $totalQuantityContainer);
-});
-
-// Event listener for the input event on quantity input
-$(document).on('input', 'input[name="quantity[]"]', function() {
-    var $inputField = $(this);
-    var $medicineItem = $inputField.closest('.medicine-item');
-    var $totalQuantityContainer = $medicineItem.find('.total-quantity');
-    var totalQuantity = parseInt($totalQuantityContainer.text().replace('Total Quantity: ', ''));
-    validateQuantity($inputField, totalQuantity);
-});
-
-// Function to apply input validation to a specific medicine item
-function applyInputValidation($medicineItem) {
-    $medicineItem.find('input[name="quantity[]"]').each(function() {
-        var $inputField = $(this);
-        var $totalQuantityContainer = $medicineItem.find('.total-quantity');
-        var totalQuantity = parseInt($totalQuantityContainer.text().replace('Total Quantity: ', ''));
-        validateQuantity($inputField, totalQuantity);
-    });
-}
-
-var totalQuantityCounter = 1;
-
-// Function to add a new medicine item
-function addMedicineItem() {
-    var $newMedicineItem = $('#medicineItems .medicine-item').first().clone();
-    $newMedicineItem.find('input').val('');
-
-    // Clear the total quantity text of the cloned item
-    $newMedicineItem.find('.total-quantity').text('Total Quantity: ');
-
-    var uniqueIdentifier = 'total-quantity-' + totalQuantityCounter;
-    $newMedicineItem.find('.total-quantity').attr('id', uniqueIdentifier);
-    totalQuantityCounter++;
-
-    $('#medicineItems').append($newMedicineItem);
-    $newMedicineItem.find('.medicineType').trigger('change');
-    applyInputValidation($newMedicineItem);
-}
-
-
-
-// Function to add a new equipment item
-function addEquipmentItem() {
-    // Clone the template of the equipment item
-    var $newEquipmentItem = $('#equipmentItems .equipment-item').first().clone();
-
-    // Clear the values of input fields in the cloned item
-    $newEquipmentItem.find('input').val('');
-
-    // Append the cloned item to the container
-    $('#equipmentItems').append($newEquipmentItem);
-
-    // Reapply the event listeners for input validation on the cloned item
-    applyInputValidation($newEquipmentItem);
-}
-
-// Function to apply input validation event listeners
-function applyInputValidation($element) {
-    // Event listener for the "keydown" event on dosage quantity input
-    $element.find('input[name="dosageQuantity[]"]').on('keydown', function(event) {
-        const key = event.key;
-        // Allow only numbers and dot
-        if (!/[0-9.]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
-            event.preventDefault();
-        }
-    });
-
-    // Event listener for the "keydown" event on quantity input
-    $element.find('input[name="quantity[]"]').on('keydown', function(event) {
-        const key = event.key;
-        // Allow only numbers
-        if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
-            event.preventDefault();
-        }
-    });
-
-    // Event listener for the "keydown" event on equipment amount input
-    $element.find('input[name="equipmentAmount[]"]').on('keydown', function(event) {
-        const key = event.key;
-        // Allow only numbers
-        if (!/[0-9]/.test(key) && key !== 'Backspace' && key !== 'Delete' && key !== 'ArrowLeft' && key !== 'ArrowRight') {
-            event.preventDefault();
-        }
-    });
-    const numberInputs = document.querySelectorAll('input[type="number"]');
-
-// Loop through each number input field
-numberInputs.forEach(function(input) {
-    // Add an event listener for the input event
-    input.addEventListener('input', function() {
-        // Get the current value of the input field
-        let value = parseFloat(this.value);
-
-        // If the value is negative, set it to 0
-        if (value < 0 || isNaN(value)) {
-            this.value = 0;
-        }
-    });
-});
-}
-
-// Event listener for the "Add Medicine" button
-$(document).on('click', '.addMedicineItem', function() {
-    addMedicineItem();
-});
-
-// Event listener for the "Add Equipment" button
-$(document).on('click', '.addEquipmentItem', function() {
-    addEquipmentItem();
-});
-
-// Event listener for the "Remove Equipment" button
-$(document).on('click', '.removeEquipmentItem', function() {
-    // Check if there's more than one equipment item
-    if ($('.equipment-item').length > 1) {
-        // Remove the clicked equipment item
-        $(this).closest('.equipment-item').remove();
-    } else {
-        // Alert the user or perform any other action indicating that there must be at least one item
-        alert("At least one equipment item is required.");
-    }
-});
-$(document).on('click', '.removeMedicineItem', function() {
-    // Check if there's more than one medicine item
-    if ($('.medicine-item').length > 1) {
-        // Remove the clicked medicine item
-        $(this).closest('.medicine-item').remove();
-    } else {
-        // Alert the user or perform any other action indicating that there must be at least one item
-        alert("At least one medicine item is required.");
-    }
-});
-});
-
-// Get the dosage quantity input element
-const dosageQuantityInput = document.querySelector('input[name="dosageQuantity[]"]');
-
-// Add an event listener for the keydown event
-dosageQuantityInput.addEventListener('keydown', function(event) {
-    const keyCode = event.keyCode;
-
-    // Allow numbers, dot, backspace, delete, arrow keys, and decimal point (if not already present)
-    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 190 || keyCode === 110 || keyCode === 8 || keyCode === 46 || (keyCode >= 37 && keyCode <= 40))) {
-        // Prevent "@" symbol
-        if (event.key === '@') {
-            event.preventDefault();
-        }
-        else {
-            event.preventDefault();
-        }
-    }
-
-    // Prevent entering more than one dot
-    const currentValue = event.target.value;
-    if ((keyCode === 190 || keyCode === 110) && currentValue.includes('.')) {
-        event.preventDefault();
-    }
-});
-
-
-// Get the quantity input element
-const quantityInput = document.querySelector('input[name="quantity[]"]');
-
-// Add an event listener for the keydown event
-quantityInput.addEventListener('keydown', function(event) {
-    const keyCode = event.keyCode;
-
-    // Allow only numbers, backspace, and delete
-    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 8 || keyCode === 46)) {
-        event.preventDefault();
-    }
-});
-
-// Get the equipment amount input element
-const equipmentAmountInput = document.querySelector('input[name="equipmentAmount[]"]');
-
-// Add an event listener for the keydown event
-equipmentAmountInput.addEventListener('keydown', function(event) {
-    const keyCode = event.keyCode;
-
-    // Allow only numbers, backspace, and delete
-    if (!((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode === 8 || keyCode === 46)) {
-        event.preventDefault();
-    }
-});
 
 </script>
 <script>
