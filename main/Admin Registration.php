@@ -1,3 +1,15 @@
+<?php
+session_start();
+if (isset($_SESSION['registered']) && $_SESSION['registered'] === true) {
+    header('Location: Registration Success.php');
+    exit();
+}
+if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
+    // Redirect the user to the login page
+    header("Location: admindashboard.php");
+    exit(); // Terminate the script
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -193,14 +205,14 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="phone-number">Phone Number<span class="red">*</span></label>
-                                    <input type="text" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789">
+                                    <input type="tel" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789" maxlength="11">
                                     <small id="phone-number-error" class="text-danger"></small>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="email">Email<span class="red">*</span></label>
-                                    <input type="email" id="email" name="email" class="form-control" placeholder="@gmail.com">
+                                    <input type="email" id="email" name="email" class="form-control" placeholder="@gmail.com" maxlength="320">
                                     <small id="email-error" class="text-danger"></small>
                                 </div>
                             </div>
@@ -246,6 +258,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
+        document.getElementById('phone-number').addEventListener('input', function (e) {
+            const input = e.target;
+            const value = input.value;
+            const errorElement = document.getElementById('phone-number-error');
+
+            // Allow only digits
+            if (!/^\d*$/.test(value)) {
+                input.value = value.replace(/\D/g, '');
+                errorElement.textContent = "Only numbers are allowed.";
+            } else {
+                errorElement.textContent = "";
+            }
+
+            // Check length
+            if (value.length > 11) {
+                input.value = value.slice(0, 11);
+                errorElement.textContent = "Phone number cannot exceed 11 digits.";
+            }
+        });
+    </script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const formFields = document.querySelectorAll('input, select, textarea');
     
@@ -260,23 +293,7 @@
             });
         });
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const phoneNumberInput = document.getElementById('phone-number');
-            
-            const inputGroupPrepend = phoneNumberInput.parentElement.querySelector('.input-group-prepend');
-    
-            phoneNumberInput.addEventListener('focus', function () {
-                inputGroupPrepend.classList.add('glow-on-focus');
-                phoneNumberInput.classList.add('glow-on-focus');
-            });
-    
-            phoneNumberInput.addEventListener('blur', function () {
-                inputGroupPrepend.classList.remove('glow-on-focus');
-                phoneNumberInput.classList.remove('glow-on-focus');
-            });
-        });
-    </script>
+
      <script>
          function togglePasswordVisibility(id) {
             const input = document.getElementById(id);
@@ -307,6 +324,18 @@ document.addEventListener('DOMContentLoaded', function() {
         'password': false,
         'confirmPassword': false
     };
+
+      // Save form data to sessionStorage on input
+      form.querySelectorAll('input').forEach(function(field) {
+        field.value = sessionStorage.getItem(field.id) || ''; // Load saved value
+
+        field.addEventListener('input', function() {
+            sessionStorage.setItem(field.id, field.value); // Save value
+            touchedFields[field.id] = true;
+            validateField(field);
+            validateForm();
+        });
+    });
 
     function validateField(field) {
         const value = field.value.trim();
@@ -467,6 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(result => {
             if (result.status === 'success') {
+                sessionStorage.clear();
                 window.location.href = 'Registration Success.php';
             } else if (result.status === 'error') {
                 const alertMessages = document.getElementById('alertMessages');

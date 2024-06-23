@@ -3,25 +3,34 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Include database connection
     include_once 'pawfect_connect.php';
+
     $targetDir = "../uploads/";  // Save file to ../uploads/
     $webDir = "uploads/";        // URL for accessing the file
-    $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
-    $webFile = $webDir . basename($_FILES["uploadImage"]["name"]);  // File path for database
+    $uploadSuccess = false;
+    $bitePicture = null;
 
-    // Check if the uploaded file is an image
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-    $allowedExtensions = array("jpg", "jpeg", "png");
-    if (!in_array($imageFileType, $allowedExtensions)) {
-        echo "Sorry, only JPG, JPEG, PNG files are allowed.";
-        exit(); // Stop further execution
+    // Check if a file was uploaded
+    if (isset($_FILES["uploadImage"]) && $_FILES["uploadImage"]["error"] == UPLOAD_ERR_OK) {
+        $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
+        $webFile = $webDir . basename($_FILES["uploadImage"]["name"]);  // File path for database
+
+        // Check if the uploaded file is an image
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowedExtensions = array("jpg", "jpeg", "png");
+        if (in_array($imageFileType, $allowedExtensions)) {
+            // Move the uploaded file to the target directory
+            if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
+                echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
+                $uploadSuccess = true;
+                $bitePicture = $webFile;
+            } else {
+                echo "Sorry, there was an error uploading your file.";
+            }
+        } else {
+            echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+        }
     }
 
-    // Move the uploaded file to the target directory
-    if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
-        echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
-    } else {
-        echo "Sorry, there was an error uploading your file.";
-    }
     // Extract patient data from the form
     $fName = $_POST['fName'];
     $mName = $_POST['mName'];
@@ -67,9 +76,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     mysqli_stmt_execute($emergencyStmt);
     $emergencyId = mysqli_insert_id($conn); // Get the last inserted emergency contact ID
 
-    // Handle uploaded image
-    $bitePicture = $webFile;
-
     // Extract exposure data from the form
     $exposureDate = $_POST['exposureDate'];
     $exposureBy = $_POST['exposureBy'];
@@ -77,10 +83,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $animalType = $_POST['animalType'];
     $biteLocation = $_POST['biteLocation'];
 
-    // Insert exposure data with patient ID
-    $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation, BitePicture) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
-    mysqli_stmt_bind_param($exposureStmt, "issssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation, $bitePicture);
+    // Adjust query based on whether the bitePicture was uploaded or not
+    if ($uploadSuccess) {
+        $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation, BitePicture) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
+        mysqli_stmt_bind_param($exposureStmt, "issssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation, $bitePicture);
+    } else {
+        $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation) VALUES (?, ?, ?, ?, ?, ?)";
+        $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
+        mysqli_stmt_bind_param($exposureStmt, "isssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation);
+    }
     mysqli_stmt_execute($exposureStmt);
     $exposureId = mysqli_insert_id($conn); // Get the last inserted exposure ID
 
@@ -224,9 +236,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Insert equipment data with patient ID
     for ($i = 0; $i < count($equipmentTypes); $i++) {
-        $equipmentInsertQuery = "INSERT INTO equipmentusage (TreatmentID, EquipmentID, Quantity) VALUES (?, ?, ?)";
+        // Fetch equipment name from equipment table
+        $getEquipmentNameQuery = "SELECT Name FROM equipment WHERE EquipmentID = ?";
+        $getEquipmentNameStmt = mysqli_prepare($conn, $getEquipmentNameQuery);
+        mysqli_stmt_bind_param($getEquipmentNameStmt, "i", $equipmentTypes[$i]);
+        mysqli_stmt_execute($getEquipmentNameStmt);
+        mysqli_stmt_bind_result($getEquipmentNameStmt, $equipmentName);
+        mysqli_stmt_fetch($getEquipmentNameStmt);
+        mysqli_stmt_close($getEquipmentNameStmt);
+
+        // Insert into equipmentusage table
+        $equipmentInsertQuery = "INSERT INTO equipmentusage (TreatmentID, EquipmentID, EquipmentName, Quantity) VALUES (?, ?, ?, ?)";
         $equipmentStmt = mysqli_prepare($conn, $equipmentInsertQuery);
-        mysqli_stmt_bind_param($equipmentStmt, "iii", $treatmentId, $equipmentTypes[$i], $equipmentAmounts[$i]);
+        mysqli_stmt_bind_param($equipmentStmt, "iisi", $treatmentId, $equipmentTypes[$i], $equipmentName, $equipmentAmounts[$i]);
         mysqli_stmt_execute($equipmentStmt);
         $equipmentId = mysqli_insert_id($conn);
 

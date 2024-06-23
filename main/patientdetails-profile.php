@@ -89,13 +89,33 @@ if(isset($_GET['patientID'])) {
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"> 
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <title>Patient Details - Profile</title>
-  
+  <script>
+        function preventShotgunClicks(anchor) {
+            // Disable the link to prevent further clicks
+            anchor.style.pointerEvents = 'none';
+            anchor.style.opacity = '0.6'; // Optionally, change the appearance to indicate it is disabled
+
+            // Optionally, change the text to indicate the action is in progress
+            anchor.innerHTML = '<b>Processing...</b>';
+
+            // Proceed with the navigation
+            setTimeout(function() {
+                window.location.href = anchor.href;
+            }, 100); // Small delay to ensure the changes are applied before navigation
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const editLink = document.getElementById('editLink');
+            editLink.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                preventShotgunClicks(this);
+            });
+        });
+    </script>
 </head>
 <body>
 <div class="container-fluid">
@@ -149,11 +169,12 @@ if(isset($_GET['patientID'])) {
 </div>
 
 <div class="col-md-12 d-flex align-items-end justify-content-end pr-5">
-<button id="editButton" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2" style="color: #FFFFFF;">
-    <a href="backend/create-account.php?patientID=<?php echo $patientID; ?>" style="color:inherit; text-decoration:none;">
+    
+
+    <a href="backend/create-account.php?patientID=<?php echo $patientID; ?>" id="editLink" style="color:white; text-decoration:none;" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2">
         <b>Create Patient Account</b>
     </a>
-</button>
+
 
         </div>
     

@@ -46,19 +46,29 @@ if ($result->num_rows === 1) {
     // User not found or multiple users found (should not happen)
     // Handle the error or redirect as needed
 }
+// Retrieve the ExposureDate from the URL query parameters
+$exposureDate = isset($_GET['exposureDate']) ? $_GET['exposureDate'] : '';
+
+// Check if the ExposureDate is provided
+if ($exposureDate === '') {
+    // Handle the error if ExposureDate is not provided
+    // You can redirect to an error page or show an error message
+    echo "ExposureDate is required.";
+    exit();
+}
 $stmt = $conn->prepare("SELECT p.FirstName, p.LastName, p.MiddleName, p.Age, p.Sex, p.Weight, p.BirthDate, ci.LineNumber AS ContactLineNumber,
-                        pa.Province, pa.City, pa.Address,
-                        ec.FullName AS EmergencyContactFullName, ec.Relationship AS EmergencyContactRelationship, ec.LineNumber AS EmergencyContactLineNumber,
-                        bd.ExposureDate, bd.AnimalType, bd.ExposureType, bd.BiteLocation, bd.ExposureMethod,
-                        t.DateofTreatment, t.Category, t.Session, t.Recommendation, t.TreatmentID
-                        FROM patient p
-                        LEFT JOIN contactinformation ci ON p.PatientID = ci.PatientID
-                        LEFT JOIN patientaddress pa ON p.PatientID = pa.PatientID
-                        LEFT JOIN emergencycontact ec ON p.PatientID = ec.PatientID
-                        LEFT JOIN bitedetails bd ON p.PatientID = bd.PatientID
-                        LEFT JOIN treatment t ON p.PatientID = t.PatientID
-                        WHERE p.PatientID = ?");
-$stmt->bind_param("i", $patientID);
+pa.Province, pa.City, pa.Address,
+ec.FullName AS EmergencyContactFullName, ec.Relationship AS EmergencyContactRelationship, ec.LineNumber AS EmergencyContactLineNumber,
+bd.ExposureDate, bd.AnimalType, bd.ExposureType, bd.BiteLocation, bd.ExposureMethod, bd.BiteID,
+t.DateofTreatment, t.Category, t.Session, t.Recommendation, t.TreatmentID
+FROM patient p
+LEFT JOIN contactinformation ci ON p.PatientID = ci.PatientID
+LEFT JOIN patientaddress pa ON p.PatientID = pa.PatientID
+LEFT JOIN emergencycontact ec ON p.PatientID = ec.PatientID
+LEFT JOIN bitedetails bd ON p.PatientID = bd.PatientID
+LEFT JOIN treatment t ON bd.BiteID = t.BiteID
+WHERE p.PatientID = ? AND bd.ExposureDate = ?");
+$stmt->bind_param("is", $patientID, $exposureDate);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -404,12 +414,12 @@ $pdf->SetFont('Poppins', '', 8);
 $pdf->Ln(20); // Add some space after the address
 $pdf->SetFillColor(234, 239, 246); // Set background color to eaeff6    
 
-$pdf->MultiCell(190,20, $recommendation ?? "None", 0,'L', true); // Add address inside the box with background color
+$pdf->MultiCell(190,5, $recommendation ?? "None", 0,'L', true); // Add address inside the box with background color
 
 
 
 // Address
 
-$pdf->Output();
+$pdf->Output('D', 'Vaccination Card.pdf');
 
 ?>

@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
+    // Redirect the user to the login page
+    header("Location: admindashboard.php");
+    exit(); // Terminate the script
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,6 +150,7 @@
    
 
     </style>
+
 </head>
 <body>
 

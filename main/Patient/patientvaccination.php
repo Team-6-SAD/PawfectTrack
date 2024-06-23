@@ -102,10 +102,40 @@ if ($resultProfilePic->num_rows === 1) {
         font-family: 'Material Icons';
         right: 0.5em !important;
     }
+    .custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    appearance: none;
+    background-color: #F8F8F8;
+    background-image: url('../img/img-dashboard/clarity_calendar-solid.png'), url('../img/img-dashboard/211614_down_b_arrow_icon.png');
+    background-repeat: no-repeat, no-repeat;
+    background-position: left 10px center, right 10px center;
+    background-size: 20px 20px, 10px 10px;
+    padding-left: 40px; /* Adjust to give space for the calendar icon */
+}
+#exposureDates option {
+        padding: 12px 12px !important; /* Adjust padding as needed */
+    }
+    
+.custom-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
   </style>
 </head>
 <body style="margin: 0;">
-    <div class="container-fluid">
+    <div class="container-fluid mb-5">
         <div class="main-container">
             <!-- Header and Sidebar -->
             <?php include 'patient_header.php'; ?>
@@ -113,7 +143,18 @@ if ($resultProfilePic->num_rows === 1) {
             <div class="content" id="content">
            
                 <div class="row justify-content-center d-flex" >
+                    
                     <div class="col-md-10 mt-0 pt-0 ">
+                        <div class="col-md-12 justify-content-end d-flex pr-0">
+                        <div class="col-md-4 mr-0 pr-0">
+                            <div class="custom-select-wrapper">
+                    <select id="exposureDates" class="form-control mb-3 custom-select ">
+            <option value="" disabled selected class="dropdown-item">Select Date</option>
+            <!-- Exposure dates will be populated here -->
+          </select>
+          </div>
+          </div>
+          </div>
                         <div class="card p-5">
                         <div class="card-body  p-0 align-items-center">
                             <section  id="my-section"> 
@@ -210,9 +251,13 @@ if ($resultProfilePic->num_rows === 1) {
 </div>
 
         <div class="col-lg-12 d-flex justify-content-center">
-        <button id="generatePdfButton" onclick="CreatePDFfromHTML()" style="background-color:#0449a6; border-radius:9px;" >
-    <img src="ph_download-fill.png" alt="Download Icon">
-    Download PDF
+        <button id="generatePdfButton2" onclick="PrintPDFfromHTML()" style="background-color:#0449a6; border-radius:9px; border-top-right-radius:0px; border-bottom-right-radius:0px; border-right:1px solid black;" >
+        <img src="printer.png" alt="Download Icon" class="button-images">
+        Print
+            </button>
+        <button id="generatePdfButton" onclick="handleGeneratePdfButton()" style="background-color:#0449a6; border-radius:9px; border-top-left-radius:0px; border-bottom-left-radius:0px;" >
+    <img src="ph_download-fill.png" alt="Download Icon" class="button-images">
+    Download
 </button>
 </div>
 
@@ -233,25 +278,7 @@ if ($resultProfilePic->num_rows === 1) {
         </div> <!-- End of main-container -->
     </div> <!-- End of container-fluid -->
     
-    <div class="modal fade" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="dateModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="dateModalLabel">Select Exposure Date</h5>
-        </div>
-        <div class="modal-body">
-          <label for="exposureDates">Select Exposure Date:</label>
-          <select id="exposureDates" class="form-control">
-            <option value="">Select Date</option>
-            <!-- Exposure dates will be populated here -->
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="selectDateButton">Select Date</button>
-        </div>
-      </div>
-    </div>
-  </div>
+
   <?php include 'patient-footer.php'; ?>
     <!-- Your script tags here -->
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -268,19 +295,15 @@ if ($resultProfilePic->num_rows === 1) {
       // Fetch exposure dates on page load
       fetchExposureDates();
 
-      // Show the modal on page load
-      $('#dateModal').modal('show');
-
-      // Fetch patient details on exposure date selection
-      $('#selectDateButton').click(function() {
-        var exposureDate = $('#exposureDates').val();
-        if (exposureDate) {
-          $('#dateModal').modal('hide');
-          fetchPatientDetails(exposureDate);
-        } else {
-          alert('Please select a date.');
-        }
-      });
+      $('#exposureDates').change(function() {
+  var exposureDate = $(this).val();
+  if (exposureDate) {
+    $('#dateModal').modal('hide');
+    fetchPatientDetails(exposureDate);
+  } else {
+    alert('Please select a date.');
+  }
+});
 
       function fetchExposureDates() {
         $.ajax({
@@ -384,10 +407,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
+    function handleGeneratePdfButton() {  var exposureDate = $('#exposureDates').val();
+    if (!exposureDate) {
+      alert('Please select a date.');
+      return;
+    }else{
+            var exposureDate = document.getElementById('exposureDates').value;
+            window.location.href = 'pdfmaker.php?exposureDate=' + encodeURIComponent(exposureDate);
+        }
+        }
     function CreatePDFfromHTML() {
+        var exposureDate = $('#exposureDates').val();
+    if (!exposureDate) {
+      alert('Please select a date.');
+      return;
+    }
+    else{
         // Hide the button
         var generatePdfButton = document.getElementById('generatePdfButton');
+        var generatePdfButton2 = document.getElementById('generatePdfButton2');
         generatePdfButton.style.display = 'none';
+        generatePdfButton2.style.display = 'none';
 
         // Rest of your PDF generation code
         var HTML_Width = $(".html-content").width();
@@ -408,7 +448,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 pdf.addPage(PDF_Width, PDF_Height);
                 pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+(top_left_margin*4),canvas_image_width,canvas_image_height);
             }
-            pdf.save("Your_PDF_Name.pdf");
+
+            // Save the PDF
+            pdf.save("Vaccination Card.pdf");
+
+            // Print the PDF
 
             // Show the button after a delay
             setTimeout(function () {
@@ -416,13 +460,65 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000); // Adjust the delay as needed
         });
     }
+}
+    function PrintPDFfromHTML() {
+        var exposureDate = $('#exposureDates').val();
+    if (!exposureDate) {
+      alert('Please select a date.');
+      return;
+    }
+    else {
 
+  
+        // Hide the button
+        var generatePdfButton = document.getElementById('generatePdfButton');
+        var generatePdfButton2 = document.getElementById('generatePdfButton2');
+        generatePdfButton.style.display = 'none';
+        generatePdfButton2.style.display = 'none';
+
+        // Rest of your PDF generation code
+        var HTML_Width = $(".html-content").width();
+        var HTML_Height = $(".html-content").height();
+        var top_left_margin = 15;
+        var PDF_Width = HTML_Width + (top_left_margin * 2);
+        var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+        var canvas_image_width = HTML_Width;
+        var canvas_image_height = HTML_Height;
+
+        var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+        html2canvas($(".html-content")[0]).then(function (canvas) {
+            var imgData = canvas.toDataURL("image/jpeg", 1.0);
+            var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+            for (var i = 1; i <= totalPDFPages; i++) { 
+                pdf.addPage(PDF_Width, PDF_Height);
+                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+(top_left_margin*4),canvas_image_width,canvas_image_height);
+            }
+
+            // Save the PDF
+          
+
+            // Print the PDF
+            pdf.autoPrint();
+            window.open(pdf.output('bloburl'), '_blank');
+
+            // Show the button after a delay
+            setTimeout(function () {
+                showGeneratePDFButton();
+            }, 1000); // Adjust the delay as needed
+        });
+    }
+}
     // Function to show the button
     function showGeneratePDFButton() {
         var generatePdfButton = document.getElementById('generatePdfButton');
+        var generatePdfButton2 = document.getElementById('generatePdfButton2');
         generatePdfButton.style.display = 'block';
+        generatePdfButton2.style.display = 'block';
     }
 </script>
+
 
 
 <script>

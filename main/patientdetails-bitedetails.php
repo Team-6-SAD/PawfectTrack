@@ -86,11 +86,41 @@ if(isset($_GET['patientID'])) {
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
+  <style>
+/* styles.css */
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    appearance: none;
+    background-color: #fff;
+    background-image: url('img/img-dashboard/clarity_calendar-solid.png'), url('img/img-dashboard/211614_down_b_arrow_icon.png');
+    background-repeat: no-repeat, no-repeat;
+    background-position: left 10px center, right 10px center;
+    background-size: 20px 20px, 10px 10px;
+    padding-left: 40px; /* Adjust to give space for the calendar icon */
+}
+
+.custom-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+    </style>
   <title>Patient Details - Bite Details</title>
   
 </head>
@@ -110,7 +140,7 @@ if(isset($_GET['patientID'])) {
         <div class="col-md-12"> 
         <h3 class="text-center main-font-color mt-2"><b>PATIENT DETAILS</b></h3>
        <div class="row justify-content-center d-flex">
-        <div class="col-md-11">
+        <div class="col-md-11 p-0">
         <div class="row mt-4">
     <div class="col-md-3 patient-navigation-active text-center">
         <a href="patientdetails-profile.php?patientID=<?php echo $patientID?>" class="text-center link-text">
@@ -137,9 +167,23 @@ if(isset($_GET['patientID'])) {
         </a>
     </div>
 </div>
-<div class="form-group">
-    <label for="biteDetailsDate">Select Bite Details Date:</label>
-    <select class="form-control" id="biteDetailsDate" onchange="loadBiteDetails(this.value)">
+   
+</div>
+</div>
+<div class="row justify-content-center d-flex">
+    <div class="col-md-11">
+        <div class="row">
+            <div class="col-md-7 pl-0 h-100">
+                <div class="card mt-4">
+                    <div class="card-body p-4">
+                    <div class="container mt-0 mb-5">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <h5 class="main-font-color"><b>Bite Exposure Details</b></h5>
+            </div>
+            <div class="col">
+            <div class="custom-select-wrapper">
+    <select class="custom-select" id="biteDetailsDate" onchange="loadBiteDetails(this.value)">
         <option value="">Select Date</option>
         <?php
         // Loop through all the bite details dates and populate the dropdown
@@ -162,14 +206,11 @@ if(isset($_GET['patientID'])) {
         ?>
     </select>
 </div>
-</div>
-<div class="row justify-content-center d-flex">
-    <div class="col-md-11">
-        <div class="row">
-            <div class="col-md-7 pl-0 h-100">
-                <div class="card mt-4">
-                    <div class="card-body p-5">
-                        <h5 class="main-font-color"><b>Bite Exposure Details</b></h5>
+
+
+            </div>
+        </div>
+    </div>
                         <div class="profile-content-container mb-4">
                             <div class="col-sm-6 col-md-4">
                                 <div class="profile-category">Type of Animal</div>
@@ -194,7 +235,7 @@ if(isset($_GET['patientID'])) {
                                 <div class="profile-category-content" id="exposureMethod"><?php echo isset($exposureMethod) ? $exposureMethod : ''; ?></div>
                             </div>
                             <div class="col-md-4">
-                                <div class="profile-category">Date of Treatment</div>
+                                <div class="profile-category text-nowrap">Date of Treatment</div>
                                 <div class="profile-category-content" id="dateofTreatment"><?php echo isset($dateofTreatment) ? $dateofTreatment : ''; ?></div>
                             </div>
                         </div>

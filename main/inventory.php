@@ -36,103 +36,7 @@ if ($row = mysqli_fetch_assoc($result)) {
     // Admin information not found
     echo "Admin information not found!";
 }
-$sql = "SELECT 
-            mu.UsageID,
-            mu.Quantity,
-            mu.Dosage,
-            mu.UsageDate,
-            mu.TreatmentID,
-            mu.MedicineBrand,
-            t.PatientID,
-            p.FirstName,
-            p.LastName
-       
-        FROM 
-            MedicineUsage mu
-        JOIN 
-            Treatment t ON mu.TreatmentID = t.TreatmentID
-        JOIN 
-            Patient p ON t.PatientID = p.PatientID";
-// Perform the query
-$result = mysqli_query($conn, $sql);
-
-// Check if the query was successful
-if ($result) {
-    // Initialize an empty array to store the query results
-    $medicineUsageData = array();
-
-    // Fetch the rows from the result set
-    while ($row = mysqli_fetch_assoc($result)) {
-        // Add each row to the medicine usage data array
-        $medicineUsageData[] = $row;
-    }
-
-    // Now $medicineUsageData contains the fetched data
-} else {
-    // Error executing the query
-    echo "Error: " . mysqli_error($conn);
-}
-
-$sql = "SELECT 
-            eu.Quantity,
-            eu.UsageDate,
-            eu.EquipmentID,
-            e.Name AS EquipmentName
-        FROM 
-            EquipmentUsage eu
-        JOIN 
-            Equipment e ON eu.EquipmentID = e.EquipmentID";
-
-// Perform the query
-$result = mysqli_query($conn, $sql);
-
-// Check if the query was successful
-if ($result) {
-    // Initialize an empty array to store the query results
-    $equipmentUsageData = array();
-
-    // Fetch the rows from the result set
-    while ($row = mysqli_fetch_assoc($result)) {
-        // Add each row to the equipment usage data array
-        $equipmentUsageData[] = $row;
-    }
-
-    // Now $equipmentUsageData contains the fetched data
-} else {
-    // Error executing the query
-    echo "Error: " . mysqli_error($conn);
-}
-
-$sql = "SELECT 
-            SUM(mi.StockQuantity) AS TotalQuantity,
-            mi.MedicineBrandID,
-            mb.BrandName
-        FROM 
-            medicineinventory mi
-        LEFT JOIN 
-            medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
-        GROUP BY 
-            mi.MedicineBrandID";
-
-$result = $conn->query($sql);
-
-if ($result) {
-    // Initialize an empty array to store the query results
-    $medicineInventoryData = array();
-
-    // Fetch the rows from the result set
-    while ($row = $result->fetch_assoc()) {
-        // Add each row to the medicine inventory data array
-        $medicineInventoryData[] = $row;
-    }
-
-    // Now $medicineInventoryData contains the fetched data
-} else {
-    // Error executing the query
-    echo "Error: " . $conn->error;
-}
-
-
+include 'inventory-query.php';
 ?>
 
 <!DOCTYPE html>
@@ -149,9 +53,8 @@ if ($result) {
     <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
     <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="css/hamburgers.css" rel="stylesheet">
@@ -235,8 +138,9 @@ if ($result) {
                                         <button id="deleteButton" class="btn btn-danger"><img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove</button>
 
                                     </div>
-                                    <button id="addMedicineButton" class="btn greener mb-0  mr-sm-2 pt-2  no-break" data-toggle="modal" data-target="#addStockModal">Add Stock</button>
-
+                                    <div class="ml-auto">
+        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addStockModal">Add Stock</button>
+    </div>
                                 </div>
 
                                 <form id="deleteForm" action="backend/remove_medicine.php" method="post">
@@ -612,24 +516,24 @@ mb.BrandName, mi.StockExpiryDate;
                                             </div>
                                             <!-- Stock Quantity input -->
                                             <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="stockQuantity">Stock Quantity:</label>
-                                                    <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" required>
-                                                </div>
+                                            <div class="form-group">
+    <label for="stockQuantity">Stock Quantity:</label>
+    <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" min="0" step="1"  max="100000" required>
+</div>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="stockPrice">Stock Price:</label>
-                                                    <input type="number" class="form-control" id="stockPrice" name="stockPrice" required max="1000000">
+                                                    <input type="number" class="form-control" id="stockPrice" name="stockPrice" required min="0" step="1" max="100000" >
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="stockDosage">Stock Dosage:</label>
-                                                    <input type="text" class="form-control" id="stockDosage" name="stockDosage" required>
-                                                </div>
+                                            <div class="form-group">
+    <label for="stockDosage">Stock Dosage:</label>
+    <input type="text" class="form-control" id="stockDosage" name="stockDosage" required>
+</div>
                                             </div>
                                         </div>
                                         <div class="row">
@@ -643,7 +547,7 @@ mb.BrandName, mi.StockExpiryDate;
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="stockBoughtPrice">Stock Bought Price:</label>
-                                                    <input type="number" class="form-control" id="stockBoughtPrice" name="stockBoughtPrice" required>
+                                                    <input type="number" class="form-control" id="stockBoughtPrice" name="stockBoughtPrice" min="0" step="1" max="100000"  required>
                                                 </div>
                                             </div>
                                         </div>
@@ -791,7 +695,7 @@ mb.BrandName, mi.StockExpiryDate;
                                 </div>
                                 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
                                     <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-                                    <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Remove</b></button>
+                                    <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="confirmDeleteButton"><b>Remove</b></button>
                                 </div>
                             </div>
                         </div>
@@ -853,6 +757,84 @@ mb.BrandName, mi.StockExpiryDate;
                 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <script>
+    document.getElementById('stockDosage').addEventListener('input', function (e) {
+        // Remove any non-numeric characters except dot
+        this.value = this.value.replace(/[^0-9.]/g, '');
+
+        // Ensure only one dot is allowed
+        if (this.value.split('.').length > 2) {
+            this.value = this.value.replace(/\.+$/, '');
+        }
+
+        // Ensure zero is only allowed once before a dot
+        if (this.value.length > 1 && this.value.startsWith('0') && !this.value.startsWith('0.')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 8 digits in total
+        let parts = this.value.split('.');
+        if (parts[0].length > 8) {
+            this.value = parts[0].substring(0, 8);
+        } else if (parts.length === 2 && parts[0].length + parts[1].length > 8) {
+            parts[1] = parts[1].substring(0, 8 - parts[0].length);
+            this.value = parts.join('.');
+        }
+
+        // Ensure value is not negative
+        if (parseFloat(this.value) < 0) {
+            this.value = '';
+        }
+    });
+</script>
+                <script>
+    document.getElementById('stockQuantity').addEventListener('input', function (e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Ensure the value does not start with 0 unless it is the only character
+        if (this.value.length > 1 && this.value.startsWith('0')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 6 digits
+        if (this.value.length > 6) {
+            this.value = this.value.slice(0, 6);
+        }
+    });
+</script>
+<script>
+    document.getElementById('stockBoughtPrice').addEventListener('input', function (e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Ensure the value does not start with 0 unless it is the only character
+        if (this.value.length > 1 && this.value.startsWith('0')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 6 digits
+        if (this.value.length > 6) {
+            this.value = this.value.slice(0, 8);
+        }
+    });
+</script>
+<script>
+    document.getElementById('stockPrice').addEventListener('input', function (e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Ensure the value does not start with 0 unless it is the only character
+        if (this.value.length > 1 && this.value.startsWith('0')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 6 digits
+        if (this.value.length > 6) {
+            this.value = this.value.slice(0, 8);
+        }
+    });
+</script>
+                <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             const actionButton = document.getElementById('actionButton');
             const deleteButton = document.getElementById('deleteButton2');
@@ -913,6 +895,7 @@ mb.BrandName, mi.StockExpiryDate;
                         deleteButton.classList.add('hidden');
                         selectionMode = false;
                         actionButton.textContent = 'Action';
+                        location.reload();
                     } else {
                         stockModal.show();
                     }
@@ -998,7 +981,7 @@ mb.BrandName, mi.StockExpiryDate;
                         data: {
                             labels: <?php echo $labels_js; ?>,
                             datasets: [{
-                                label: '# of Votes',
+                                label: '# of Stock',
                                 data: <?php echo $data_js; ?>,
                                 borderWidth: 1
                             }]
@@ -1020,26 +1003,7 @@ mb.BrandName, mi.StockExpiryDate;
 
 
 
-                <script>
-                    // JavaScript function to update the hidden input field with selected medicine brand IDs
-                    function deleteSelectedRows() {
-                        // Get all checkboxes with the class 'select-checkbox'
-                        var checkboxes = document.getElementsByClassName('select-checkbox');
-                        var selectedRows = [];
-                        // Iterate over all checkboxes
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            // Check if the checkbox is checked
-                            if (checkboxes[i].checked) {
-                                // Add the value (MedicineBrandID) of the checked checkbox to the selectedRows array
-                                selectedRows.push(checkboxes[i].value);
-                            }
-                        }
-                        // Set the value of the hidden input field to the selectedRows array
-                        document.getElementById('selectedRowsInput').value = selectedRows.join(',');
-                        // Submit the form
-                        document.getElementById('deleteForm').submit();
-                    }
-                </script>
+
 
                 <script>
                     document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
@@ -1095,228 +1059,186 @@ mb.BrandName, mi.StockExpiryDate;
 
 
                 <script>
-                    $(document).ready(function() {
-
-
-
-
-                        $(".select-checkbox").change(function() {
-                            var selectedCheckboxValue = $(this).val();
-                            var dropdown1 = $("select[name='statusUpdate[" + selectedCheckboxValue + "]']");
-
-                            if ($(this).prop('checked')) {
-                                // Check if the option doesn't already exist and the current status is "Pending"
-                                if (dropdown1.find("option[value='Received']").length === 0 && dropdown1.val() === 'Pending') {
-                                    // Add more options to the dropdown dynamically using JavaScript
-                                    dropdown1.append('<option value="Received">Received</option>');
-
-                                    // Add more options as needed
-                                }
-                            } else {
-                                // If checkbox is unchecked and the current status is "Pending," remove the added options
-                                if (dropdown1.val() === 'Pending') {
-                                    dropdown1.find("option[value='Received']").remove();
-
-                                    // Remove more options as needed
-                                }
-                            }
-
-                            var checkboxId = $(this).val();
-                            var dropdown = $("select[name='statusUpdate[" + checkboxId + "]']");
-                            dropdown.prop("disabled", !$(this).prop("checked"));
-                        });
-
-
-                        // Function to toggle checkbox visibility
-                        function toggleCheckboxesVisibility() {
-                            var checkboxes = $('.select-checkbox');
-                            checkboxes.toggle();
-
-                            // If the checkboxes are being hidden, uncheck all of them
-                            if (!checkboxes.is(':visible')) {
-                                checkboxes.prop('checked', false);
-                            }
-                        }
-
-
-
-                        // Function to toggle buttons visibility based on the number of checkboxes checked
-                        function toggleButtonsVisibility() {
-                            var checkedCheckboxes = $('.select-checkbox:checked');
-                            if (checkedCheckboxes.length === 1) {
-                                $('#updateButton').show();
-                                $('#deleteButton').show();
-
-                                $('#addStockButton').show();
-                            } else if (checkedCheckboxes.length > 1) {
-                                $('#updateButton').hide();
-                                $('#viewButton').hide();
-                                $('#deleteButton').show();
-                                $('#addStockButton').hide();
-                            } else {
-                                $('#updateButton, #deleteButton,#addStockButton').hide();
-                            }
-                        }
-
-                        // Initially hide the Delete and Update buttons
-                        $('#deleteButton, #updateButton, #selectAllCheckbox,#viewButton,#addStockButton').hide();
-
-                        // Handle "Edit" button click
-                        $('#editButton').on('click', function() {
-                            toggleCheckboxesVisibility();
-                            toggleButtonsVisibility();
-
-
-
-
-                            // Toggle the visibility and state of the "Select All" button
-                            $('#selectAllCheckbox').toggle();
-                            $('#selectAllCheckbox').data('checked', false);
-
-                            $('.status-dropdown').prop('disabled', true);
-
-                            // Hide "Select All" button if no checkboxes are visible
-                            if ($('.select-checkbox:visible').length === 0) {
-                                $('#selectAllCheckbox').hide();
-                            }
-                        });
-
-
-
-                        $('#selectAllCheckbox').on('click', function() {
-                            console.log("Select All button clicked!"); // Add this line for debugging
-
-                            var checkboxes = $('.select-checkbox');
-                            var allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-                            // Toggle the state of all checkboxes
-                            checkboxes.prop('checked', !allChecked);
-
-                            // Update buttons visibility
-                            toggleButtonsVisibility();
-
-                            // Show the "Remove Medicine" button if all checkboxes are checked
-
-                        });
-
-
-
-
-
-                        // Handle individual checkboxes
-                        $('#example tbody').on('change', '.select-checkbox', function() {
-                            // Update buttons visibility
-                            toggleButtonsVisibility();
-                        });
-
-
-
-
-
                         $(document).ready(function() {
-                            // DataTable initialization
-                            var table = $('#example').DataTable({
-                                paging: true,
-                                responsive: true,
-                                searching: true,
-                                "pageLength": 5, // Set default page length
-                                "lengthMenu": [
-                                    [5, 25, 50, -1],
-                                    [5, 25, 50, "All"]
-                                ], // Customize page length menu
-                                "dom": // Place search input at the top
-                                    "<'row'<'col-sm-12't>>" + // Place table in a row
-                                    "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
+    // DataTable initialization
+    var table = $('#example').DataTable({
+        paging: true,
+        responsive: true,
+        searching: true,
+        pageLength: 5,
+        lengthMenu: [[5, 25, 50, -1], [5, 25, 50, "All"]],
+        dom: "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable sorting for the first column (index 0)
+        ],
+        language: {
+            lengthMenu: "Display _MENU_"
+        }
+    });
 
-                                buttons: [{
-                                        extend: 'copyHtml5',
-                                        text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                                        titleAttr: 'Copy',
-                                        className: 'btn-img'
-                                    },
-                                    {
-                                        extend: 'excelHtml5',
-                                        text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                                        titleAttr: 'Excel',
-                                        className: 'btn-img'
-                                    },
-                                    {
-                                        extend: 'csvHtml5',
-                                        text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                                        titleAttr: 'CSV',
-                                        className: 'btn-img'
-                                    },
-                                    {
-                                        extend: 'pdfHtml5',
-                                        text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                                        titleAttr: 'PDF',
-                                        className: 'btn-img'
-                                    }
-                                ],
-                                columnDefs: [{
-                                        orderable: false,
-                                        targets: 0
-                                    } // Disable ordering for the first column with checkboxes
-                                ],
-                                pageLength: 5,
-                                lengthMenu: [
-                                    [5, 25, 50, -1],
-                                    [5, 25, 50, "All"]
-                                ],
-                                language: {
-                                    "lengthMenu": "Display _MENU_ "
+    // Function to update page information
+    function updatePageInfo() {
+        var pageInfo = table.page.info();
+        var currentPage = pageInfo.page + 1; // Convert zero-based index to one-based index
+        var totalPages = pageInfo.pages;
+        var pageLengthContainer = $('.dataTables_length');
 
-                                }
+        // Update the page information
+        pageLengthContainer.find('.page-info').remove();
+        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
+    }
+
+    // Initial update of page information
+    updatePageInfo();
+
+    // Update page information whenever the table is redrawn
+    table.on('draw', function() {
+        updatePageInfo();
+    });
+
+    // Initially hide all checkboxes
+    $('.select-checkbox').hide();
+
+    // Flag to track edit mode status
+    var editMode = false;
+
+    // Function to toggle checkboxes visibility inside DataTable rows
+    function toggleCheckboxesVisibility() {
+        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
+
+        $(rows).each(function() {
+            var checkbox = $(this).find('.select-checkbox');
+            if (editMode) {
+                checkbox.show(); // Show checkbox if edit mode is on
+            } else {
+                checkbox.hide(); // Hide checkbox if edit mode is off
+                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
+            }
+        });
+
+        // Update buttons visibility after toggling checkboxes
+        toggleButtonsVisibility();
+    }
+
+    // Function to toggle buttons visibility based on number of checkboxes checked
+    function toggleButtonsVisibility() {
+        var checkedCheckboxes = $('.select-checkbox:checked');
+        if (checkedCheckboxes.length === 1) {
+            $('#updateButton, #deleteButton, #viewButton').show();
+        } else if (checkedCheckboxes.length > 1) {
+            $('#updateButton, #deleteButton').show();
+            $('#viewButton').hide();
+        } else {
+            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
+        }
+    }
+
+    // Hide "View", "Delete", "Edit" and "Select All" initially
+    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
+
+    // Handle "Edit" button click
+    $('#editButton').on('click', function() {
+        editMode = !editMode; // Toggle edit mode
+
+        // Toggle checkboxes visibility
+        toggleCheckboxesVisibility();
+
+        // Toggle the visibility and state of the "Select All" button
+        $('#selectAllCheckbox').toggle().data('checked', false);
+
+        // Uncheck "Select All" checkbox when edit mode is turned off
+        if (!editMode) {
+            $('#selectAllCheckbox').prop('checked', false);
+        }
+
+        $('.status-dropdown').prop('disabled', true);
+
+        // Hide "Select All" button if no checkboxes are visible
+        if ($('.select-checkbox:visible').length === 0) {
+            $('#selectAllCheckbox').hide();
+        }
+    });
+
+    // Handle "Select All" button click
+    $('#selectAllCheckbox').on('click', function() {
+        var rows = table.rows({ 'search': 'applied' }).nodes();
+        $('input[type="checkbox"]', rows).prop('checked', this.checked);
+
+        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
+        $('.select-checkbox', rows).each(function() {
+            var applicantID = $(this).val();
+            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
+            dropdown.prop("disabled", !$(this).prop("checked"));
+        });
+
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle individual checkboxes
+    $('#example tbody').on('change', '.select-checkbox', function() {
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle "Update" button click
+    $('#updateButton').on('click', function() {
+        var selectedCheckbox = $('.select-checkbox:checked');
+
+        // Handle update logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'Edit Patient.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to update.');
+        }
+    });
+
+        // Link custom search input with DataTable
+        var customSearchInput = $('#customSearchInput');
+    customSearchInput.on('input', function() {
+        table.search(this.value).draw();
+    });
+    // Handle "View" button click
+    $('#viewButton').on('click', function() {
+        var selectedCheckbox = $('.select-checkbox:checked');
+
+        // Handle view logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to view.');
+        }
+    });
+});
 
 
-                            });
+$('#confirmDeleteButton').on('click', function() {
+        var selectedRows = [];
+        $('#example').DataTable().$('tr').each(function() {
+        var checkbox = $(this).find('.select-checkbox');
+        if (checkbox.is(':checked')) {
+            selectedRows.push(checkbox.val());
+        }
+    });
 
-                            function updatePageInfo() {
-                                var pageInfo = table.page.info();
-                                var currentPage = pageInfo.page + 1; // Add 1 to convert zero-based index to one-based index
-                                var totalPages = pageInfo.pages;
-                                var pageLengthContainer = $('#example_length');
-
-                                // Update the page information with styles
-                                pageLengthContainer.find('.page-info').remove(); // Remove previous page info to avoid duplication
-                                pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page: <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
-                            }
-
-                            // Initial update of page information
-                            updatePageInfo();
-
-                            // Update page information whenever the table is redrawn
-                            table.on('draw', function() {
-                                updatePageInfo();
-                            });
-
-
-                            $('.btn-img').hide();
-
-                            // Toggle button visibility
-                            $('#toggleButtons').on('click', function() {
-                                $('.btn-img').toggle();
-                            });
-
-                            // Link custom search input with DataTable
-                            var customSearchInput = $('#customSearchInput');
-
-                            // Add an input event listener to trigger DataTables search on input
-                            customSearchInput.on('input', function() {
-                                table.search(this.value).draw();
-                            });
-
-                            // Button click event for exporting to Excel
-                            $('#button-excel').on('click', function() {
-                                // Trigger the DataTables Excel export
-                                table.buttons('excelHtml5').trigger();
-                            });
-
-                            // Toggle sidebar functionality
-                        });
-
-
-                    });
+        if (selectedRows.length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: 'backend/remove_medicine.php',
+                data: { selectedRows: selectedRows },
+                success: function(response) {
+                    window.location.href = 'inventory.php';
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred: ' + xhr.responseText);
+                }
+            });
+        } else {
+            alert('No rows selected for deletion.');
+        }
+    });
                 </script>
                 <script>
                     $(document).ready(function() {
@@ -1331,31 +1253,7 @@ mb.BrandName, mi.StockExpiryDate;
                                 [5, 25, 50, "All"]
                             ],
                             "dom": "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
-                            buttons: [{
-                                    extend: 'copyHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                                    titleAttr: 'Copy',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'excelHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                                    titleAttr: 'Excel',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'csvHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                                    titleAttr: 'CSV',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'pdfHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                                    titleAttr: 'PDF',
-                                    className: 'btn-img'
-                                }
-                            ],
+                            
                             columnDefs: [{
                                 orderable: false,
                                 targets: 0
@@ -1369,7 +1267,7 @@ mb.BrandName, mi.StockExpiryDate;
                             var pageInfo1 = table1.page.info();
                             var currentPage1 = pageInfo1.page + 1;
                             var totalPages1 = pageInfo1.pages;
-                            var pageLengthContainer1 = $('.dataTables_length');
+                            var pageLengthContainer1 = $('#UsageTable .dataTables_length');
                             pageLengthContainer1.find('.page-info').remove();
                             pageLengthContainer1.append('<span class="page-info" style="margin-left: 10px;">Page: <b>' + currentPage1 + '</b> of <b>' + totalPages1 + '</b></span>');
                         }
@@ -1399,31 +1297,7 @@ mb.BrandName, mi.StockExpiryDate;
                             "dom": // Place search input at the top
                                 "<'row'<'col-sm-12't>>" + // Place table in a row
                                 "<<'col-sm-12 justify-content-center d-flex mt-5 p-0'p>>", // Place length menu and pagination in separate rows
-                            buttons: [{
-                                    extend: 'copyHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                                    titleAttr: 'Copy',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'excelHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                                    titleAttr: 'Excel',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'csvHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                                    titleAttr: 'CSV',
-                                    className: 'btn-img'
-                                },
-                                {
-                                    extend: 'pdfHtml5',
-                                    text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                                    titleAttr: 'PDF',
-                                    className: 'btn-img'
-                                }
-                            ],
+                            
                             columnDefs: [{
                                     orderable: false,
                                     targets: 0

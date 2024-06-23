@@ -134,7 +134,7 @@ $provincesAndCities = array(
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="css/hamburgers.css" rel="stylesheet">
@@ -246,15 +246,15 @@ $provincesAndCities = array(
     <div class="row justify-content-center mt-3 px-3 ">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="fName">First Name<span class="red">*</span></label>
-        <input type="text" id="fName" name="fName" placeholder="First Name" class="form-control" oninput="preventLeadingSpace(event)" required>
+        <input type="text" id="fName" name="fName" placeholder="First Name" class="form-control" oninput="preventLeadingSpace(event)" required maxlength="50">
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="mName">Middle Name</label>
-        <input type="text" id="mName" name="mName" placeholder="Middle Name" class="form-control" oninput="preventLeadingSpace(event)" >
+        <input type="text" id="mName" name="mName" placeholder="Middle Name" class="form-control" oninput="preventLeadingSpace(event)" maxlength="50" >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="lName">Last Name<span class="red">*</span></label>
-        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" oninput="preventLeadingSpace(event)" required>
+        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" oninput="preventLeadingSpace(event)" required maxlength="50">
       </div>
     </div>
     <div class="row justify-content-center px-3">
@@ -283,18 +283,18 @@ $provincesAndCities = array(
     <div class="row justify-content-center px-3 mb-0">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="weight">Weight (kg)<span class="red">*</span></label>
-        <input type="tel" id="weight" name="weight" placeholder="Weight (kg)" class="form-control"  required>
+        <input type="tel" id="weight" name="weight" placeholder="Weight (kg)" class="form-control" maxlength="3"  required>
       </div>
          <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="phoneNumber">Phone Number<span class="red">*</span></label>
-                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" maxlength="11" required >
                                 <small id="phone-number-error" class="error-message"></small>
                             
                             </div>
                             
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="email">Email Address<span class="red">*</span></label>
-        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" required>
+        <input type="email" id="email" name="email" placeholder="Email Address" class="form-control" maxlength="320" required>
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-0">
@@ -316,13 +316,13 @@ $provincesAndCities = array(
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="address">Address<span class="red">*</span></label>
-        <input type="text" id="address" name="address" class="form-control" placeholder="Address" required >
+        <input type="text" id="address" name="address" class="form-control" placeholder="Address" oninput="preventLeadingSpace(event)" required maxlength="200">
       </div>
     </div>
     <div class="row justify-content-center px-3 mb-3">
       <div class="col-lg-4 form-group px-4">
         <label for="emergencyContact">In case of Emergency, notify<span class="red">*</span></label>
-        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" required oninput="preventLeadingSpace(event)" >
+        <input type="text" id="emergencyContact" name="emergencyContact" placeholder="Full Name" class="form-control" required oninput="preventLeadingSpace(event)" maxlength="150" >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="relationship">Relationship<span class="red">*</span></label>
@@ -349,7 +349,7 @@ $provincesAndCities = array(
                                 <label for="emergencyPhoneNumber">Phone Number<span class="red">*</span></label>
                           
 
-                                    <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required >
+                                    <input type="tel" id="emergencyPhoneNumber" name="emergencyPhoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px" required maxlength="11" >
                           
                                 <small id="emergency-phone-number-error" class="error-message"></small>
                             
@@ -365,11 +365,11 @@ $provincesAndCities = array(
     <div class="row justify-content-center mt-3">
         <div class="col-lg-5 form-group mx-auto p-0">
             <label for="exposureDate">Date of Exposure</label>
-            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" max="<?php echo date('Y-m-d'); ?>" required>
+            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" max="<?php echo date('Y-m-d'); ?>" >
         </div>
         <div class="col-lg-5 form-group  mx-auto p-0">
             <label for="exposureBy">Exposure by</label>
-            <select id="exposureBy" name="exposureBy" class="form-control" required>
+            <select id="exposureBy" name="exposureBy" class="form-control" >
     <option value="">Select Option</option>
     <option value="Bite">Bite</option>
     <option value="Scratch">Scratch</option>
@@ -379,10 +379,10 @@ $provincesAndCities = array(
         </div>
         </div>
  
-    <div class="row justify-content-center mt-3">
+    <div class="row justify-content-center mt-3 mb-4">
     <div class="col-lg-3 form-group mx-auto mb-0 p-0">
     <label for="exposureType">Type of Exposure</label>
-<select id="exposureType" name="exposureType" class="form-control" required>
+<select id="exposureType" name="exposureType" class="form-control" >
     <option value="">Select Type of Exposure</option>
     <option value="Category I">Category I</option>
     <option value="Category II">Category II</option>
@@ -393,11 +393,11 @@ $provincesAndCities = array(
         </div>
         <div class="col-lg-3 form-group mx-auto mb-0 p-0">
             <label for="animalType">Type of Animal</label>
-            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" oninput="preventLeadingSpace(event)" required>
+            <input type="text" id="animalType" name="animalType" placeholder="Type of Animal" class="form-control" oninput="preventLeadingSpace(event)"  maxlength="50">
         </div>
         <div class="col-lg-3 form-group mx-auto mb-0 p-0">
             <label for="biteLocation">Bite Location</label>
-            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" oninput="preventLeadingSpace(event)" required>
+            <input type="text" id="biteLocation" name="biteLocation" placeholder="Bite Location" class="form-control" oninput="preventLeadingSpace(event)"  maxlength="50">
         </div>
         </div>
         <div class="row justify-content-center mt-0">
@@ -448,7 +448,7 @@ $provincesAndCities = array(
 
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
             <label for="dosageQuantity">Dosage</label>
-            <input type="number" name="dosageQuantity[]" class="form-control" placeholder="Dosage Quantity" required>
+            <input type="number" name="dosageQuantity[]" class="form-control" placeholder="mL" required>
         </div>
         
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
@@ -459,7 +459,7 @@ $provincesAndCities = array(
         
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
             <label for="quantity">Quantity</label>
-            <input type="number" name="quantity[]" class="form-control" placeholder="Quantity" required>
+            <input type="number" name="quantity[]" class="form-control" placeholder="vl" required>
         </div>
         
         <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">
@@ -493,7 +493,7 @@ $provincesAndCities = array(
     </div>
     <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
         <label for="equipmentAmount">Equipment Amount</label>
-        <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount" required>
+        <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount(pcs)" required>
         <div class="invalid-feedback"></div>
     </div>
     <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">

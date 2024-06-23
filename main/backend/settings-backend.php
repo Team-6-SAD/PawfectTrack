@@ -117,7 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmtUsername = mysqli_prepare($conn, $sqlUsername);
         mysqli_stmt_bind_param($stmtUsername, "si", $username, $adminID);
         if (mysqli_stmt_execute($stmtUsername)) {
-            $_SESSION['success_message'] = "Username updated successfully!";
+            $_SESSION['success_message'] = "Information updated successfully!";
         } else {
             $_SESSION['error_message'] = "Error updating username: " . mysqli_error($conn);
         }

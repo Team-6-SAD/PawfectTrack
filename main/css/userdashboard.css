@@ -5,7 +5,7 @@ html, body {
   overflow-x: hidden !important;
 }
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Rubik', sans-serif;
   background-color: #EAEFF6;
 
 }
@@ -282,7 +282,6 @@ div.dataTables_wrapper div.dataTables_length label {
 padding: 0;
     height: 2.5rem;
     border-radius: 10px;
-    background-color: #2e86DE;
     color: #FFFFFF;
     }
     .btn-border-custom{
@@ -1076,12 +1075,7 @@ height: 20px;
       }
 
       /* Hide checkboxes initially */
-      .select-checkbox {
-          display: none;
-      }
-      .select-Equip {
-        display: none;
-    }
+
 /* Custom CSS to style the page length dropdown */
 .dataTables_length select {
   /* Your styles here */

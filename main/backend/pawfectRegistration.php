@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'pawfect_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -60,12 +61,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $adminID = $conn->insert_id;
 
         // Prepare and bind parameters for the second query
-        $stmt = $conn->prepare("INSERT INTO admininformation (AdminID, firstname, middlename, lastname, email, phonenumber) 
-                                VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssss", $adminID, $firstName, $middleName, $lastName, $email, $phoneNumber);
+        $stmt = $conn->prepare("INSERT INTO admininformation (AdminID, firstname, lastname, email, phonenumber) 
+                                VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("issss", $adminID, $firstName, $lastName, $email, $phoneNumber);
 
         // Execute the second statement
         if ($stmt->execute()) {
+            // Set the session variable
+            $_SESSION['registered'] = true;
+
+            // Return success response
             echo json_encode(['status' => 'success', 'message' => 'Registration successful']);
             exit;
         } else {
@@ -76,9 +81,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo json_encode(['status' => 'error', 'message' => 'Failed to insert user credentials']);
         exit;
     }
-}
 
-// Close statement
+    // Close statement
+
+}
 $stmt->close();
 // Close connection
 $conn->close();

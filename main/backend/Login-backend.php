@@ -6,11 +6,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    $sql = "SELECT * FROM admincredentials WHERE AdminUsername = '$username'";
-    $result = mysqli_query($conn, $sql);
+    // Prepare the SQL statement
+    $stmt = $conn->prepare("SELECT * FROM admincredentials WHERE BINARY AdminUsername = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
         $hashedPassword = $row['AdminPassword'];
         $adminID = $row['AdminID'];
         // Verify password
@@ -29,7 +32,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: ../Admin Login.php");
         exit();
     }
-    mysqli_close($conn);
+    $stmt->close();
+    $conn->close();
 }
 
 // Redirect back to the login page

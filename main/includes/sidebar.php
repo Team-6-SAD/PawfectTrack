@@ -29,7 +29,10 @@
                 <span class="hamburger-inner"></span>
             </span>
         </button>
+        <a href="admindashboard.php">
         <img src="img/img-navbar/System Logo.png" class="img-small mr-5 mt-2" alt="Description of the image">
+        </a>
+        
     </div>
 
     <div class="sidebar-content">

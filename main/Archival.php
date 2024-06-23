@@ -71,9 +71,8 @@ mysqli_close($conn);
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
@@ -237,6 +236,7 @@ if (mysqli_num_rows($patients_result) > 0) {
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
+        $('.select-checkbox').hide();
     $(document).ready(function() {
   $('#deleteButton').click(function() {
     $('#removalConfirmationModal').modal('show');
@@ -244,24 +244,7 @@ if (mysqli_num_rows($patients_result) > 0) {
 });
     </script>
 <script>
-         function deleteSelectedRows() {
-    var selectedRows = $('.select-checkbox:checked').map(function () {
-        return $(this).val();
-    }).get();
 
-    // You may want to perform additional validation or confirmation here
-    if (selectedRows.length === 0) {
-        alert('No rows selected for deletion.');
-        return;
-    }
-
-    // Assuming you have a form with id "deleteForm"
-    // Set the selected rows in the hidden input field
-    $('#selectedRowsInput').val(selectedRows);
-
-    // Submit the form
-    $('#deleteForm').submit();
-}
 
   document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
@@ -329,260 +312,33 @@ $(document).ready(function () {
 
 <script>
 
-$(document).ready(function () {
-    $('#generateInvoiceButton').on('click', function () {
-        var selectedRows = $('.select-checkbox:checked').map(function () {
-            return $(this).val();
-        }).get();
-
-        if (selectedRows.length === 0) {
-            alert('No rows selected to generate invoices.');
-            return;
-        }
-
-        console.log('Sending AJAX request...');
-        $.ajax({
-            type: 'POST',
-            url: 'generateinvoice.php',
-            data: { selectedRows: selectedRows },
-            dataType: 'json', // Specify that you expect JSON data
-            success: function (response) {
-                console.log(response);
-
-                // Check the 'status' property in the JSON response
-                if (response.status === 'success') {
-                    alert(response.message);
-                } else {
-                    alert('Invoice generation failed: ' + response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                // Handle errors (if any) with an alert
-                if (xhr.status === 404) {
-                    alert('Error: Resource not found (404).');
-                } else if (xhr.status === 500) {
-                    alert('Error: Internal server error (500).');
-                } else {
-                    alert('Error: ' + xhr.responseText);
-                }
-            }
-        });
-    });
-
-
-
-
-    $(".select-checkbox").change(function () {
-    var selectedCheckboxValue = $(this).val();
-    var dropdown1 = $("select[name='statusUpdate[" + selectedCheckboxValue + "]']");
-
-    if ($(this).prop('checked')) {
-        // Check if the option doesn't already exist and the current status is "Pending"
-        if (dropdown1.find("option[value='Received']").length === 0 && dropdown1.val() === 'Pending') {
-            // Add more options to the dropdown dynamically using JavaScript
-            dropdown1.append('<option value="Received">Received</option>');
-            
-            // Add more options as needed
-        }
-    } else {
-        // If checkbox is unchecked and the current status is "Pending," remove the added options
-        if (dropdown1.val() === 'Pending') {
-            dropdown1.find("option[value='Received']").remove();
-            
-            // Remove more options as needed
-        }
-    }
-
-    var checkboxId = $(this).val();
-    var dropdown = $("select[name='statusUpdate[" + checkboxId + "]']");
-    dropdown.prop("disabled", !$(this).prop("checked"));
-});
-
-        
-    // Function to toggle checkbox visibility
-    function toggleCheckboxesVisibility() {
-        var checkboxes = $('.select-checkbox');
-        checkboxes.toggle();
-
-        // If the checkboxes are being hidden, uncheck all of them
-        if (!checkboxes.is(':visible')) {
-            checkboxes.prop('checked', false);
-        }
-    }
-    
-
-
-    // Function to toggle buttons visibility based on the number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton').show();
-            $('#deleteButton').show();
-            $('#viewButton').show();
-            $('#generateInvoiceButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton').hide();
-            $('#viewButton').hide();
-            $('#deleteButton').show();
-            $('#generateInvoiceButton').show();
-        } else {
-            $('#updateButton, #deleteButton,#viewButton,#generateInvoiceButton').hide();
-        }
-    }
-
-    // Initially hide the Delete and Update buttons
-    $('#deleteButton, #updateButton, #selectAllCheckbox,#viewButton,#generateInvoiceButton').hide();
-
-    // Handle "Edit" button click
-    $('#editButton').on('click', function () {
-        toggleCheckboxesVisibility();
-        toggleButtonsVisibility(); 
-
-    
-        
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle();
-        $('#selectAllCheckbox').data('checked', false);
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    
-    $(document).ready(function() {
-      let editClickCount = 0;
-
-      $('#editButton').on('click', function() {
-        editClickCount++;
-
-        if (editClickCount % 2 === 0) {
-          // If editButton is clicked twice (even click count), uncheck the selectAllCheckbox
-          $('#selectAllCheckbox').prop('checked', false);
-        }
-      });
-    });
- 
-    $("#updateButton").on("click", function () {
-        var updates = {};
-        $(".select-checkbox:checked").each(function () {
-            var applicantID = $(this).val();
-            var newStatus = $("select[name='statusUpdate[" + applicantID + "]']").val();
-            updates["statusUpdate[" + applicantID + "]"] = newStatus;
-        });
-
-        // Set the updates directly as form parameters
-        $("#updateForm").find(":input[name^='statusUpdate']").remove();
-        $.each(updates, function (name, value) {
-            $("#updateForm").append('<input type="hidden" name="' + name + '" value="' + value + '">');
-        });
-
-        // Submit the form
-        $("#updateForm").submit();
-    });
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function () {
-        var checkboxes = $('.select-checkbox');
-        var allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-        // Toggle the state of all checkboxes
-        checkboxes.prop('checked', !allChecked);
-        checkboxes.each(function () {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function () {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-
-
-
-        // Implement your update logic here
-        $('#viewButton').on('click', function () {
-    var selectedCheckbox = $('.select-checkbox:checked');
-
-    // Check if exactly one checkbox is checked
-    if (selectedCheckbox.length === 1) {
-        var patientID = selectedCheckbox.val();
-
-        // Redirect to the view profile page with the selected Applicant ID
-        window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
-    } else {
-        // If no checkbox or more than one checkbox is checked, show an alert
-        alert('Please select exactly one row to view.');
-    }
-});
-$(document).ready(function () {
+$(document).ready(function() {
     // DataTable initialization
     var table = $('#example').DataTable({
         paging: true,
         responsive: true,
         searching: true,
-        "pageLength": 5, // Set default page length
-        "lengthMenu": [[5, 25, 50, -1], [5, 25, 50, "All"]], // Customize page length menu
-        "dom":  // Place search input at the top
-               "<'row'<'col-sm-12't>>" + // Place table in a row
-               "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>", // Place length menu and pagination in separate rows
-       
-        buttons: [
-            {
-                extend: 'copyHtml5',
-                text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                titleAttr: 'Copy',
-                className: 'btn-img'
-            },
-            {
-                extend: 'excelHtml5',
-                text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                titleAttr: 'Excel',
-                className: 'btn-img'
-            },
-            {
-                extend: 'csvHtml5',
-                text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                titleAttr: 'CSV',
-                className: 'btn-img'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                titleAttr: 'PDF',
-                className: 'btn-img'
-            }
-        ],
-        "columnDefs": [
-            { "orderable": false, "targets": 0 } // Disable sorting for the first column (index 0)
-        ],
         pageLength: 5,
-        lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
-        language: { "lengthMenu": "Display _MENU_ "
-          
+        lengthMenu: [[5, 25, 50, -1], [5, 25, 50, "All"]],
+        dom: "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable sorting for the first column (index 0)
+        ],
+        language: {
+            lengthMenu: "Display _MENU_"
         }
-       
     });
+
+    // Function to update page information
     function updatePageInfo() {
         var pageInfo = table.page.info();
-        var currentPage = pageInfo.page + 1; // Add 1 to convert zero-based index to one-based index
+        var currentPage = pageInfo.page + 1; // Convert zero-based index to one-based index
         var totalPages = pageInfo.pages;
         var pageLengthContainer = $('.dataTables_length');
 
-        // Update the page information with styles
-        pageLengthContainer.find('.page-info').remove(); // Remove previous page info to avoid duplication
-        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page: <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
+        // Update the page information
+        pageLengthContainer.find('.page-info').remove();
+        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
     }
 
     // Initial update of page information
@@ -593,41 +349,155 @@ $(document).ready(function () {
         updatePageInfo();
     });
 
+    // Initially hide all checkboxes
+    $('.select-checkbox').hide();
 
-    $('.btn-img').hide();
+    // Flag to track edit mode status
+    var editMode = false;
 
-    // Toggle button visibility
-    $('#toggleButtons').on('click', function () {
-        $('.btn-img').toggle();
+    // Function to toggle checkboxes visibility inside DataTable rows
+    function toggleCheckboxesVisibility() {
+        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
+
+        $(rows).each(function() {
+            var checkbox = $(this).find('.select-checkbox');
+            if (editMode) {
+                checkbox.show(); // Show checkbox if edit mode is on
+            } else {
+                checkbox.hide(); // Hide checkbox if edit mode is off
+                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
+            }
+        });
+
+        // Update buttons visibility after toggling checkboxes
+        toggleButtonsVisibility();
+    }
+
+    // Function to toggle buttons visibility based on number of checkboxes checked
+    function toggleButtonsVisibility() {
+        var checkedCheckboxes = $('.select-checkbox:checked');
+        if (checkedCheckboxes.length === 1) {
+            $('#updateButton, #deleteButton, #viewButton').show();
+        } else if (checkedCheckboxes.length > 1) {
+            $('#updateButton, #deleteButton').show();
+            $('#viewButton').hide();
+        } else {
+            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
+        }
+    }
+
+    // Hide "View", "Delete", "Edit" and "Select All" initially
+    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
+
+    // Handle "Edit" button click
+    $('#editButton').on('click', function() {
+        editMode = !editMode; // Toggle edit mode
+
+        // Toggle checkboxes visibility
+        toggleCheckboxesVisibility();
+
+        // Toggle the visibility and state of the "Select All" button
+        $('#selectAllCheckbox').toggle().data('checked', false);
+
+        // Uncheck "Select All" checkbox when edit mode is turned off
+        if (!editMode) {
+            $('#selectAllCheckbox').prop('checked', false);
+        }
+
+        $('.status-dropdown').prop('disabled', true);
+
+        // Hide "Select All" button if no checkboxes are visible
+        if ($('.select-checkbox:visible').length === 0) {
+            $('#selectAllCheckbox').hide();
+        }
     });
 
-    // Link custom search input with DataTable
-    var customSearchInput = $('#customSearchInput');
+    // Handle "Select All" button click
+    $('#selectAllCheckbox').on('click', function() {
+        var rows = table.rows({ 'search': 'applied' }).nodes();
+        $('input[type="checkbox"]', rows).prop('checked', this.checked);
 
-    // Add an input event listener to trigger DataTables search on input
-    customSearchInput.on('input', function () {
+        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
+        $('.select-checkbox', rows).each(function() {
+            var applicantID = $(this).val();
+            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
+            dropdown.prop("disabled", !$(this).prop("checked"));
+        });
+
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle individual checkboxes
+    $('#example tbody').on('change', '.select-checkbox', function() {
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle "Update" button click
+    $('#updateButton').on('click', function() {
+        var selectedCheckbox = $('.select-checkbox:checked');
+
+        // Handle update logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'Edit Patient.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to update.');
+        }
+    });
+        // Link custom search input with DataTable
+        var customSearchInput = $('#customSearchInput');
+    customSearchInput.on('input', function() {
         table.search(this.value).draw();
     });
 
-    // Button click event for exporting to Excel
-    $('#button-excel').on('click', function () {
-        // Trigger the DataTables Excel export
-        table.buttons('excelHtml5').trigger();
+    // Handle "View" button click
+    $('#viewButton').on('click', function() {
+        var selectedCheckbox = $('.select-checkbox:checked');
+
+        // Handle view logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to view.');
+        }
     });
+});
+
+
+// Function to delete selected rows
+function deleteSelectedRows() {
+    var selectedRows = [];
+
+    $('#example').DataTable().$('tr').each(function() {
+        var checkbox = $(this).find('.select-checkbox');
+        if (checkbox.is(':checked')) {
+            selectedRows.push(checkbox.val());
+        }
+    });
+
+    // Validate and perform deletion here if needed
+    if (selectedRows.length === 0) {
+        alert('No rows selected for deletion.');
+        return;
+    }
+
+    // Assuming you have a form with id "deleteForm" and a hidden input "selectedRowsInput"
+    $('#selectedRowsInput').val(selectedRows);
+    $('#deleteForm').submit(); // Submit the form to handle deletion
+}
+
+</script>
+<script>
 
     // Toggle sidebar functionality
     $('#sidebarCollapse').on('click', function () {
         $('#sidebar').toggleClass('active');
         $('#content').toggleClass('active');
     });
-});
 
-
-
-
-
-
-});
 </script>
 
 <script>

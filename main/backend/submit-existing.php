@@ -4,28 +4,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Include database connection
     include_once 'pawfect_connect.php';
     $targetDir = "uploads/";
-    $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
+    $bitePicture = null; // Initialize bitePicture to null
 
-    // Check if the uploaded file is an image
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-    $allowedExtensions = array("jpg", "jpeg", "png");
-    if (!in_array($imageFileType, $allowedExtensions)) {
-        echo "Sorry, only JPG, JPEG, PNG files are allowed.";
-        exit(); // Stop further execution
-    }
+    if (!empty($_FILES["uploadImage"]["name"])) {
+        $targetFile = $targetDir . basename($_FILES["uploadImage"]["name"]);
 
-    // Move the uploaded file to the target directory
-    if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
-        echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
-    } else {
-        echo "Sorry, there was an error uploading your file.";
+        // Check if the uploaded file is an image
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowedExtensions = array("jpg", "jpeg", "png");
+        if (!in_array($imageFileType, $allowedExtensions)) {
+            echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+            exit(); // Stop further execution
+        }
+
+        // Move the uploaded file to the target directory
+        if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
+            echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
+            $bitePicture = $targetFile; // Assign the file path to bitePicture
+        } else {
+            echo "Sorry, there was an error uploading your file.";
+            exit(); // Stop further execution if file upload fails
+        }
     }
 
     // Extract patient data from the form
     $patientId = $_POST['patientID']; // Assuming you have a hidden input field with name="patientID"
-
-    // Handle uploaded image
-    $bitePicture = $targetFile;
 
     // Extract exposure data from the form
     $exposureDate = $_POST['exposureDate'];
@@ -34,10 +37,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $animalType = $_POST['animalType'];
     $biteLocation = $_POST['biteLocation'];
 
-    // Insert exposure data with patient ID
-    $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation, BitePicture) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
-    mysqli_stmt_bind_param($exposureStmt, "issssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation, $bitePicture);
+    // Prepare SQL query to insert exposure data
+    if ($bitePicture) {
+        $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation, BitePicture) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
+        mysqli_stmt_bind_param($exposureStmt, "issssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation, $bitePicture);
+    } else {
+        $exposureInsertQuery = "INSERT INTO bitedetails (PatientID, ExposureDate, ExposureMethod, ExposureType, AnimalType, BiteLocation) VALUES (?, ?, ?, ?, ?, ?)";
+        $exposureStmt = mysqli_prepare($conn, $exposureInsertQuery);
+        mysqli_stmt_bind_param($exposureStmt, "isssss", $patientId, $exposureDate, $exposureBy, $exposureType, $animalType, $biteLocation);
+    }
     mysqli_stmt_execute($exposureStmt);
     $exposureId = mysqli_insert_id($conn); // Get the last inserted exposure ID
 
@@ -158,18 +167,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_close($updateStockStmt);
     }
 
-    // Extract equipment data from the form
-    $equipmentTypes = $_POST['equipmentType'];
-    $equipmentAmounts = $_POST['equipmentAmount'];
+     // Extract equipment data from the form
+$equipmentTypes = $_POST['equipmentType'];
+$equipmentAmounts = $_POST['equipmentAmount'];
 
-    // Insert equipment data with patient ID
-    for ($i = 0; $i < count($equipmentTypes); $i++) {
-        $equipmentInsertQuery = "INSERT INTO equipmentusage (TreatmentID, EquipmentID, Quantity) VALUES (?, ?, ?)";
-        $equipmentStmt = mysqli_prepare($conn, $equipmentInsertQuery);
-        mysqli_stmt_bind_param($equipmentStmt, "iii", $treatmentId, $equipmentTypes[$i], $equipmentAmounts[$i]);
-        mysqli_stmt_execute($equipmentStmt);
-        $equipmentId = mysqli_insert_id($conn);
-    }
+// Insert equipment data with patient ID
+for ($i = 0; $i < count($equipmentTypes); $i++) {
+    // Fetch equipment name from equipment table
+    $getEquipmentNameQuery = "SELECT Name FROM equipment WHERE EquipmentID = ?";
+    $getEquipmentNameStmt = mysqli_prepare($conn, $getEquipmentNameQuery);
+    mysqli_stmt_bind_param($getEquipmentNameStmt, "i", $equipmentTypes[$i]);
+    mysqli_stmt_execute($getEquipmentNameStmt);
+    mysqli_stmt_bind_result($getEquipmentNameStmt, $equipmentName);
+    mysqli_stmt_fetch($getEquipmentNameStmt);
+    mysqli_stmt_close($getEquipmentNameStmt);
+
+    // Insert into equipmentusage table
+    $equipmentInsertQuery = "INSERT INTO equipmentusage (TreatmentID, EquipmentID, EquipmentName, Quantity) VALUES (?, ?, ?, ?)";
+    $equipmentStmt = mysqli_prepare($conn, $equipmentInsertQuery);
+    mysqli_stmt_bind_param($equipmentStmt, "iisi", $treatmentId, $equipmentTypes[$i], $equipmentName, $equipmentAmounts[$i]);
+    mysqli_stmt_execute($equipmentStmt);
+    $equipmentId = mysqli_insert_id($conn);
+
+    // Fetch current stock quantity
+    $getEquipmentStockQuery = "SELECT Quantity FROM equipmentstock WHERE EquipmentID = ? LIMIT 1";
+    $getEquipmentStockStmt = mysqli_prepare($conn, $getEquipmentStockQuery);
+    mysqli_stmt_bind_param($getEquipmentStockStmt, "i", $equipmentTypes[$i]);
+    mysqli_stmt_execute($getEquipmentStockStmt);
+    mysqli_stmt_bind_result($getEquipmentStockStmt, $equipmentStockQuantity);
+    mysqli_stmt_fetch($getEquipmentStockStmt);
+    mysqli_stmt_close($getEquipmentStockStmt);
+
+    // Calculate new stock quantity after usage
+    $newEquipmentStockQuantity = $equipmentStockQuantity - $equipmentAmounts[$i];
+
+    // Update stock quantity in equipmentstock table
+    $updateEquipmentStockQuery = "UPDATE equipmentstock SET Quantity = ? WHERE EquipmentID = ?";
+    $updateEquipmentStockStmt = mysqli_prepare($conn, $updateEquipmentStockQuery);
+    mysqli_stmt_bind_param($updateEquipmentStockStmt, "ii", $newEquipmentStockQuantity, $equipmentTypes[$i]);
+    mysqli_stmt_execute($updateEquipmentStockStmt);
+    mysqli_stmt_close($updateEquipmentStockStmt);
+}
+
 
     // Close database connection
     mysqli_close($conn);

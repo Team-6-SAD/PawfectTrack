@@ -640,7 +640,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     // DataTable initialization
     var table = $('#example1').DataTable({
-        paging: false,
+        paging: true,
         responsive: true,
         searching: true,
         

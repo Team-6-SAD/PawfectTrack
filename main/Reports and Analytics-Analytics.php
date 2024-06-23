@@ -146,7 +146,7 @@ $sql = "SELECT
             DATE_FORMAT(mu.UsageDate, '%Y-%m') AS Month,
             SUM(mu.Quantity) AS TotalQuantity
         FROM 
-            MedicineUsage mu
+            medicineusage mu
         GROUP BY 
             DATE_FORMAT(mu.UsageDate, '%Y-%m')
         ORDER BY 
@@ -184,9 +184,8 @@ while ($row = mysqli_fetch_assoc($result)) {
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <title>Reports and Analytics</title>
@@ -227,7 +226,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <small> treatment counts, medicine usage, distribution patterns, and predictive analytics.  </small>
                 </div>
                 <div class="col-md-3 d-flex align-items-center text-right justify-content-end">
-                <a href="export.php" style="font-size:small; text-wrap:nowrap; color:#0449a6;"> <img src="img/img-dashboard/ph_download-fill.png" height="20px" class="mr-2"></img>Download Report</a>
+                <img src="img/img-dashboard/Analytics.png" style="height:100px; width:auto;">
                 </div>
                 </div>
               </div>
@@ -252,7 +251,11 @@ while ($row = mysqli_fetch_assoc($result)) {
           <div class="row">
             <?php
 // Execute the Python script and capture the JSON output
-$output = shell_exec('python backend/machinelearning/linear-regression.py');
+$python_interpreter = 'backend\machinelearning\.venv\Scripts\python.exe';
+$python_script1 = 'backend\machinelearning\linear-regression.py';
+$command1 = escapeshellcmd("$python_interpreter $python_script1");
+$output = shell_exec($command1);
+
 
 // Find the start and end positions of the JSON object within the output
 $start_pos = strpos($output, '{');
@@ -346,7 +349,7 @@ if ($start_pos !== false && $end_pos !== false) {
         echo "JSON parsing failed! Error code: $error_code, Error message: $error_message";
     }
 } else {
-    echo "JSON object not found in the output!";
+    echo '<div class="py-5"> JSON object not found in the output! </div>';
 }
 ?>
  </div>
@@ -381,7 +384,10 @@ if ($start_pos !== false && $end_pos !== false) {
     <div class="col-md-4 mt-0 justify-content-between d-flex flex-column pr-3">
     <?php
 // Execute the Python script and capture the JSON output
-$output = shell_exec('python backend/machinelearning/linear-regression-patient.py');
+$python_interpreter = 'backend\machinelearning\.venv\Scripts\python.exe';
+$python_script = 'backend\machinelearning\linear-regression-patient.py';
+$command = escapeshellcmd("$python_interpreter $python_script");
+$output = shell_exec($command);
 
 // Decode the JSON data
 $parsed_data = json_decode($output, true);
@@ -1014,7 +1020,7 @@ $(document).ready(function () {
         label: 'Patient Count',
         data: <?php echo json_encode($monthly_patient_counts); ?>,
         borderColor: 'blue',
-        backgroundColor: 'rgba(0, 0, 255, 0.5)',
+        backgroundColor: 'rgba(0, 73, 166, 0.5)',
       }
     ]
   },

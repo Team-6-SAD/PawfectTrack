@@ -48,11 +48,11 @@ $sql = "SELECT
             p.LastName
        
         FROM 
-            MedicineUsage mu
+            medicineusage mu
         JOIN 
-            Treatment t ON mu.TreatmentID = t.TreatmentID
+            treatment t ON mu.TreatmentID = t.TreatmentID
         JOIN 
-            Patient p ON t.PatientID = p.PatientID";
+            patient p ON t.PatientID = p.PatientID";
 // Perform the query
 $result = mysqli_query($conn, $sql);
 
@@ -77,11 +77,9 @@ $sql = "SELECT
             eu.Quantity,
             eu.UsageDate,
             eu.EquipmentID,
-            e.Name AS EquipmentName
+            eu.EquipmentName AS EquipmentName
         FROM 
-            EquipmentUsage eu
-        JOIN 
-            Equipment e ON eu.EquipmentID = e.EquipmentID";
+            equipmentusage eu";
 
 // Perform the query
 $result = mysqli_query($conn, $sql);
@@ -149,11 +147,10 @@ if ($result) {
     <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
     <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"> 
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="css/hamburgers.css" rel="stylesheet">
     <link href="css/userdashboard.css" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
@@ -263,19 +260,22 @@ if ($result) {
                             <div class="col-md-6 col-lg-6 mt-2">
                                 <div class="card table-card h-100">
                                     <div class="card-body bg-main-color-2 p-5">
-                                    <div class="col-md-12 col-lg-6 col-xl-6 d-flex align-items-center p-0">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                    <button id="editButton" class="btn btn-gray-color btn-custom mr-3 ml-0" style="color:white; border-radius: 6px; font-weight: 400;">
-                                                        Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-                                                    </button>
-                                                    <button id="deleteButton" class="btn btn-danger mr-3">
-                                                        <img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove
-                                                    </button>
-                                                </div>
-                                                <div class="ml-auto">
-                                                    <button id="addEqButton" class="btn greener no-break" data-toggle="modal" data-target="#addEquipmentModal">Add Equipment</button>
-                                                </div>
-                                            </div>
+                                    <div class="col-md-12 col-lg-12 col-xl-12 d-flex align-items-center p-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 ml-2 mt-1 w-100">
+    <!-- Edit button on the left -->
+    <button id="editButton" class="btn btn-gray-color btn-custom mr-3 ml-0" style="color:white; border-radius: 6px; font-weight: 400;">
+        Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
+    </button>
+    <!-- Delete button next to Edit -->
+    <button id="deleteButton" class="btn btn-danger mr-3">
+        <img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove
+    </button>
+    <!-- Add Equipment button pushed to the end -->
+    <button id="addEqButton" class="btn greener no-break ml-auto" data-toggle="modal" data-target="#addEquipmentModal">Add Equipment</button>
+</div>
+</div>
+
+
                                             
 
                                         <form id="deleteForm" action="backend/remove_equipment.php" method="post">
@@ -309,7 +309,7 @@ if ($result) {
                                                         echo "</tr>";
                                                     }
                                                 } else {
-                                                    echo "<tr><td colspan='2'>No equipment data available</td></tr>";
+                                                    echo "<tr><td></td><td>No equipment data available</td><td></td></tr>";
                                                 }
 
                                                 ?>
@@ -352,7 +352,7 @@ if ($result) {
 
                                                 // Check if no data is available
                                                 if (empty($equipmentUsageData)) {
-                                                    echo "<tr><td colspan='3'>No data available</td></tr>";
+                                                    echo "<tr><td></td><td>No equipment data available</td><td></td></tr>";
                                                 }
                                                 ?>
                                             </tbody>
@@ -366,8 +366,8 @@ if ($result) {
                         </div>
 
                     </div>
-                    <div class="  col-sm-12 col-md-10 col-lg-11 mt-2 mx-auto mb-4 ">
-                        <div class="row">
+                    <div class="  col-sm-12 col-md-10 col-lg-11 mt-2 mx-auto mb-5 ">
+                        <div class="row mb-5">
                             <div class="col-md-12 justify-content-center">
                                 <div class="card justify-content-center d-flex align-items-center mb-3 h-100">
                                     <div class="d-flex align-items-center justify-content-center px-5 pt-4 pb-3">
@@ -706,7 +706,7 @@ if ($result) {
                     </div>
                     <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
                         <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-                        <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Remove</b></button>
+                        <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="confirmDeleteButton"><b>Remove</b></button>
                     </div>
                 </div>
             </div>
@@ -728,26 +728,7 @@ if ($result) {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-                    // JavaScript function to update the hidden input field with selected medicine brand IDs
-                    function deleteSelectedRows() {
-                        // Get all checkboxes with the class 'select-checkbox'
-                        var checkboxes = document.getElementsByClassName('select-Equip');
-                        var selectedRows = [];
-                        // Iterate over all checkboxes
-                        for (var i = 0; i < checkboxes.length; i++) {
-                            // Check if the checkbox is checked
-                            if (checkboxes[i].checked) {
-                                // Add the value (MedicineBrandID) of the checked checkbox to the selectedRows array
-                                selectedRows.push(checkboxes[i].value);
-                            }
-                        }
-                        // Set the value of the hidden input field to the selectedRows array
-                        document.getElementById('selectedRowsInput').value = selectedRows.join(',');
-                        // Submit the form
-                        document.getElementById('deleteForm').submit();
-                    }
-                </script>
+
     <script>
         feather.replace();
     </script>
@@ -900,6 +881,38 @@ if ($result) {
             }
         });
     </script>
+                  <script>
+    document.getElementById('quantity').addEventListener('input', function (e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Ensure the value does not start with 0 unless it is the only character
+        if (this.value.length > 1 && this.value.startsWith('0')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 6 digits
+        if (this.value.length > 6) {
+            this.value = this.value.slice(0, 6);
+        }
+    });
+</script>
+<script>
+    document.getElementById('priceBought').addEventListener('input', function (e) {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/[^0-9]/g, '');
+
+        // Ensure the value does not start with 0 unless it is the only character
+        if (this.value.length > 1 && this.value.startsWith('0')) {
+            this.value = this.value.replace(/^0+/, '');
+        }
+
+        // Limit to 6 digits
+        if (this.value.length > 6) {
+            this.value = this.value.slice(0, 8);
+        }
+    });
+</script>
 
     <script>
         document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
@@ -954,191 +967,190 @@ if ($result) {
     </script>
 
 
-    <script>
-        $(document).ready(function() {
+  
 
+<script>
+$(document).ready(function() {
+    // DataTable initialization
+    var table = $('#EquipmentTable').DataTable({
+        paging: true,
+        responsive: true,
+        searching: true,
+        pageLength: 5,
+        lengthMenu: [[5, 25, 50, -1], [5, 25, 50, "All"]],
+        dom: "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
+        columnDefs: [
+            { orderable: false, targets: 0 } // Disable sorting for the first column (index 0)
+        ],
+        language: {
+            lengthMenu: "Display _MENU_"
+        }
+    });
 
+    // Function to update page information
+    function updatePageInfo() {
+        var pageInfo = table.page.info();
+        var currentPage = pageInfo.page + 1; // Convert zero-based index to one-based index
+        var totalPages = pageInfo.pages;
+        var pageLengthContainer = $('.dataTables_length');
 
+        // Update the page information
+        pageLengthContainer.find('.page-info').remove();
+        pageLengthContainer.append('<span class="page-info" style="margin-left: 10px;">Page <b>' + currentPage + '</b> of <b>' + totalPages + '</b></span>');
+    }
 
-            $(".select-Equip").change(function() {
-                var selectedCheckboxValue = $(this).val();
-                var dropdown1 = $("select[name='statusUpdate[" + selectedCheckboxValue + "]']");
+    // Initial update of page information
+    updatePageInfo();
 
-                if ($(this).prop('checked')) {
-                    // Check if the option doesn't already exist and the current status is "Pending"
-                    if (dropdown1.find("option[value='Received']").length === 0 && dropdown1.val() === 'Pending') {
-                        // Add more options to the dropdown dynamically using JavaScript
-                        dropdown1.append('<option value="Received">Received</option>');
+    // Update page information whenever the table is redrawn
+    table.on('draw', function() {
+        updatePageInfo();
+    });
 
-                        // Add more options as needed
-                    }
-                } else {
-                    // If checkbox is unchecked and the current status is "Pending," remove the added options
-                    if (dropdown1.val() === 'Pending') {
-                        dropdown1.find("option[value='Received']").remove();
+    // Initially hide all checkboxes
+    $('.select-Equip').hide();
 
-                        // Remove more options as needed
-                    }
-                }
+    // Flag to track edit mode status
+    var editMode = false;
 
-                var checkboxId = $(this).val();
-                var dropdown = $("select[name='statusUpdate[" + checkboxId + "]']");
-                dropdown.prop("disabled", !$(this).prop("checked"));
-            });
+    // Function to toggle checkboxes visibility inside DataTable rows
+    function toggleCheckboxesVisibility() {
+        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
 
-
-            // Function to toggle checkbox visibility
-            function toggleCheckboxesVisibility() {
-                var checkboxes = $('.select-Equip');
-                checkboxes.toggle();
-
-                // If the checkboxes are being hidden, uncheck all of them
-                if (!checkboxes.is(':visible')) {
-                    checkboxes.prop('checked', false);
-                }
+        $(rows).each(function() {
+            var checkbox = $(this).find('.select-Equip');
+            if (editMode) {
+                checkbox.show(); // Show checkbox if edit mode is on
+            } else {
+                checkbox.hide(); // Hide checkbox if edit mode is off
+                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
             }
-
-
-
-            // Function to toggle buttons visibility based on the number of checkboxes checked
-            function toggleButtonsVisibility() {
-                var checkedCheckboxes = $('.select-Equip:checked');
-                if (checkedCheckboxes.length === 1) {
-                    $('#updateButton').show();
-                    $('#deleteButton').show();
-
-                    $('#addStockButton').show();
-                } else if (checkedCheckboxes.length > 1) {
-                    $('#updateButton').hide();
-                    $('#viewButton').hide();
-                    $('#deleteButton').show();
-                    $('#addStockButton').hide();
-                } else {
-                    $('#updateButton, #deleteButton,#addStockButton').hide();
-                }
-            }
-
-            // Initially hide the Delete and Update buttons
-            $('#deleteButton, #updateButton, #selectAllCheckbox,#viewButton,#addStockButton').hide();
-
-            // Handle "Edit" button click
-            $('#editButton').on('click', function() {
-                toggleCheckboxesVisibility();
-                toggleButtonsVisibility();
-
-
-
-
-                // Toggle the visibility and state of the "Select All" button
-                $('#selectAllCheckbox').toggle();
-                $('#selectAllCheckbox').data('checked', false);
-
-                $('.status-dropdown').prop('disabled', true);
-
-                // Hide "Select All" button if no checkboxes are visible
-                if ($('.select-Equip:visible').length === 0) {
-                    $('#selectAllCheckbox').hide();
-                }
-            });
-
-
-
-            $('#selectAllCheckbox').on('click', function() {
-                console.log("Select All button clicked!"); // Add this line for debugging
-
-                var checkboxes = $('.select-Equip');
-                var allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-                // Toggle the state of all checkboxes
-                checkboxes.prop('checked', !allChecked);
-
-                // Update buttons visibility
-                toggleButtonsVisibility();
-
-                // Show the "Remove Medicine" button if all checkboxes are checked
-
-            });
-
-
-
-
-
-            // Handle individual checkboxes
-            $('#EquipmentTable tbody').on('change', '.select-Equip', function() {
-                // Update buttons visibility
-                toggleButtonsVisibility();
-            });
-
-
-
-
-
-
-
-
         });
-    </script>
+
+        // Update buttons visibility after toggling checkboxes
+        toggleButtonsVisibility();
+    }
+
+    // Function to toggle buttons visibility based on number of checkboxes checked
+    function toggleButtonsVisibility() {
+        var checkedCheckboxes = $('.select-Equip:checked');
+        if (checkedCheckboxes.length === 1) {
+            $('#updateButton, #deleteButton, #viewButton').show();
+        } else if (checkedCheckboxes.length > 1) {
+            $('#updateButton, #deleteButton').show();
+            $('#viewButton').hide();
+        } else {
+            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
+        }
+    }
+
+    // Hide "View", "Delete", "Edit" and "Select All" initially
+    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
+
+    // Handle "Edit" button click
+    $('#editButton').on('click', function() {
+        editMode = !editMode; // Toggle edit mode
+
+        // Toggle checkboxes visibility
+        toggleCheckboxesVisibility();
+
+        // Toggle the visibility and state of the "Select All" button
+        $('#selectAllCheckbox').toggle().data('checked', false);
+
+        // Uncheck "Select All" checkbox when edit mode is turned off
+        if (!editMode) {
+            $('#selectAllCheckbox').prop('checked', false);
+        }
+
+        $('.status-dropdown').prop('disabled', true);
+
+        // Hide "Select All" button if no checkboxes are visible
+        if ($('.select-Equip:visible').length === 0) {
+            $('#selectAllCheckbox').hide();
+        }
+    });
+
+    // Handle "Select All" button click
+    $('#selectAllCheckbox').on('click', function() {
+        var rows = table.rows({ 'search': 'applied' }).nodes();
+        $('input[type="checkbox"]', rows).prop('checked', this.checked);
+
+        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
+        $('.select-Equip', rows).each(function() {
+            var applicantID = $(this).val();
+            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
+            dropdown.prop("disabled", !$(this).prop("checked"));
+        });
+
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle individual checkboxes
+    $('#EquipmentTable tbody').on('change', '.select-Equip', function() {
+        // Update buttons visibility
+        toggleButtonsVisibility();
+    });
+
+    // Handle "Update" button click
+    $('#updateButton').on('click', function() {
+        var selectedCheckbox = $('.select-Equip:checked');
+
+        // Handle update logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'Edit Patient.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to update.');
+        }
+    });
+
+        // Link custom search input with DataTable
+        var customSearchInput = $('#customSearchInput');
+    customSearchInput.on('input', function() {
+        table.search(this.value).draw();
+    });
+    // Handle "View" button click
+    $('#viewButton').on('click', function() {
+        var selectedCheckbox = $('.select-Equip:checked');
+
+        // Handle view logic
+        if (selectedCheckbox.length === 1) {
+            var patientID = selectedCheckbox.val();
+            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
+        } else {
+            alert('Please select exactly one row to view.');
+        }
+    });
+});
 
 
-    <script>
-        $(document).ready(function() {
-            // DataTable initialization
-            var table = $('#EquipmentTable').DataTable({
-                paging: true,
+$('#confirmDeleteButton').on('click', function() {
+        var selectedRows = [];
+        $('#EquipmentTable').DataTable().$('tr').each(function() {
+        var checkbox = $(this).find('.select-Equip');
+        if (checkbox.is(':checked')) {
+            selectedRows.push(checkbox.val());
+        }
+    });
 
-                responsive: true,
-                searching: true,
-                "pageLength": 5, // Set default page length
-                "lengthMenu": [
-                    [5, 25, 50, -1],
-                    [5, 25, 50, "All"]
-                ], // Customize page length menu
-                "dom": // Place search input at the top
-                    "<'row'<'col-sm-12't>>" + // Place table in a row
-                    "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
-
-                buttons: [{
-                        extend: 'copyHtml5',
-                        text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                        titleAttr: 'Copy',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                        titleAttr: 'Excel',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'csvHtml5',
-                        text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                        titleAttr: 'CSV',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                        titleAttr: 'PDF',
-                        className: 'btn-img'
-                    }
-                ],
-                columnDefs: [{
-                        orderable: false,
-                        targets: 0
-                    } // Disable ordering for the first column with checkboxes
-                ],
-                pageLength: 5,
-                lengthMenu: [
-                    [5, 25, 50, -1],
-                    [5, 25, 50, "All"]
-                ],
-                language: {
-                    "lengthMenu": "Display _MENU_ "
-
+        if (selectedRows.length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: 'backend/remove_equipment.php',
+                data: { selectedRows: selectedRows },
+                success: function(response) {
+                    window.location.href = 'equipment-inventory.php';
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred: ' + xhr.responseText);
                 }
             });
-        });
-    </script>
+        } else {
+            alert('No rows selected for deletion.');
+        }
+    });
+                </script>
     <script>
         $(document).ready(function() {
             // DataTable initialization

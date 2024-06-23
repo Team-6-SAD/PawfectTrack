@@ -85,9 +85,8 @@ if (isset($_GET['patientID'])) {
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
@@ -206,11 +205,14 @@ while ($row = mysqli_fetch_assoc($result)) {
         <div class="form-group">
             <label for="status">Status:</label>
             <select class="form-control" id="status" name="status">
+            <option value="Pending" >Pending</option>
                 <option value="Done">Done</option>
+                <option value="Cancel">Cancel</option>
             </select>
         </div>
-      <h5><b>  Used Medicine </b> </h5>
+  
         <div id="medicalDetails"></div> <!-- Display medical details here -->
+        <div id="equipmentDetails"></div>
         <button type="submit" class="btn btn-primary">Change Status</button>
     </form>
 </div>
@@ -272,59 +274,95 @@ $(document).ready(function() {
         });
     });
 
-    // Event listener for clicking the status button
-    $('.status-button').click(function() {
-        $('#medicalDetails').empty(); // Clear previous medical details
-        status = $(this).text().trim();
-        appointmentID = $(this).data('appointment-id');
+// Event listener for clicking the status button
+$('.status-button').click(function() {
+    $('#medicalDetails').empty(); // Clear previous medical details
+    var status = $(this).text().trim();
+    var appointmentID = $(this).data('appointment-id');
 
-        // Update the appointment ID input field in the modal
-        $('#appointmentID').val(appointmentID);
+    // Update the appointment ID input field in the modal
+    $('#appointmentID').val(appointmentID);
 
-        // Arrays to store medicine brands, quantities, and treatment IDs
-        var medicineBrand = [];
-        var quantity = [];
-        var treatmentID = [];
-        var dosage = [];
-        var medicineName = [];
-        // Check if the status is 'Pending'
-        if (status === 'Pending') {
-            // Show the change status modal
-            $('#changeStatusModal').modal('show');
+    // Show the change status modal
+    $('#changeStatusModal').modal('show');
 
-            // Fetch medical details via AJAX
-            $.ajax({
-                type: 'POST',
-                url: 'backend/fetch_medical_details.php',
-                data: { appointmentID: appointmentID },
-                dataType: 'json',
-                success: function(response) {
-                    // Append form fields for each medicine brand with quantity inputs
-                    $.each(response, function(index, item) {
-                        dosage.push(item.dosage);
-                        medicineBrand.push(item.medicineBrand); // Push medicineBrand to array
-                        quantity.push(item.quantity); // Push quantity to array
-                        treatmentID.push(item.treatmentID); // Push treatmentID to array
-                        medicineName.push(item.medicineName);
-                        
-                        var formField = '<div class="form-group">';
-                        formField += '<input type="hidden" name="medicineBrand[]" value="' + item.medicineBrand + '">';
-                        formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
-                        formField += '<input type="hidden" name="dosage[]" value="' + item.dosage + '">';
-                        formField += '<input type="hidden" name="medicineName[]" value="' + item.medicineName + '">';
-                        formField += '<label>' + item.medicineBrand + '</label>';
-                        formField += '<input type="number" class="form-control" name="quantity[]" value="' + item.quantity + '" min="0">';
-                        formField += '</div>';
-
-                        $('#medicalDetails').append(formField);
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                }
-            });
+    // Fetch medical details via AJAX
+    $.ajax({
+        type: 'POST',
+        url: 'backend/fetch_medical_details.php',
+        data: { appointmentID: appointmentID },
+        dataType: 'json',
+        success: function(response) {
+            // Update form fields based on initial status
+            updateFormFields(response);
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
         }
     });
+
+    // Event listener for status dropdown change
+    $('#status').change(function() {
+        var selectStatus = $(this).val(); // Get the selected status
+        $.ajax({
+            type: 'POST',
+            url: 'backend/fetch_medical_details.php',
+            data: { appointmentID: appointmentID },
+            dataType: 'json',
+            success: function(response) {
+                // Update form fields based on selected status
+                updateFormFields(response);
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
+// Function to update form fields based on status
+function updateFormFields(response) {
+    var selectStatus = $('#status').val(); // Get the selected status
+    $('#medicalDetails').empty(); // Clear previous medical details
+    $('#equipmentDetails').empty(); // Clear previous equipment details
+    
+    $.each(response.medicalDetails, function(index, item) {
+        var formField = '<div class="form-group">';
+     
+        formField += '<input type="hidden" name="medicineBrand[]" value="' + item.medicineBrand + '">';
+        formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
+        
+        if (selectStatus === 'Done') {
+            formField+='    <h5><b>  Used Medicine </b> </h5>';
+            formField += '<input type="hidden" name="dosage[]" value="' + item.dosage + '">';
+            formField += '<input type="hidden" name="medicineName[]" value="' + item.medicineName + '">';
+            formField += '<label>' + item.medicineBrand + '</label>';
+            formField += '<input type="number" class="form-control" name="quantity[]" value="' + item.quantity + '" min="0">';
+        } // No handling for Cancel status in medical details
+
+        formField += '</div>';
+
+        $('#medicalDetails').append(formField);
+    });
+
+    $.each(response.equipmentDetails, function(index, item) {
+        var formField = '<div class="form-group">';
+        formField += '<input type="hidden" name="equipmentName[]" value="' + item.equipmentName + '">';
+        formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
+        
+        if (selectStatus === 'Done') {
+            formField+='   <h5><b>  Used Equipment </b> </h5>';
+            formField += '<label>' + item.equipmentName + '</label>';
+            formField += '<input type="number" class="form-control" name="equipmentQuantity[]" value="' + item.quantity + '" min="0">';
+        } // No handling for Cancel status in equipment details
+
+        formField += '</div>';
+
+        $('#equipmentDetails').append(formField);
+    });
+}
+
+
 });
 </script>
 
@@ -575,9 +613,6 @@ $(document).ready(function () {
                 titleAttr: 'PDF',
                 className: 'btn-img'
             }
-        ],
-        "columnDefs": [
-            { "orderable": false, "targets": 0 } // Disable sorting for the first column (index 0)
         ],
         pageLength: 5,
         lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],

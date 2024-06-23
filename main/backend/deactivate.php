@@ -27,7 +27,8 @@ session_start();
 
     // Close database connection
     mysqli_close($conn);
-
+    unset($_SESSION['admin']);
+    unset($_SESSION['adminID']);
     // Redirect the user to a relevant page after deactivation
     header("Location: ../Admin Login.php");
     exit(); // Terminate the script

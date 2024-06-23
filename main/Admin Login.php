@@ -5,6 +5,14 @@ if (isset($_SESSION['error'])) {
     $errorMessage = $_SESSION['error'];
     unset($_SESSION['error']);
 }
+if (isset($_SESSION['registered'])) {
+    unset($_SESSION['registered']);
+}
+if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
+    // Redirect the user to the login page
+    header("Location: admindashboard.php");
+    exit(); // Terminate the script
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -189,7 +197,7 @@ if (isset($_SESSION['error'])) {
                             </div>
                                 <div class="col-md-12" >
                                 <div class="form-group justify-content-center d-flex py-4 "style="border-bottom:2px solid #ECECEC;">
-                                    <button type="submit" class="btn btn-primary btn-lg px-5 py-2 pb-2" style="font-size: 15px; border-radius: 30px; background-color: #0449A6;"><b>Login</b></button>
+                                    <button type="submit" id="submitBtn"  class="btn btn-primary btn-lg px-5 py-2 pb-2" style="font-size: 15px; border-radius: 30px; background-color: #0449A6;" disabled><b>Login</b></button>
                                 </div>
                             </div>
                             <div class="col-md-12 mt-3 mb-5 text-center">
@@ -215,7 +223,7 @@ if (isset($_SESSION['error'])) {
       <div class="modal-body">
 
 
-<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>MISMATCH</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>ACCOUNT NOT FOUND</b></h2>
 <div class="text-center">
 <small style="letter-spacing: -1px; color:#5e6e82;">The username and password you entered do not match any records.<br></small>
 <small style="letter-spacing: -1px; color:#5e6e82;">Please try again or <a href="#" data-dismiss="modal" data-toggle="modal" data-target="#forgotPasswordModal">reset your password</a>.</small>
@@ -280,11 +288,11 @@ if (isset($_SESSION['error'])) {
         <form action="backend/forgot_password.php" method="post" id="emailForgotPassword"> <!-- Change the action to your PHP script -->
             <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
                 <label for="inputEmail" class="d-block mb-1"><b>Email<span style="color:red;">*</span></b></label>
-                <input type="email" name="email" id="inputEmail" class="form-control" placeholder="@gmail.com">
+                <input type="email" name="email" id="inputEmail" class="form-control" placeholder="@gmail.com" maxlength="320">
                 <small id="email-error" class="text-danger"></small>
             </div>
             <div class="align-items-center justify-content-center d-flex mb-3">
-                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
+                <button type="submit" id="forgotPassSubmit" style="background-color: #1DD1A1; border:none;" class="btn btn-success" disabled><b>Submit</b></button>
             </div>
         </form>
     </div>
@@ -293,7 +301,7 @@ if (isset($_SESSION['error'])) {
 </div>
 </div>
 <!-- Forgot Password Modal -->
-<div class="modal fade" id="forgotPassword2Modal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel2" aria-hidden="true">
+<div class="modal fade" id="forgotPassword2Modal" tabindex="-1" role="dialog" aria-labelledby="forgotPasswordModalLabel2" aria-hidden="true" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -313,14 +321,14 @@ if (isset($_SESSION['error'])) {
     </div>
     <div class="col-md-12 w-100 px-5">
     <form action="backend/verify_reset_code.php" method="post">
-            <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
-                <label for="resetCode" class="d-block mb-1"><b>Reset Code:<span style="color:red;">*</span></b></label>
-                <input type="text" name="resetCode" id="resetCode" class="form-control" placeholder="Reset Code">
-            </div>
-            <div class="align-items-center justify-content-center d-flex mb-3">
-                <button type="submit" style="background-color: #1DD1A1; border:none;" class="btn btn-success"><b>Submit</b></button>
-            </div>
-        </form>
+    <div class="col-md-12 form-group mt-3 justify-content-center d-flex px-5" style="flex-direction: column;">
+        <label for="resetCode" class="d-block mb-1"><b>Reset Code:<span style="color:red;">*</span></b></label>
+        <input type="text" name="resetCode" id="resetCode" class="form-control" placeholder="Reset Code" oninput="preventSpaces(event)">
+    </div>
+    <div class="align-items-center justify-content-center d-flex mb-3">
+        <button type="submit" id="resetCodeSubmit" style="background-color: #1DD1A1; border:none;" class="btn btn-success" disabled><b>Submit</b></button>
+    </div>
+</form>
     </div>
 </div>
 </div>
@@ -349,7 +357,7 @@ if (isset($_SESSION['error'])) {
         <div class="col-md-12 form-group mt-3 px-5">
             <label for="newPassword" class="form-label"><b>New Password:<span style="color:red;">*</span></b></label>
             <div class="input-group">
-                <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="New Password">
+                <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="New Password" maxlength="16">
                 <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('newPassword')">SHOW</button>
             </div>
             <small id="new-password-error" class="text-danger"></small>
@@ -357,7 +365,7 @@ if (isset($_SESSION['error'])) {
         <div class="col-md-12 form-group mt-3 px-5">
             <label for="confirmNewPassword" class="form-label"><b>Confirm New Password:<span style="color:red;">*</span></b></label>
             <div class="input-group">
-                <input type="password" name="confirmNewPassword" id="confirmNewPassword" class="form-control" placeholder="New Password">
+                <input type="password" name="confirmNewPassword" id="confirmNewPassword" class="form-control" placeholder="New Password" maxlength="16">
                 <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('confirmNewPassword')">SHOW</button>
             </div>
             <small id="confirm-new-password-error" class="text-danger"></small>
@@ -405,9 +413,10 @@ if (isset($_SESSION['error'])) {
 </i>
       </div>
       <div class="modal-body">
+        <div class="justify-content-center d-flex"><img src="img/img-login-register/email-not-found.png" style="height:50px; width:auto;"></div>
 
-<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EMAIL DOES NOT</b></h2>
-<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EXIST</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>EMAIL</b></h2>
+<h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>NOT FOUND</b></h2>
 <div class="text-center">
 <small style="letter-spacing: -1px; color:#5e6e82;">The email you inserted does not<br></small>
 <small style="letter-spacing: -1px; color:#5e6e82;">exist in our records.<br></small>
@@ -469,6 +478,7 @@ if (isset($_SESSION['error'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
     <script>
       feather.replace();
     </script>
@@ -617,6 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('#emailForgotPassword');
     const emailInput = form.querySelector('#inputEmail');
     const emailError = form.querySelector('#email-error');
+    const submitButton = form.querySelector('#forgotPassSubmit');
 
     const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const allowedDomains = ['@gmail.com', '@outlook.com', '@yahoo.com'];
@@ -630,6 +641,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if the email matches the valid email format
         if (!emailRegex.test(email)) {
             emailError.textContent = 'Please enter a valid email address.';
+            submitButton.disabled = true;
             return;
         }
 
@@ -637,8 +649,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const isValidDomain = allowedDomains.some(domain => email.endsWith(domain));
         if (!isValidDomain) {
             emailError.textContent = 'Please enter a valid email from Gmail, Outlook, or Yahoo.';
+            submitButton.disabled = true;
             return;
         }
+
+        // If all checks pass, enable the submit button
+        submitButton.disabled = false;
     });
 
     emailInput.addEventListener('keydown', function(event) {
@@ -765,6 +781,43 @@ function preventSpaces(event) {
         });
     });
 </script>
+<script>
+        function validateForm() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const submitBtn = document.getElementById('submitBtn');
 
+        // Check if both fields are not empty
+        if (username && password) {
+            submitBtn.disabled = false; // Enable the button
+        } else {
+            submitBtn.disabled = true; // Disable the button
+        }
+    }
+
+    // Add event listeners to input fields
+    document.getElementById('username').addEventListener('input', validateForm);
+    document.getElementById('password').addEventListener('input', validateForm);
+
+    // Initial call to disable the button if fields are empty on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        validateForm();
+    });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const resetCodeInput = document.querySelector('#resetCode');
+    const submitButton = document.querySelector('#resetCodeSubmit');
+
+    resetCodeInput.addEventListener('input', function() {
+        // Enable the submit button if the reset code has 6 or more characters
+        if (resetCodeInput.value.length >= 6) {
+            submitButton.disabled = false;
+        } else {
+            submitButton.disabled = true;
+        }
+    });
+});
+</script>
 </body>
 </html>

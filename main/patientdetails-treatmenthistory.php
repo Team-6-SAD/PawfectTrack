@@ -46,15 +46,13 @@ if(isset($_GET['patientID'])) {
     t.DateOfTreatment, 
     GROUP_CONCAT(DISTINCT mu.Dosage) AS Dosage, 
     GROUP_CONCAT(DISTINCT mu.MedicineName) AS MedicineNames, 
-    GROUP_CONCAT(DISTINCT e.Name) AS EquipmentUsed
+    GROUP_CONCAT(DISTINCT eu.EquipmentName) AS EquipmentUsed
 FROM 
     treatment AS t
 LEFT JOIN 
     medicineusage AS mu ON t.TreatmentID = mu.TreatmentID
 LEFT JOIN 
     equipmentusage AS eu ON t.TreatmentID = eu.TreatmentID
-LEFT JOIN 
-    equipment AS e ON eu.EquipmentID = e.EquipmentID
 WHERE 
     t.PatientID = ?
 GROUP BY
@@ -87,9 +85,8 @@ mysqli_close($conn);
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
 <link href="css/hamburgers.css" rel="stylesheet">
   <link href="css/userdashboard.css" rel="stylesheet">
   <link rel='stylesheet' href='https://cdn.datatables.net/1.13.5/css/dataTables.bootstrap5.min.css'>
@@ -464,9 +461,7 @@ $(document).ready(function () {
                 className: 'btn-img'
             }
         ],
-        "columnDefs": [
-            { "orderable": false, "targets": 0 } // Disable sorting for the first column (index 0)
-        ],
+     
         pageLength: 5,
         lengthMenu: [ [5, 25, 50, -1], [5, 25, 50, "All"] ],
         language: { "lengthMenu": "Display _MENU_ "
