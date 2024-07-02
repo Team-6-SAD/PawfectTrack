@@ -115,10 +115,30 @@ tbody tr:nth-child(odd) {
         background-color: #FFFFFF;
     }   
 </style>
+  <style>
+  .toast-container {
+  position: fixed;
+  min-width: 100vw;
+  z-index: 9999;
+  position: fixed;
+  bottom: 0px;
+  left: 70%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  }
+
+  .toast {
+  position: relative;
+
+
+  }
+</style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="main-container">
+          
             <!-- Header and Sidebar -->
             <?php include 'includes/admin_header.php'; ?>
             <div class="sidebar">
@@ -129,6 +149,10 @@ tbody tr:nth-child(odd) {
             <div class="content" id="content">
                 <div class="row mr-5 ml-3 mt-0 pt-0">
                     <div class="col-12 mt-0 pt-0">
+        
+  <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
+
+
                         <div class="card-body card-image p-0 align-items-center">
                             <div class="row logo-font-color mt-0 pl-2">
                                 <div class="col-md-6 text-left mt-5 ml-4">
@@ -222,6 +246,7 @@ if ($result) {
                         <div class="card mx-auto table-card px-3 mb-5">
                             <div class="table-header-1 d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mt-5 ml-4 gray"><b>List of Upcoming Vaccine Sessions</b></h5>
+                              
                                 <div class="flex-grow-1"></div>
                                 <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-4 mt-1 mt-4">
                                 <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 px-3" style="color:white;  border-radius: 8px">
@@ -318,7 +343,6 @@ if (mysqli_num_rows($result) > 0) {
 
 
 
-
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     
     <!-- Data Table JS -->
@@ -333,6 +357,9 @@ if (mysqli_num_rows($result) > 0) {
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="js/notifications.js">
+
+</script>
 
 
 <!-- Include jQuery -->
@@ -356,6 +383,12 @@ if (mysqli_num_rows($result) > 0) {
 });
 
 </script>
+
+
+
+
+
+
 
 
 

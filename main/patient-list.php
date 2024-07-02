@@ -29,7 +29,7 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now fetch one appointment per patient
-    $sql = "
+   $sql = "
     SELECT
         p.PatientID,
         CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
@@ -53,21 +53,17 @@ if ($row = mysqli_fetch_assoc($result)) {
                 appointmentinformation ai1
             WHERE
                 ai1.Status = 'Pending'
-            GROUP BY
-                ai1.PatientID
-            ORDER BY
-                ai1.AppointmentDate ASC
         ) ai ON t.TreatmentID = ai.TreatmentID
     LEFT JOIN
         bitedetails bd ON bd.PatientID = p.PatientID
     WHERE
         p.ActiveStatus = 'Active'
     GROUP BY
-        p.PatientID
+        p.PatientID, p.FirstName, p.LastName  -- Group by all non-aggregated columns in SELECT
     ORDER BY
         MAX(ai.AppointmentDate) ASC; -- Ensure the earliest pending appointment date is selected
-    ";
-    
+";
+
     
     
     $patients_result = mysqli_query($conn, $sql);
@@ -162,6 +158,16 @@ tbody tr:nth-child(odd) {
         border-radius: 8px !important;
         font-size: 12px;
         font-weight: bold;
+    }
+    .form-group{
+      font-weight:normal !important;
+    }
+    .select2-selection__placeholder{
+    color: #ECECEC !important;
+      font-size:12px;
+}
+.select2-container--default .select2-selection--single{
+  border-radius: 0px;
     }
 </style>
 </head>
@@ -317,29 +323,78 @@ if (mysqli_num_rows($patients_result) > 0) {
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="patientModalLabel">Select Patient</h5>
+                <h5 class="modal-title p-3" id="patientModalLabel"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <form>
-                    <div class="form-group">
-                        <label for="patientSelect">Patient</label>
+                    <div class="form-group px-5">
+                      <label for="patientSelect"><small>Existing Account of Patient</small></label>
                         <select class="form-control" id="patientSelect" style="width: 100%;">
-                            <option value="">Select a patient</option>
+                            <option value="" disabled selected>Select Existing Patient</option>
                         </select>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add Record</button>
+                        <button type="button" class="btn font-weight-bold" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success" style="background-color:#1BB58D; border-radius:27.5px !important; border:none;">Add Record</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+  <div class="modal fade" id="addStockSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+                                <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
 
+                                </i>
+                            </div>
+                            <div class="modal-body">
+                                <div class="justify-content-center d-flex">
+                                    <img src="img/img-alerts/check-mark.png">
+                                </div>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>RECORD</b></h2>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>ADDED</b></h2>
+                                <div class="text-center">
+                                    <small style="letter-spacing: -1px; color:#5e6e82;">Record for the patient has been saved.<br></small>
+                                </div>
+                                <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+                                    <button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+  <div class="modal fade" id="addEditSuccessModal" tabindex="-1" role="dialog" aria-labelledby="usernamePasswordMismatchModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
+                                <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+
+                                </i>
+                            </div>
+                            <div class="modal-body">
+                                <div class="justify-content-center d-flex">
+                                    <img src="img/img-alerts/check-mark.png">
+                                </div>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>UPDATE</b></h2>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>SUCESSFUL</b></h2>
+                                <div class="text-center">
+                                    <small style="letter-spacing: -1px; color:#5e6e82;">Your changes are saved.<br></small>
+                                </div>
+                                <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
+                                    <button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -354,13 +409,28 @@ if (mysqli_num_rows($patients_result) > 0) {
     <!-- ... (your existing script imports) ... -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+                <script>
+                    $(document).ready(function() {
+                        <?php if (isset($_SESSION['successPatientModal'])) { ?>
+                            $('#addStockSuccessModal').modal('show');
+                            <?php unset($_SESSION['successPatientModal']); ?> // Unset the session variable
+                        <?php } ?>
+                    });
+                </script>
+                <script>
+                    $(document).ready(function() {
+                        <?php if (isset($_SESSION['successEditModal'])) { ?>
+                            $('#addEditSuccessModal').modal('show');
+                            <?php unset($_SESSION['successEditModal']); ?> // Unset the session variable
+                        <?php } ?>
+                    });
+                </script>
 <script>
 $(document).ready(function() {
     // Function to initialize Select2 within the modal
     function initializeSelect2() {
         $('#patientSelect').select2({
-            placeholder: 'Select a patient',
+            placeholder: 'Select Existing Patient',
             allowClear: true,
             dropdownParent: $('#patientModal') // Ensure the dropdown appears within the modal
         });
@@ -569,8 +639,9 @@ $(document).ready(function() {
         if (checkedCheckboxes.length === 1) {
             $('#updateButton, #deleteButton, #viewButton').show();
         } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton, #deleteButton').show();
+            $('#deleteButton').show();
             $('#viewButton').hide();
+          $('#updateButton').hide();
         } else {
             $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
         }

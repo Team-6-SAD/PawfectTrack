@@ -305,10 +305,13 @@ if ($resultProfilePic->num_rows === 1) {
                                                                 <?php
                                                             }
                                                         } else {
-                                                            echo "<tr><td colspan='3'>No appointments found for this patient.</td></tr>";
+                                                            
+                                                            echo "<tr><td></td>
+                                                            <td>No appointments found for this patient.</td>
+                                                            <td></tr>";
                                                         }
                                                     } else {
-                                                        echo "<tr><td colspan='3'>User not found or multiple users found (should not happen).</td></tr>";
+                                                        echo "<tr><td></td><td>User not found or multiple users found (should not happen).</td><td></td></tr>";
                                                     }
                                                     ?>
                                                 </tbody>

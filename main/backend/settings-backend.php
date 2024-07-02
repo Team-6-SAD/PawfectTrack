@@ -36,7 +36,7 @@ if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] ===
 
         mysqli_stmt_close($stmtUpdatePicture);
     } else {
-        $_SESSION['error_message'] = "Error uploading profile picture.";
+        $_SESSION['error_message'] = "Error uploading profile picture.". mysqli_error($conn);
     }
 }
 

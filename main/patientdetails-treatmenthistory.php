@@ -38,39 +38,43 @@ if ($row = mysqli_fetch_assoc($result)) {
 }
 
 // Check if the patientID is set in the URL
-if(isset($_GET['patientID'])) {
+if (isset($_GET['patientID'])) {
     $patientID = $_GET['patientID'];
     $sql = "SELECT 
-    t.TreatmentID, 
-    t.Category, 
-    t.DateOfTreatment, 
-    GROUP_CONCAT(DISTINCT mu.Dosage) AS Dosage, 
-    GROUP_CONCAT(DISTINCT mu.MedicineName) AS MedicineNames, 
-    GROUP_CONCAT(DISTINCT eu.EquipmentName) AS EquipmentUsed
-FROM 
-    treatment AS t
-LEFT JOIN 
-    medicineusage AS mu ON t.TreatmentID = mu.TreatmentID
-LEFT JOIN 
-    equipmentusage AS eu ON t.TreatmentID = eu.TreatmentID
-WHERE 
-    t.PatientID = ?
-GROUP BY
-    t.TreatmentID, 
-    t.Category, 
-    t.DateOfTreatment";
+                t.TreatmentID, 
+                t.Category, 
+                t.DateOfTreatment, 
+                GROUP_CONCAT(CONCAT(mu.MedicineName, '-', mu.Dosage) ORDER BY mu.MedicineName SEPARATOR ', ') AS MedicineAndDosages, 
+                GROUP_CONCAT(DISTINCT eu.EquipmentName) AS EquipmentUsed
+            FROM 
+                treatment AS t
+            LEFT JOIN 
+                medicineusage AS mu ON t.TreatmentID = mu.TreatmentID
+            LEFT JOIN 
+                equipmentusage AS eu ON t.TreatmentID = eu.TreatmentID
+            WHERE 
+                t.PatientID = ?
+            GROUP BY
+                t.TreatmentID, 
+                t.Category, 
+                t.DateOfTreatment";
 
-// Prepare and execute the SQL query
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "i", $patientID);
-mysqli_stmt_execute($stmt);
-$result = mysqli_stmt_get_result($stmt);
+    // Prepare and execute the SQL query
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $patientID);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
+    // Close the previous statement
+    mysqli_stmt_close($stmt);
 }
+
 // Close the database connection
-mysqli_stmt_close($stmt);
 mysqli_close($conn);
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -150,28 +154,38 @@ mysqli_close($conn);
         <thead class="table-header mb-5">
             <tr>
                 <th>Treatment ID</th>
-                <th>Type of Medicine</th>
-                <th>Dosage</th>
+                <th>Type of Medicine - Dosage</th>
                 <th>Category</th>
                 <th>Date of Treatment</th>
                 <th>Equipment Used</th>
             </tr>
         </thead>
-        <tbody>
-            <?php
-            // Loop through each row of treatment details and populate the table
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo "<tr>";
-                echo "<td>" . $row['TreatmentID'] . "</td>";
-                echo "<td>" . $row['MedicineNames'] . "</td>";
-                echo "<td>" . $row['Dosage'] . "</td>";
-                echo "<td>" . $row['Category'] . "</td>";
-                echo "<td>" . $row['DateOfTreatment'] . "</td>";
-                echo "<td>" . $row['EquipmentUsed'] . "</td>";
-                echo "</tr>";
-            }
-            ?>
-        </tbody>
+<tbody>
+    <?php
+    // Loop through each row of treatment details and populate the table
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['TreatmentID']) . "</td>";
+        echo "<td>";
+        // Split MedicineAndDosages into array by ','
+        $medicinesAndDosages = explode(', ', $row['MedicineAndDosages']);
+        // Iterate through each medicine and dosage pair
+        foreach ($medicinesAndDosages as $medicineAndDosage) {
+            // Split the pair into medicine and dosage
+            list($medicine, $dosage) = explode('-', $medicineAndDosage, 2);
+            // Echo medicine and dosage with 'mL' after the dosage
+            echo htmlspecialchars($medicine) . " - " . htmlspecialchars($dosage) . " mL<br>";
+        }
+        echo "</td>";
+        echo "<td>" . htmlspecialchars($row['Category']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['DateOfTreatment']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['EquipmentUsed']) . "</td>";
+        echo "</tr>";
+    }
+    ?>
+</tbody>
+
+
     </table>
 
             </form>

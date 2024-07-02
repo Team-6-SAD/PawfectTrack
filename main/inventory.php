@@ -63,6 +63,29 @@ include 'inventory-query.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <title>Inventory</title>
     <style>
+      input[type="date"]::placeholder {
+ 
+    font-size: 12px;
+}
+      
+      .form-control{
+    font-size: 12px !important;
+}
+
+input[type="date"]:valid {
+ 
+    font-size: 12px;
+}
+            input::placeholder {
+    font-size: 12px; /* Adjust the font size as needed */
+}
+      select {
+    font-size: 12px; /* Adjust font size */
+}
+
+select option {
+    font-size: 12px; /* Adjust font size of dropdown options */
+}
         .row-spacing {
             margin-bottom: 10px;
             /* Adjust the value to control the spacing between rows */
@@ -139,7 +162,7 @@ include 'inventory-query.php';
 
                                     </div>
                                     <div class="ml-auto">
-        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addStockModal">Add Stock</button>
+        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addStockModal"><img src="img/img-dashboard/white-add.png" alt="Icon" class="mr-2" style="width: 17px; height: 17px; margin-right: 3px; margin-bottom:1px;">Add Stock</button>
     </div>
                                 </div>
 
@@ -160,23 +183,32 @@ include 'inventory-query.php';
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $sql = "SELECT 
-mb.MedicineBrandID,
-mb.BrandName,
-mb.Route,
-SUM(mi.StockQuantity) AS TotalStockQuantity,
-mi.InventoryID,
-mi.StockPrice,
-mi.StockDosage,
-mi.StockExpiryDate,
-mi.StockBoughtPrice
-FROM 
-medicineinventory mi
-JOIN 
-medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
-GROUP BY 
-mb.BrandName, mi.StockExpiryDate;
-"; // Group by MedicineID, BrandName, and StockExpiryDate
+                                        $sql = "
+    SELECT 
+        mb.MedicineBrandID,
+        mb.BrandName,
+        mb.Route,
+        SUM(mi.StockQuantity) AS TotalStockQuantity,
+        mi.InventoryID,
+        mi.StockPrice,
+        mi.StockDosage,
+        mi.StockExpiryDate,
+        mi.StockBoughtPrice
+    FROM 
+        medicineinventory mi
+    JOIN 
+        medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+    GROUP BY 
+        mb.MedicineBrandID,  -- Include MedicineBrandID in GROUP BY
+        mb.BrandName,
+        mb.Route,
+        mi.InventoryID,
+        mi.StockPrice,
+        mi.StockDosage,
+        mi.StockExpiryDate,
+        mi.StockBoughtPrice;
+";
+ // Group by MedicineID, BrandName, and StockExpiryDate
 
                                         $result = $conn->query($sql);
 
@@ -241,11 +273,20 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="col-md-6 col-lg-6 mt-2">
                                 <div class="card table-card h-100">
                                     <div class="card-body bg-main-color-2 p-4">
-                                        <div class="medicine-header m-0">
-                                        <button id="actionButton" class="btn btn-gray-color action-button" style="color:white;  border-radius: 6px; font-weight: 400;">Action  <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span></button>
-                                        <button id="deleteButton2" class="btn btn-danger action-button hidden">Delete Selected</button>
-                                            <button id="addMedicineButton" class="btn greener mb-0  mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addMedicineModal">Add Medicine</button>
-                                        </div>
+<div class="medicine-header m-0">
+    <div class="d-flex justify-content-start align-items-center">
+        <button id="actionButton" class="btn btn-gray-color action-button" style="color:white; border-radius: 6px; font-weight: 400;">
+            Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
+        </button>
+        <button id="deleteButton2" class="btn btn-danger action-button ml-2 hidden"><img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove</button>
+    </div>
+    <div class="ml-auto">
+        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addMedicineModal">
+            <img src="img/img-dashboard/white-add.png" alt="Icon" class="mr-2" style="width: 17px; height: 17px; margin-right: 3px; margin-bottom:1px;"> Add Medicine
+        </button>
+    </div>
+</div>
+
 
 
                                         <table id="TotalStock" class="table table-with-spacing gfg w-100">
@@ -348,8 +389,9 @@ mb.BrandName, mi.StockExpiryDate;
 
 
 
-                                    <div class="medicine-header">
-                                        <h5 class="main-color"> <b>Medicine Usage History</b></h5>
+                                    <div class="medicine-header justify-content-start">
+                                      <img src="img/img-dashboard/Usage History Image.png" class="mr-2" style="height:20px; width:auto;">
+                                        <h5 class="main-color mb-0 pb-0 font-weight-normal" style="color:#5E6E82;">Medicine Usage History</h5>
 
                                     </div>
 
@@ -395,15 +437,18 @@ mb.BrandName, mi.StockExpiryDate;
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addMedicineModalLabel">Add Medicine</h5>
+                                    <h5 class="modal-title p-3" id="addMedicineModalLabel"></h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
+                             
                                 <div class="modal-body">
                                     <!-- Form for adding medicine -->
                                     <form id="addMedicineForm" action="backend/add_medicine.php" method="post">
-                                        <div class="form-group">
+                                      
+                                    <div class="row">       
+                                        <div class="form-group col-md-6">
                                             <?php
                                             if (isset($_SESSION['productNameExists']) && $_SESSION['productNameExists'] === true) {
                                                 echo '<div class="alert alert-danger" role="alert">Product Name already exists</div>';
@@ -416,26 +461,28 @@ mb.BrandName, mi.StockExpiryDate;
                                                 unset($_SESSION['productBrandExists']); // Clear the session variable
                                             }
                                             ?>
-                                            <label for="productName">Product Name</label>
+                                          <label for="productName"><small class="font-weight-bold">Product Name</small></label>
                                             <input type="text" class="form-control" id="productName" name="productName" required oninput="preventLeadingSpace(event)">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="productBrand">Product Brand</label>
-                                            <input type="text" class="form-control" id="productBrand" name="productBrand" required oninput="prevenLeadingtSpace(event)">
+                                        <div class="form-group col-md-6">
+                                          <label for="productBrand"><small class="font-weight-bold">Product Brand</small></label>
+                                            <input type="text" class="form-control" id="productBrand" name="productBrand" required oninput="preventLeadingSpace(event)">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="route">Route</label>
+                                        <div class="form-group col-md-6">
+                                          <label for="route"><small class="font-weight-bold">Route</small></label>
                                             <select class="form-control" id="route" name="route" required>
-                                                <option value="">Select Route</option>
-                                                <option value="Intramuscular">Intramuscular</option>
-                                                <option value="Intradermal">Intradermal</option>
+                                                <option value="" disabled selected>Select Route</option>
+                                                <option value="IM">Intramuscular</option>
+                                                <option value="ID">Intradermal</option>
                                             </select>
                                         </div>
+                                      </div>
                                         <div class="justify-content-center align-items-center d-flex">
-                                            <button type="submit" style="background-color:#10AC84; font-weight:bold;" class="btn btn-success px-4">List Medicine</button>
+                                            <button type="submit" style="background-color:#10AC84; font-weight:bold; border-radius:27.5px !important;" class="btn btn-success px-5">Add Medicine</button>
                                         </div>
                                     </form>
-                                </div>
+                                
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -465,12 +512,19 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="modal-content">
                                 <!-- Modal Header -->
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Already Exists!</h4>
+                                    <h4 class="modal-title p-3"></h4>
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <!-- Modal body -->
-                                <div class="modal-body">
-                                    <p>The product brand already exists for this medicine.</p>
+                                <div class="modal-body justify-content-center align-items-center d-flex" style="flex-direction:column;">
+									<img src="img/img-alerts/caution-mark.png" style="height:50px; width:50px;">
+                                                                  <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>BRAND ALREADY</b></h2>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>EXISTS</b></h2>
+                                <div class="text-center">
+                                    <small style="letter-spacing: -1px; color:#5e6e82;">Brand already exists for this product.<br></small>
+
+                                </div>
+                               
                                 </div>
                                 <!-- Modal footer -->
                                 <div class="modal-footer">
@@ -484,18 +538,18 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="modal-content">
                                 <form id="addStockForm" method="post" action="backend/add_stock.php">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addStockModalLabel">Add Stock</h5>
+                                        <h5 class="modal-title p-3" id="addStockModalLabel"></h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="brandName">Brand Name:</label>
+                                                  <label for="brandName"><small><b>Brand Name:</b></small></label>
                                                     <select class="form-control" id="brandName" name="brandName" required>
-                                                        <option value="">Select Brand Name</option>
+                                                        <option value="" disabled selected>Select Brand Name</option>
                                                         <?php
                                                         // Fetch all available brand names from the database
                                                         $sql = "SELECT * FROM medicinebrand";
@@ -515,44 +569,44 @@ mb.BrandName, mi.StockExpiryDate;
                                                 </div>
                                             </div>
                                             <!-- Stock Quantity input -->
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                             <div class="form-group">
-    <label for="stockQuantity">Stock Quantity:</label>
+                                              <label for="stockQuantity"><small><b>Stock Quantity:</b> </small></label>
     <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" min="0" step="1"  max="100000" required>
 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="stockPrice">Stock Price:</label>
+                                                    <label for="stockPrice"><small><b>Stock Price:</b> </small></label>
                                                     <input type="number" class="form-control" id="stockPrice" name="stockPrice" required min="0" step="1" max="100000" >
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                             <div class="form-group">
-    <label for="stockDosage">Stock Dosage:</label>
+                                              <label for="stockDosage"><small><b>Stock Dosage:</b> </small></label>
     <input type="text" class="form-control" id="stockDosage" name="stockDosage" required>
 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="stockExpiryDate">Stock Expiry Date:</label>
+                                                    <label for="stockExpiryDate"><small><b>Stock Expiry Date:</b> </small></label>
                                                     <input type="date" class="form-control" id="stockExpiryDate" name="stockExpiryDate" required min="<?php echo date('Y-m-d', strtotime('+7 days')); ?>" onkeydown="return false">
                                                 </div>
 
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                                 <div class="form-group">
-                                                    <label for="stockBoughtPrice">Stock Bought Price:</label>
+                                                    <label for="stockBoughtPrice"><small><b>Stock Bought Price:</b> </small></label>
                                                     <input type="number" class="form-control" id="stockBoughtPrice" name="stockBoughtPrice" min="0" step="1" max="100000"  required>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer justify-content-center align-items-center d-flex">
-                                            <button type="submit" style="background-color:#10AC84; font-weight:bold;" class="btn btn-success px-4">Add Stock</button>
+                                        <div class="modal-footer justify-content-center align-items-center d-flex" style="border-top: none !important;">
+                                            <button type="submit" style="background-color:#10AC84; font-weight:bold; border-radius:27.5px !important;" class="btn btn-success px-5">Add Stock</button>
                                         </div>
                                 </form>
                             </div>
@@ -678,24 +732,23 @@ mb.BrandName, mi.StockExpiryDate;
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
-                                <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+                                <h5 class="modal-title p-3" id="usernamePasswordMismatchModalLabel"></h5>
+                       
 
                                 </i>
                             </div>
                             <div class="modal-body">
                                 <div class="justify-content-center d-flex">
-                                    <img src="img/img-alerts/caution-mark.png">
+                                    <img src="img/img-alerts/caution-mark.png" style="height:50px;">
                                 </div>
-                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>REMOVE</b></h2>
-                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>ITEM</b></h2>
-                                <div class="text-center">
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>REMOVE ITEM</b></h2>
+								<div class="text-center">
                                     <small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to delete<br></small>
                                     <small style="letter-spacing: -1px; color:#5e6e82;">the selected item/s?<br></small>
                                 </div>
                                 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-                                    <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-                                    <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="confirmDeleteButton"><b>Remove</b></button>
+                                    <button type="button" style="background-color: none; border:none; color:#5e6e82" class="btn px-3 mr-4 py-2" data-dismiss="modal">Cancel</button>
+                                    <button type="button" style="background-color: #EE5253; border:none; border-radius:27.5px !important;" class="btn btn-success px-3 py-2 font-weight-bold" id="confirmDeleteButton">Remove</button>
                                 </div>
                             </div>
                         </div>
@@ -846,7 +899,8 @@ mb.BrandName, mi.StockExpiryDate;
 
             actionButton.addEventListener('click', () => {
                 selectionMode = !selectionMode;
-                actionButton.textContent = selectionMode ? 'Cancel' : 'Action';
+              actionButton.innerHTML = selectionMode ? 'Cancel' : 'Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>';
+
                 if (!selectionMode) {
                     selectedRows.forEach(row => row.classList.remove('selected'));
                     selectedRows = [];
@@ -1229,7 +1283,7 @@ $('#confirmDeleteButton').on('click', function() {
                 url: 'backend/remove_medicine.php',
                 data: { selectedRows: selectedRows },
                 success: function(response) {
-                    window.location.href = 'inventory.php';
+                    window.location.href = 'Inventory.php';
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred: ' + xhr.responseText);

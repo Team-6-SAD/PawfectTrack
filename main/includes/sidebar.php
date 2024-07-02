@@ -59,16 +59,16 @@
             </div>
         </a>
 
-        <a href="Inventory.php" class="sidebar-link <?php if ($activePage === 'Inventory.php') echo 'active'; ?>">
-            <div class="sidebar-item <?php if ($activePage === 'Inventory.php') echo 'active'; ?>" data-default-icon="img/img-navbar/Inventory.png" data-hover-icon="img/img-navbar/Inventory.png">
-                <img src="<?php echo ($activePage === 'Inventory.php') ? 'img/img-navbar/Inventory-hover.png' : 'img/img-navbar/Inventory.png'; ?>" alt="Floor Viewer Icon" class="sidebar-icon ml-1">
+        <a href="Inventory.php" class="sidebar-link <?php if ($activePage === 'Inventory.php' || $activePage === 'equipment-inventory.php') echo 'active'; ?>">
+            <div class="sidebar-item <?php if ($activePage === 'Inventory.php' || $activePage === 'equipment-inventory.php') echo 'active'; ?>" data-default-icon="img/img-navbar/Inventory.png" data-hover-icon="img/img-navbar/Inventory.png">
+                <img src="<?php echo ($activePage === 'Inventory.php' || $activePage === 'equipment-inventory.php') ? 'img/img-navbar/Inventory-hover.png' : 'img/img-navbar/Inventory.png'; ?>" alt="Floor Viewer Icon" class="sidebar-icon ml-1">
                 <span class="sidebar-text">Inventory</span>
             </div>
         </a>
 
-        <a href="Reports and Analytics.php" class="sidebar-link <?php if ($activePage === 'Reports and Analytics.php') echo 'active'; ?>">
-            <div class="sidebar-item <?php if ($activePage === 'Reports and Analytics.php') echo 'active'; ?>" data-default-icon="img/img-navbar/Reports and Analytics.png" data-hover-icon="img/img-navbar/Reports and Analytics.png">
-                <img src="<?php echo ($activePage === 'Reports and Analytics.php') ? 'img/img-navbar/Reports and Analytics-hover.png' : 'img/img-navbar/Reports and Analytics.png'; ?>" alt="Floor Viewer Icon" class="sidebar-icon ml-1">
+        <a href="Reports and Analytics.php" class="sidebar-link <?php if ($activePage === 'Reports and Analytics.php' || $activePage === 'Reports and Analytics-Analytics.php') echo 'active'; ?>">
+            <div class="sidebar-item <?php if ($activePage === 'Reports and Analytics.php' || $activePage === 'Reports and Analytics-Analytics.php') echo 'active'; ?>" data-default-icon="img/img-navbar/Reports and Analytics.png" data-hover-icon="img/img-navbar/Reports and Analytics.png">
+                <img src="<?php echo ($activePage === 'Reports and Analytics.php' || $activePage === 'Reports and Analytics-Analytics.php') ? 'img/img-navbar/Reports and Analytics-hover.png' : 'img/img-navbar/Reports and Analytics.png'; ?>" alt="Floor Viewer Icon" class="sidebar-icon ml-1">
                 <span class="sidebar-text">Reports and Analytics</span>
             </div>
         </a>

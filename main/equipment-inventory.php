@@ -157,6 +157,13 @@ if ($result) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <title>Inventory</title>
     <style>
+            .form-control{
+    font-size: 12px !important;
+}
+
+      input::placeholder {
+    font-size: 12px; /* Adjust the font size as needed */
+}
         .row-spacing {
             margin-bottom: 10px;
             /* Adjust the value to control the spacing between rows */
@@ -271,7 +278,7 @@ if ($result) {
         <img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove
     </button>
     <!-- Add Equipment button pushed to the end -->
-    <button id="addEqButton" class="btn greener no-break ml-auto" data-toggle="modal" data-target="#addEquipmentModal">Add Equipment</button>
+    <button id="addEqButton" class="btn greener no-break ml-auto" data-toggle="modal" data-target="#addEquipmentModal"><img src="img/img-dashboard/white-add.png" alt="Icon" class="mr-2" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;">Add Equipment</button>
 </div>
 </div>
 
@@ -324,10 +331,11 @@ if ($result) {
                             <div class="col-md-6 col-lg-6 mt-2">
                                 <div class="card table-card h-100">
                                     <div class="card-body bg-main-color-2 p-5">
-                                        <div class="medicine-header">
-                                            <h5 class="main-color"><b>Equipment Usage History</b></h5>
+     <div class="medicine-header justify-content-start">
+                                      <img src="img/img-dashboard/Usage History Image.png" class="mr-2" style="height:20px; width:auto;">
+                                        <h5 class="main-color mb-0 pb-0 font-weight-normal" style="color:#5E6E82;">Equipment Usage History</h5>
 
-                                        </div>
+                                    </div>
 
 
 
@@ -576,7 +584,7 @@ if ($result) {
             <div class="modal-content">
                 <form id="addEquipmentForm" method="post" action="backend/add_equipment.php"> <!-- Form starts here -->
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addEquipmentModalLabel">Add Equipment</h5>
+                        <h5 class="modal-title p-3" id="addEquipmentModalLabel"></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -584,23 +592,22 @@ if ($result) {
                     <div class="modal-body">
                         <!-- Equipment Name Input -->
                         <div class="form-group">
-                            <label for="equipmentName">Equipment Name:</label>
-                            <input type="text" class="form-control" id="equipmentName" name="equipmentName" required>
+                          <label for="equipmentName"><small><b>Product Name</b></small></label>
+                            <input type="text" class="form-control" id="equipmentName" placeholder="Product Name" name="equipmentName" required oninput="preventSpaces(event)">
                         </div>
                         <!-- Quantity Input -->
                         <div class="form-group">
-                            <label for="quantity">Quantity:</label>
-                            <input type="number" class="form-control" id="quantity" name="quantity" required>
+                            <label for="quantity"><small><b>Product Quantity</b></small></label>
+                            <input type="number" class="form-control" id="quantity" placeholder="Product Quantity(pcs)" name="quantity" required>
                         </div>
                         <!-- Price Bought Input -->
                         <div class="form-group">
-                            <label for="priceBought">Price Bought:</label>
-                            <input type="number" class="form-control" id="priceBought" name="priceBought" required>
+                          <label for="priceBought"><small><b>Product Price</b></small></label>
+                            <input type="number" class="form-control" id="priceBought" placeholder="Product Price" name="priceBought" required>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add Equipment</button> <!-- Submit button added -->
+                    <div class="modal-footer justify-content-center d-flex align-items-center" style="border-top:none">
+                        <button type="submit" class="btn btn-success px-5" style="background-color: #10AC84; !important; border-radius:27.5px !important;">Add Equipment</button> <!-- Submit button added -->
                     </div>
                 </form> <!-- Form ends here -->
             </div>
@@ -689,14 +696,12 @@ if ($result) {
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
-                    <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+                    <h5 class="modal-title p-3" id="usernamePasswordMismatchModalLabel"></h5>
 
-                    </i>
                 </div>
                 <div class="modal-body">
                     <div class="justify-content-center d-flex">
-                        <img src="img/img-alerts/caution-mark.png">
+                        <img src="img/img-alerts/caution-mark.png" style="height:50px; width:auto;">
                     </div>
                     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>REMOVE</b></h2>
                     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>ITEM</b></h2>
@@ -705,8 +710,8 @@ if ($result) {
                         <small style="letter-spacing: -1px; color:#5e6e82;">the selected item/s?<br></small>
                     </div>
                     <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-                        <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-                        <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="confirmDeleteButton"><b>Remove</b></button>
+                        <button type="button" style="background-color: none; border:none;" class="btn px-3 mr-4 py-2" data-dismiss="modal">Cancel</button>
+                        <button type="button" style="background-color: #EE5253; border:none; border-radius:27.5px !important;" class="btn btn-success px-3 py-2 font-weight-bold" id="confirmDeleteButton">Remove</button>
                     </div>
                 </div>
             </div>
@@ -970,6 +975,7 @@ if ($result) {
   
 
 <script>
+        $('.select-Equip').hide();
 $(document).ready(function() {
     // DataTable initialization
     var table = $('#EquipmentTable').DataTable({
@@ -1151,62 +1157,91 @@ $('#confirmDeleteButton').on('click', function() {
         }
     });
                 </script>
-    <script>
-        $(document).ready(function() {
-            // DataTable initialization
-            var table = $('#EquipmentUsageTable').DataTable({
-                paging: true,
-
-                responsive: true,
-                searching: true,
-                "pageLength": 5, // Set default page length
-                "lengthMenu": [
-                    [5, 25, 50, -1],
-                    [5, 25, 50, "All"]
-                ], // Customize page length menu
-                "dom": // Place search input at the top
-                    "<'row'<'col-sm-12't>>" + // Place table in a row
-                    "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
-
-                buttons: [{
-                        extend: 'copyHtml5',
-                        text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
-                        titleAttr: 'Copy',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'excelHtml5',
-                        text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
-                        titleAttr: 'Excel',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'csvHtml5',
-                        text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
-                        titleAttr: 'CSV',
-                        className: 'btn-img'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
-                        titleAttr: 'PDF',
-                        className: 'btn-img'
-                    }
-                ],
-
-                pageLength: 5,
-                lengthMenu: [
-                    [5, 25, 50, -1],
-                    [5, 25, 50, "All"]
-                ],
-                language: {
-                    "lengthMenu": "Display _MENU_ "
-
+<script>
+    $(document).ready(function() {
+        // DataTable initialization for EquipmentUsageTable
+        var table = $('#EquipmentUsageTable').DataTable({
+            paging: true,
+            responsive: true,
+            searching: true,
+            "pageLength": 5, // Set default page length
+            "lengthMenu": [
+                [5, 25, 50, -1],
+                [5, 25, 50, "All"]
+            ], // Customize page length menu
+            "dom": // Place search input at the top
+                "<'row'<'col-sm-12't>>" + // Place table in a row
+                "<<'col-sm-12 justify-content-center d-flex mt-5'p>>", // Place length menu and pagination in separate rows
+            buttons: [{
+                    extend: 'copyHtml5',
+                    text: '<img style="width:25px; height:25px;" src="copy_image.png" alt="Copy">',
+                    titleAttr: 'Copy',
+                    className: 'btn-img'
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<img style="width:25px; height:25px;" src="excel_image.png" alt="Excel">',
+                    titleAttr: 'Excel',
+                    className: 'btn-img'
+                },
+                {
+                    extend: 'csvHtml5',
+                    text: '<img style="width:25px; height:25px;" src="csv_image.png" alt="CSV">',
+                    titleAttr: 'CSV',
+                    className: 'btn-img'
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<img style="width:25px; height:25px;" src="pdf_image.png" alt="PDF">',
+                    titleAttr: 'PDF',
+                    className: 'btn-img'
                 }
-            });
+            ],
+            language: {
+                "lengthMenu": "Display _MENU_ "
+            },
+"drawCallback": function(settings) {
+    if (settings.nTable.id !== 'EquipmentUsageTable') return;
+
+    var api = this.api();
+    var pages = api.page.info().pages;
+    var page = api.page.info().page;
+    var paginationButtons = $(api.table().container()).find('.dataTables_paginate').empty();
+
+    // Display Previous button
+    if (page > 0) {
+        paginationButtons.append('<a class="paginate_button previous" data-dt-idx="' + (page - 1) + '" tabindex="0">Previous</a>');
+    }
+
+    // Display The First Page button with numerical value
+    paginationButtons.append('<a class="paginate_button first" data-dt-idx="0" tabindex="0">1</a>');
+
+    // Display Current page number
+    paginationButtons.append('<span class="paginate_button current">' + (page + 1) + '</span>');
+
+    // Display The Last Page button with numerical value
+    paginationButtons.append('<a class="paginate_button last" data-dt-idx="' + (pages - 1) + '" tabindex="0">' + pages + '</a>');
+
+    // Display Next button
+    if (page < pages - 1) {
+        paginationButtons.append('<a class="paginate_button next" data-dt-idx="' + (page + 1) + '" tabindex="0">Next</a>');
+    }
+
+    // Handle pagination button click events
+    paginationButtons.find('a.paginate_button').on('click', function() {
+        api.page(parseInt($(this).data('dt-idx'))).draw(false);
+    });
+}
+
 
         });
-    </script>
+    });
+</script>
+
+
+
+
+
     <script>
         function preventLeadingSpace(event) {
             const input = event.target;

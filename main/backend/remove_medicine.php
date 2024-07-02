@@ -47,7 +47,7 @@ if (isset($_POST['selectedRows']) && !empty($_POST['selectedRows'])) {
         
         if ($conn->query($sqlDelete) === TRUE) {
             // Redirect back to the inventory page
-            header("Location: ../inventory.php");
+            header("Location: ../Inventory.php");
             exit();
         } else {
             echo "Error: " . $sqlDelete . "<br>" . $conn->error;

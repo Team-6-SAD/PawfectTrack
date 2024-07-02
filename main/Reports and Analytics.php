@@ -337,7 +337,7 @@ if ($result) {
   </div>
 
 
-  <div class="col-md-12 p-0 m-0  mt-4 card h-100">
+  <div class="col-md-12 p-0 m-0  mt-4 card h-100 "  style="max-height:412px">
   <div class="row mb-4 m-0 p-0 h-100">
     <div class="col-md-5 border-right m-0 p-0 h-100" style="border-width: 2px !important;">
       <div class="card-body bg-main-color-2 text-center mt-4">

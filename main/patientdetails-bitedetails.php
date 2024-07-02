@@ -243,17 +243,19 @@ if(isset($_GET['patientID'])) {
                 </div>
             </div>
             <div class="col-md-5 pt-4 d-flex justify-content-center" style="height: 340px; width:450px;">
-                <?php
-                // Check if $bitePicture is empty
-                if (!isset($bitePicture) || $bitePicture === "uploads/") {
-                    // If empty, set the path to the placeholder image
-                    $placeholderImagePath = "uploads/placeholder.png";
-                } else {
-                    // If not empty, use the value of $bitePicture
-                    $placeholderImagePath = $bitePicture;
-                }
-                ?>
-                <img id="bitePicture" src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
+<?php
+// Check if $bitePicture is not set, is an empty string, or is just the directory path "uploads/"
+if (!isset($bitePicture) || trim($bitePicture) === "" || trim($bitePicture) === "uploads/") {
+    // Set the path to the placeholder image
+    $placeholderImagePath = "uploads/placeholder.png";
+} else {
+    // Use the value of $bitePicture
+    $placeholderImagePath = $bitePicture;
+}
+?>
+<img id="bitePicture" src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
+
+              
             </div>
         </div>
     </div>
@@ -318,10 +320,8 @@ if(isset($_GET['patientID'])) {
 
 <script>
 function loadBiteDetails(selectedDate) {
-    // Get the patient ID from a hidden input or another source in your HTML
     var patientID = '<?php echo $patientID; ?>';
 
-    // Make an AJAX request
     $.ajax({
         url: 'backend/fetch-bite-details.php',
         type: 'GET',
@@ -330,23 +330,23 @@ function loadBiteDetails(selectedDate) {
             patientID: patientID
         },
         success: function(response) {
-            // Parse the JSON response
             var data = JSON.parse(response);
 
-            // Check for an error in the response
             if (data.error) {
                 alert(data.error);
                 return;
             }
 
-            // Update HTML content with response data
             $('#animalType').text(data.AnimalType);
             $('#exposureType').text(data.ExposureType);
             $('#exposureDate').text(data.ExposureDate);
             $('#biteLocation').text(data.BiteLocation);
             $('#exposureMethod').text(data.ExposureMethod);
             $('#dateofTreatment').text(data.DateofTreatment);
-            $('#bitePicture').attr('src', data.BitePicture !== "uploads/" ? data.BitePicture : "uploads/placeholder.png");
+
+            // Update bite picture source
+            var bitePictureSrc = data.BitePicture && data.BitePicture.trim() !== "uploads/" ? data.BitePicture : "uploads/placeholder.png";
+            $('#bitePicture').attr('src', bitePictureSrc);
         },
         error: function(xhr, status, error) {
             console.error(xhr.responseText);

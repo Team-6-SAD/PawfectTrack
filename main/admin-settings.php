@@ -123,7 +123,7 @@ mysqli_close($conn);
     
 // Check if adminPhoto is empty
 ?>
-                    <img src="uploads/<?php if (!empty($adminPhoto)) {echo  $adminPhoto; } else { echo 'placeholder.png';}?>" alt="Admin Photo" class="admin-photo" id="admin-photo">';
+                    <img src="uploads/<?php if (!empty($adminPhoto)) {echo  $adminPhoto; } else { echo 'placeholder.png';}?>" alt="Admin Photo" class="admin-photo" id="admin-photo">
 
         <div class="settings-container ml-4">
             <!-- Label associated with file input -->

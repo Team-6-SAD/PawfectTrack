@@ -212,5 +212,7 @@ for ($i = 0; $i < count($equipmentTypes); $i++) {
 
     // Close database connection
     mysqli_close($conn);
+        session_start();
+    $_SESSION['successPatientModal'] = true;
 }
 ?>

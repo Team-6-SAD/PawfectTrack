@@ -154,6 +154,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
    
 
     </style>
+    
 </head>
 <body>
 <div class="container mb-5">
@@ -203,16 +204,17 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="phone-number">Phone Number<span class="red">*</span></label>
-                                    <input type="tel" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789" maxlength="11">
-                                    <small id="phone-number-error" class="text-danger"></small>
-                                </div>
-                            </div>
+        <div class="form-group">
+            <label for="phone-number">Phone Number<span class="red">*</span></label>
+            <input type="tel" id="phone-number" name="phone-number" class="form-control" placeholder="09123456789" maxlength="11" oninput="formatPhoneNumber(event)">
+
+            <small id="phone-number-error" class="text-danger"></small>
+        </div>
+    </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="email">Email<span class="red">*</span></label>
-                                    <input type="email" id="email" name="email" class="form-control" placeholder="@gmail.com" maxlength="320">
+                                    <input type="text" id="email" name="email" class="form-control" placeholder="@gmail.com" maxlength="320" oninput="preventSpaces(event)">
                                     <small id="email-error" class="text-danger"></small>
                                 </div>
                             </div>
@@ -293,244 +295,287 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
             });
         });
     </script>
-
-     <script>
-         function togglePasswordVisibility(id) {
-            const input = document.getElementById(id);
-            const toggleBtn = input.nextElementSibling;
-            if (input.type === 'password') {
-                input.type = 'text';
-                toggleBtn.textContent = 'HIDE';
-                toggleBtn.style.paddingLeft = '17px'; // Add padding-left
-            } else {
-                input.type = 'password';
-                toggleBtn.textContent = 'SHOW';
-                toggleBtn.style.paddingLeft = '10px'; // Add padding-left
-            }
-        }
-        </script>
-        <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('registrationForm');
-    const submitButton = document.getElementById('submit-button');
-
-    const touchedFields = {
-        'first-name': false,
-        'middle-name': false,
-        'last-name': false,
-        'username': false,
-        'phone-number': false,
-        'email': false,
-        'password': false,
-        'confirmPassword': false
-    };
-
-      // Save form data to sessionStorage on input
-      form.querySelectorAll('input').forEach(function(field) {
-        field.value = sessionStorage.getItem(field.id) || ''; // Load saved value
-
-        field.addEventListener('input', function() {
-            sessionStorage.setItem(field.id, field.value); // Save value
-            touchedFields[field.id] = true;
-            validateField(field);
-            validateForm();
-        });
-    });
-
-    function validateField(field) {
-        const value = field.value.trim();
-        let isValid = true;
-        let errorMessage = '';
-        let successMessage = '';
-
-        switch (field.id) {
-            case 'first-name':
-                if (value === '') {
-                    isValid = false;
-                    errorMessage = 'Please enter your First Name.';
-                }
-                break;
-            case 'last-name':
-                if (value === '') {
-                    isValid = false;
-                    errorMessage = 'Please enter your Last Name.';
-                }
-                break;
-            case 'username':
-                if (value === '') {
-                    isValid = false;
-                    errorMessage = 'Please enter a Username.';
-                } else if (value.length < 8 || value.length > 16) {
-                    isValid = false;
-                    errorMessage = 'Username must be between 8 and 16 characters.';
-                }
-                break;
-            case 'phone-number':
-                if (value === '' || !validatePhoneNumber(value)) {
-                    isValid = false;
-                    errorMessage = 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.';
-                }
-                break;
-            case 'email':
-                if (value === '' || !validateEmail(value)) {
-                    isValid = false;
-                    errorMessage = 'Please enter a valid Email.';
-                }
-                break;
-            case 'password':
-                if (value === '' || !validatePassword(value)) {
-                    isValid = false;
-                    errorMessage = 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).';
-                }
-                break;
-            case 'confirmPassword':
-                const password = document.getElementById('password').value.trim();
-                if (value === '') {
-                    isValid = false;
-                    errorMessage = 'Please confirm your Password.';
-                } else if (value !== password) {
-                    isValid = false;
-                    errorMessage = 'Passwords do not match.';
-                } else {
-                    successMessage = 'Passwords match!';
-                }
-                
-                break;
-        }
-
-        if (!isValid && touchedFields[field.id]) {
-            showError(field, errorMessage);
-        } else if (isValid && touchedFields[field.id]) {
-            removeError(field);
-            if (field.id === 'confirmPassword') {
-                showSuccess(field, successMessage);
-            }
-        }
-
-        return isValid;
-    }
-
-    function validateForm() {
-        let isFormValid = true;
-
-        form.querySelectorAll('input').forEach(function(field) {
-            if (!validateField(field)) {
-                isFormValid = false;
-            }
-        });
-
-        submitButton.disabled = !isFormValid;
-
-        return isFormValid;
-    }
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        for (const field in touchedFields) {
-            touchedFields[field] = true;
-        }
-
-        if (validateForm()) {
-            submitForm();
-        }
-    });
-
-    form.querySelectorAll('input').forEach(function(field) {
-        field.addEventListener('input', function() {
-            touchedFields[field.id] = true;
-            validateField(field);
-            validateForm();
-        });
-    });
-
-    // Validation functions
-    function validateEmail(email) {
-        const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
-        return re.test(email);
-    }
-
-    function validatePhoneNumber(phoneNumber) {
-        const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
-        return re.test(phoneNumber);
-    }
-
-    function validatePassword(password) {
-        const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-        return re.test(password);
-    }
-
-    function showError(input, message) {
-        const errorElement = document.getElementById(input.id + '-error');
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.classList.remove('text-success');
-            errorElement.classList.add('text-danger');
-            input.classList.add('error-border'); // Add error-border class
+<script>
+    function togglePasswordVisibility(id) {
+        const input = $('#' + id);
+        const toggleBtn = input.next();
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            toggleBtn.text('HIDE');
+            toggleBtn.css('padding-left', '17px'); // Add padding-left
+        } else {
+            input.attr('type', 'password');
+            toggleBtn.text('SHOW');
+            toggleBtn.css('padding-left', '10px'); // Add padding-left
         }
     }
-
-    function removeError(input) {
-        input.classList.remove('error-border');
-        const errorElement = document.getElementById(input.id + '-error');
-        if (errorElement) {
-            errorElement.textContent = '';
-        }
-    }
-    function showSuccess(input, message) {
-        const errorElement = document.getElementById(input.id + '-error');
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.classList.remove('text-danger');
-            errorElement.classList.add('text-success'); // Add success class
-        }
-    }
-
-    function submitForm() {
-        const formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(result => {
-            if (result.status === 'success') {
-                sessionStorage.clear();
-                window.location.href = 'Registration Success.php';
-            } else if (result.status === 'error') {
-                const alertMessages = document.getElementById('alertMessages');
-                alertMessages.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                    result.message +
-                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                    '<span aria-hidden="true">&times;</span>' +
-                    '</button>' +
-                    '</div>';
-            }
-        })
-        .catch(error => {
-            console.error('Error submitting form:', error);
-        });
-    }
-});
-
 
     function preventLeadingSpace(event) {
-        const input = event.target;
-        if (input.value.startsWith(' ')) {
-            input.value = input.value.trim(); // Remove leading space
+        const input = $(event.target);
+        if (input.val().startsWith(' ')) {
+            input.val(input.val().trim()); // Remove leading space
         }
         // Replace multiple consecutive spaces with a single space
-        input.value = input.value.replace(/\s{2,}/g, ' ');
+        input.val(input.val().replace(/\s{2,}/g, ' '));
     }
+
     function preventSpaces(event) {
-        const input = event.target;
-        if (input.value.includes(' ')) {
-            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        const input = $(event.target);
+        if (input.val().includes(' ')) {
+            input.val(input.val().replace(/\s/g, '')); // Remove all spaces
         }
     }
 
+    function formatPhoneNumber(event) {
+        const input = event.target;
+        let value = input.value.trim(); // Trim any leading or trailing spaces
+        const prefix = "09";
+
+        // Ensure the value starts with the prefix
+        if (!value.startsWith(prefix)) {
+            value = prefix + value.slice(prefix.length); // Add prefix if not present
+        }
+
+        // Limit to maxlength
+        if (value.length > input.maxLength) {
+            value = value.slice(0, input.maxLength);
+        }
+
+        // Update the input value
+        input.value = value;
+    }
+
+    $(document).ready(function() {
+        const touchedFields = {
+            'first-name': false,
+            'last-name': false,
+            'username': false,
+            'phone-number': false,
+            'email': false,
+            'password': false,
+            'confirmPassword': false
+        };
+
+        function validateField(field) {
+            const value = field.val().trim();
+            let isValid = true;
+            let errorMessage = '';
+            let successMessage = '';
+
+            switch (field.attr('id')) {
+                case 'first-name':
+                    if (value === '') {
+                        isValid = false;
+                        errorMessage = 'Please enter your First Name.';
+                    }
+                    break;
+                case 'last-name':
+                    if (value === '') {
+                        isValid = false;
+                        errorMessage = 'Please enter your Last Name.';
+                    }
+                    break;
+                case 'username':
+                    if (value === '') {
+                        isValid = false;
+                        errorMessage = 'Please enter a Username.';
+                    } else if (value.length < 8 || value.length > 16) {
+                        isValid = false;
+                        errorMessage = 'Username must be between 8 and 16 characters.';
+                    }
+                    break;
+                case 'phone-number':
+                    if (value === '' || !validatePhoneNumber(value)) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.';
+                    }
+                    break;
+                case 'email':
+                    if (value === '' || !validateEmail(value)) {
+                        isValid = false;
+                        errorMessage = 'Please enter a valid Email.';
+                    }
+                    break;
+                case 'password':
+                    if (value === '' || !validatePassword(value)) {
+                        isValid = false;
+                        errorMessage = 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).';
+                    }
+                    break;
+                case 'confirmPassword':
+                    const password = $('#password').val().trim();
+                    if (value === '') {
+                        isValid = false;
+                        errorMessage = 'Please confirm your Password.';
+                    } else if (value !== password) {
+                        isValid = false;
+                        errorMessage = 'Passwords do not match.';
+                    } else {
+                        successMessage = 'Passwords match!';
+                    }
+                    break;
+            }
+
+            if (!isValid && touchedFields[field.attr('id')]) {
+                showError(field, errorMessage);
+            } else if (isValid && touchedFields[field.attr('id')]) {
+                removeError(field);
+                if (field.attr('id') === 'confirmPassword') {
+                    showSuccess(field, successMessage);
+                }
+            }
+
+            return isValid;
+        }
+
+        function validateForm() {
+            let isFormValid = true;
+
+            $('input').each(function() {
+                if (!validateField($(this))) {
+                    isFormValid = false;
+                }
+            });
+
+            $('#submit-button').prop('disabled', !isFormValid);
+
+            return isFormValid;
+        }
+
+        $('input').each(function() {
+            const field = $(this);
+            const fieldId = field.attr('id');
+
+            field.val(sessionStorage.getItem(fieldId) || ''); // Load saved value
+
+            field.on('blur', function() {
+                touchedFields[fieldId] = true;
+                validateField(field);
+                validateForm();
+            });
+
+            field.on('input', function(event) {
+                sessionStorage.setItem(fieldId, field.val()); // Save value
+
+                // Immediate validation for correct format (e.g., phone number)
+                if (fieldId === 'phone-number') {
+                    formatPhoneNumber(event);
+                }
+
+                // Remove error messages immediately if field value is valid
+                if (validateField(field) && touchedFields[fieldId]) {
+                    removeError(field);
+                }
+
+                validateForm();
+            });
+        });
+
+        $('#registrationForm').on('submit', function(event) {
+            event.preventDefault();
+
+            // Mark all fields as touched for final validation
+            for (const field in touchedFields) {
+                touchedFields[field] = true;
+            }
+
+            if (validateForm()) {
+                submitForm();
+            }
+        });
+
+        function validateEmail(email) {
+            const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
+            return re.test(email);
+        }
+
+        function validatePhoneNumber(phoneNumber) {
+            const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
+            return re.test(phoneNumber);
+        }
+
+        function validatePassword(password) {
+            const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+            return re.test(password);
+        }
+
+        function showError(input, message) {
+            const errorElement = $('#' + input.attr('id') + '-error');
+            errorElement.text(message);
+            errorElement.removeClass('text-success').addClass('text-danger');
+            input.addClass('error-border');
+        }
+
+        function removeError(input) {
+            input.removeClass('error-border');
+            const errorElement = $('#' + input.attr('id') + '-error');
+            errorElement.text('');
+        }
+
+        function showSuccess(input, message) {
+            const errorElement = $('#' + input.attr('id') + '-error');
+            errorElement.text(message);
+            errorElement.removeClass('text-danger').addClass('text-success');
+        }
+
+        function submitForm() {
+            const formData = new FormData($('#registrationForm')[0]);
+
+            $.ajax({
+                url: $('#registrationForm').attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+              success: function(result) {
+    console.log('Form submitted successfully:', result); // Debug log
+
+    // Parse result as JSON
+    try {
+        result = JSON.parse(result);
+    } catch (e) {
+        console.error('Error parsing JSON:', e);
+        return;
+    }
+
+    // Continue with handling the parsed result
+    if (result.status === 'success') {
+        console.log('Redirecting to Registration Success.php');
+        sessionStorage.clear();
+        window.location.href = 'Registration Success.php';
+    } else if (result.status === 'error') {
+        console.log('Server returned an error:', result.message); // Log the error message
+        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+            result.message +
+            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+            '<span aria-hidden="true">&times;</span>' +
+            '</button>' +
+            '</div>');
+    } else {
+        console.log('Unexpected server response:', result); // Log unexpected response
+    }
+},
+
+error: function(error) {
+    console.error('Error submitting form:', error);
+}
+
+            });
+        }
+
+        // Bind togglePasswordVisibility function to click events
+        $('.toggle-password').on('click', function() {
+            const id = $(this).prev().attr('id');
+            togglePasswordVisibility(id);
+        });
+
+        // Bind preventLeadingSpace and preventSpaces to relevant inputs
+        $('.no-leading-space').on('input', preventLeadingSpace);
+        $('.no-spaces').on('input', preventSpaces);
+
+    });
 </script>
+
 
 
 

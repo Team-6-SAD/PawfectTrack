@@ -103,7 +103,7 @@ $sql = "SELECT
             DATE_FORMAT(mu.UsageDate, '%Y-%m') AS Month,
             SUM(mu.Quantity) AS TotalQuantity
         FROM 
-            MedicineUsage mu
+            medicineusage mu
         GROUP BY 
             DATE_FORMAT(mu.UsageDate, '%Y-%m')
         ORDER BY 

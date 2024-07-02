@@ -29,24 +29,38 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now fetch one appointment per patient
-    $sql = "SELECT 
-                p.PatientID, 
-                CONCAT(p.FirstName, ' ', p.LastName) AS FullName, 
-                ai.SessionDays AS CurrentSession, 
-                ai.AppointmentDate, 
-                bd.ExposureType
-            FROM 
-                patient p
-            INNER JOIN 
-                appointmentinformation ai ON p.PatientID = ai.PatientID
-            INNER JOIN 
-                bitedetails bd ON ai.PatientID = bd.PatientID
-                WHERE 
-            p.ActiveStatus = 'Inactive' 
-            GROUP BY 
-                p.PatientID
-            ORDER BY 
-                ai.AppointmentDate ASC"; // Fetch the nearest appointment first
+   $sql = "
+    SELECT
+        p.PatientID,
+        CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
+        MAX(ai.SessionDays) AS CurrentSession,
+        MAX(ai.AppointmentDate) AS AppointmentDate,
+        MAX(ai.Status) AS Status,
+        MAX(bd.ExposureType) AS ExposureType
+    FROM
+        patient p
+    LEFT JOIN
+        treatment t ON p.PatientID = t.PatientID
+    LEFT JOIN
+        (
+            SELECT
+                ai1.PatientID,
+                ai1.SessionDays,
+                ai1.AppointmentDate,
+                ai1.Status,
+                ai1.TreatmentID
+            FROM
+                appointmentinformation ai1
+        ) ai ON t.TreatmentID = ai.TreatmentID
+    LEFT JOIN
+        bitedetails bd ON bd.PatientID = p.PatientID
+    WHERE
+        p.ActiveStatus = 'Inactive'
+    GROUP BY
+        p.PatientID, p.FirstName, p.LastName  -- Group by all non-aggregated columns in SELECT
+    ORDER BY
+        MAX(ai.AppointmentDate) ASC; -- Ensure the earliest pending appointment date is selected
+";
 
     $patients_result = mysqli_query($conn, $sql);
 } else {
@@ -203,7 +217,7 @@ if (mysqli_num_rows($patients_result) > 0) {
       </div>
       <div class="modal-body">
 <div class="justify-content-center d-flex">
-<img src="img/img-alerts/caution-mark.png">
+<img src="img/img-alerts/caution-mark.png" style="height:60px; width:auto;">
 </div>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>RESTORE</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>RECORDS</b></h2>
@@ -212,8 +226,8 @@ if (mysqli_num_rows($patients_result) > 0) {
 <small style="letter-spacing: -1px; color:#5e6e82;">the selected record/s?<br></small>
 </div>
 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-<button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-<button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Restore</b></button>
+<button type="button" style="background-color: none; border:none;" class="btn px-3 mr-4 py-2" data-dismiss="modal">Cancel</button>
+<button type="button" style="background-color: #1dd1a1; border:none; border-radius:27.5px !important;" class="btn btn-success px-3 py-2 font-weight-bold" onclick="deleteSelectedRows()">Restore</button>
 </div>
 </div>  
 </div>

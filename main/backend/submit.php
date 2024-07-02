@@ -20,14 +20,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (in_array($imageFileType, $allowedExtensions)) {
             // Move the uploaded file to the target directory
             if (move_uploaded_file($_FILES["uploadImage"]["tmp_name"], $targetFile)) {
-                echo "The file " . basename($_FILES["uploadImage"]["name"]) . " has been uploaded.";
                 $uploadSuccess = true;
                 $bitePicture = $webFile;
+              
             } else {
                 echo "Sorry, there was an error uploading your file.";
             }
         } else {
-            echo "Sorry, only JPG, JPEG, PNG files are allowed.";
+echo json_encode(array('status' => 'error', 'message' => 'Sorry, only JPG, JPEG, PNG files are allowed.'));
+            exit();
         }
     }
 
@@ -274,5 +275,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Close database connection
     mysqli_close($conn);
+   echo json_encode(array('status' => 'success', 'message' => 'Form submitted successfully.'));
+      session_start();
+    $_SESSION['successPatientModal'] = true;
+  
 }
 ?>

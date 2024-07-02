@@ -204,7 +204,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 <body>
 
 <div class="container-fluid">
- <div id="preloader"></div> 
+
     <div class="main-container">
         <!-- Header and Sidebar -->
         <?php include 'includes/admin_header.php'; ?>
@@ -222,11 +222,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <div class="row">
                 <div class="col-md-9 p-0 m-0">
                 <p class="h4 font-weight-bold main-color"> REPORTS & ANALYTICS </p>
-                <small> Reports and Analytics tools provide you with critical insights into your clinic’s  <br></small>
+                <small style="line-height: 0.5;" > Reports and Analytics tools provide you with critical insights into your clinic’s  <br></small>
                 <small> treatment counts, medicine usage, distribution patterns, and predictive analytics.  </small>
                 </div>
                 <div class="col-md-3 d-flex align-items-center text-right justify-content-end">
-                <img src="img/img-dashboard/Analytics.png" style="height:100px; width:auto;">
+                <img src="img/img-dashboard/Analytics GIF.gif" style="height:90px; width:auto;">
                 </div>
                 </div>
               </div>
@@ -249,13 +249,13 @@ while ($row = mysqli_fetch_assoc($result)) {
       <div class="card mx-auto table-card">
         <div class="card-body p-0">
           <div class="row">
-            <?php
-// Execute the Python script and capture the JSON output
-$python_interpreter = 'backend\machinelearning\.venv\Scripts\python.exe';
-$python_script1 = 'backend\machinelearning\linear-regression.py';
-$command1 = escapeshellcmd("$python_interpreter $python_script1");
-$output = shell_exec($command1);
+<?php
+// Define the path to the Python script
+$scriptPath = escapeshellarg('backend/machinelearning/linear-regression.py');
 
+// Execute the Python script and capture the JSON output
+$command = "python3 $scriptPath 2>&1";
+$output = shell_exec($command);
 
 // Find the start and end positions of the JSON object within the output
 $start_pos = strpos($output, '{');
@@ -270,22 +270,21 @@ if ($start_pos !== false && $end_pos !== false) {
 
     // Check if JSON parsing was successful
     if ($parsed_data !== null) {
-
         // Display the daily predicted medicine usage
         echo '<div class="col-sm-12 col-lg-6 col-xl-6 text-left py-4 px-5">';
         echo '<div class="col-md-12 d-flex justify-content-between mb-3">
-        <div>
-          <span class="gray">Predicted Medicine Usage</span>
-        </div>
-        <div>
-          <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: rgba(16, 172, 132, 0.52); color:#005C44; font-size:14px;">Daily</span>
-        </div>
-      </div>
-    ';
-        echo '<table class="table table-bordered" style="width: 100%;">'; // Ensure table takes full width
+                <div>
+                  <span class="gray">Predicted Medicine Usage</span>
+                </div>
+                <div>
+                  <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: rgba(16, 172, 132, 0.52); color:#005C44; font-size:14px;">Daily</span>
+                </div>
+              </div>
+        ';
+        echo '<table class="table table-bordered" style="width: 100%;">';
         echo '<colgroup>';
-        echo '<col style="width: 100px;">'; // Adjust width as needed
-        echo '<col style="width: 100px;">'; // Adjust width as needed
+        echo '<col style="width: 100px;">';
+        echo '<col style="width: 100px;">';
         echo '</colgroup>';
         echo '<thead>';
         echo '<tr>';
@@ -294,20 +293,18 @@ if ($start_pos !== false && $end_pos !== false) {
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
-        
+
         foreach ($parsed_data['daily'] as $medicineName => $quantity) {
             echo '<tr>';
-            echo '<td class="text-left gray">' . $medicineName . '</td>';
-            echo '<td class="text-center gray">' . $quantity . '</td>';
-            
+            echo '<td class="text-left gray">' . htmlspecialchars($medicineName, ENT_QUOTES, 'UTF-8') . '</td>';
+            echo '<td class="text-center gray">' . htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') . '</td>';
             echo '</tr>';
         }
-        
+
         echo '</tbody>';
         echo '</table>';
         echo '</div>';
-                
-        
+
         // Display the weekly predicted medicine usage
         echo '<div class="col-sm-12 col-lg-6 text-left border-left py-4 px-5" style="border-color:#5e6e82 !important;">';
         echo '<div class="col-md-12 d-flex justify-content-between mb-3">
@@ -319,10 +316,10 @@ if ($start_pos !== false && $end_pos !== false) {
                 </div>
               </div>
             ';
-        echo '<table class="table table-bordered" style="width: 100%;">'; // Ensure table takes full width
+        echo '<table class="table table-bordered" style="width: 100%;">';
         echo '<colgroup>';
-        echo '<col style="width: 100px;">'; // Adjust width as needed
-        echo '<col style="width: 100px;">'; // Adjust width as needed
+        echo '<col style="width: 100px;">';
+        echo '<col style="width: 100px;">';
         echo '</colgroup>';
         echo '<thead>';
         echo '<tr>';
@@ -331,16 +328,16 @@ if ($start_pos !== false && $end_pos !== false) {
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
+
         foreach ($parsed_data['weekly'] as $medicineName => $quantity) {
             echo '<tr>';
-            echo '<td class="text-left gray">' . $medicineName . '</td>';
-            echo '<td class="text-center gray">' . $quantity . '</td>';
-            
+            echo '<td class="text-left gray">' . htmlspecialchars($medicineName, ENT_QUOTES, 'UTF-8') . '</td>';
+            echo '<td class="text-center gray">' . htmlspecialchars($quantity, ENT_QUOTES, 'UTF-8') . '</td>';
             echo '</tr>';
         }
+
         echo '</tbody>';
         echo '</table>';
-        echo '</div>';
         echo '</div>';
     } else {
         // JSON parsing failed
@@ -349,9 +346,10 @@ if ($start_pos !== false && $end_pos !== false) {
         echo "JSON parsing failed! Error code: $error_code, Error message: $error_message";
     }
 } else {
-    echo '<div class="py-5"> JSON object not found in the output! </div>';
+    echo '<div class="py-5">JSON object not found in the output!</div>';
 }
 ?>
+ </div>
  </div>
  
 </div>
@@ -382,80 +380,82 @@ if ($start_pos !== false && $end_pos !== false) {
     </div>
 
     <div class="col-md-4 mt-0 justify-content-between d-flex flex-column pr-3">
-    <?php
-// Execute the Python script and capture the JSON output
-$python_interpreter = 'backend\machinelearning\.venv\Scripts\python.exe';
-$python_script = 'backend\machinelearning\linear-regression-patient.py';
-$command = escapeshellcmd("$python_interpreter $python_script");
-$output = shell_exec($command);
+  <?php
+
+$scriptPath1 = escapeshellarg('backend/machinelearning/linear-regression-patient.py');
+
+// Execute the Python script and capture the output
+$command1 = "python3 $scriptPath1 2>&1";
+$output1 = shell_exec($command1);
+
+// Attempt to extract JSON from the output (assuming it's the last line)
+$output_lines = explode("\n", trim($output1));
+$json_output = end($output_lines);
 
 // Decode the JSON data
-$parsed_data = json_decode($output, true);
-
+$parsed_data = json_decode($json_output, true);
 // Check if JSON decoding was successful
 if ($parsed_data !== null) {
     // Display the daily predicted patient count
     $daily_prediction = number_format($parsed_data["next_day_prediction"]);
-    echo '  
-            <div class="card">
-                <div class="card-body">
-    <div class="row">
-              <div class="col-md-12 d-flex justify-content-between">
-                <div>
-                  <span class="gray">Patient Count</span>
+    echo '
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <div>
+                        <span class="gray">Patient Count</span>
+                    </div>
+                    <div>
+                        <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: rgba(16, 172, 132, 0.52); color:#005C44; font-size:14px;">Daily</span>
+                    </div>
                 </div>
-                <div>
-                  <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: rgba(16, 172, 132, 0.52); color:#005C44; font-size:14px;">Daily</span>
-                </div>
-              </div>
             </div>
             <div class="row pl-3">
-              <div class="col-md-9 mb-0 pl-0 d-flex align-items-center py-2">
-                <img src="img/img-dashboard/green-pt-badge.png" height="55px" class="mr-2">
-                <h1 class="mr-3" style="color:#005c44; font-size: 3rem; margin-bottom: -10px;">
-                  <b>' . $daily_prediction . ' </b>
-                </h1>
-              </div>
-              <small class="font-weight-normal gray" style="font-size:x-small;">It is predicted that ' . $daily_prediction . ' patients will visit the clinic each day.</small>
+                <div class="col-md-9 mb-0 pl-0 d-flex align-items-center py-2">
+                    <img src="img/img-dashboard/green-pt-badge.png" height="55px" class="mr-2">
+                    <h1 class="mr-3" style="color:#005c44; font-size: 3rem; margin-bottom: -10px;">
+                        <b>' . $daily_prediction . ' </b>
+                    </h1>
+                </div>
+                <small class="font-weight-normal gray" style="font-size:x-small;">It is predicted that ' . $daily_prediction . ' patients will visit the clinic each day.</small>
             </div>
-          </div>
         </div>
+    </div>';
 
+    $weekly_prediction = number_format($parsed_data["weekly_prediction"]);
 
-        ';
-
-        $weekly_prediction = number_format($parsed_data["weekly_prediction"]);
-        
-    echo ' 
-    
-              <div class="card">
-                <div class="card-body">
-    <div class="row">
-              <div class="col-md-12 d-flex justify-content-between">
-                <div>
-                  <span class="gray">Patient Count</span>
+    echo '
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 d-flex justify-content-between">
+                    <div>
+                        <span class="gray">Patient Count</span>
+                    </div>
+                    <div>
+                        <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: #DCE8F9; color:#0449a6; font-size:14px;">Weekly</span>
+                    </div>
                 </div>
-                <div>
-                  <span class="badge badge-pill badge-info py-1 px-2 font-weight-normal" style="background-color: #DCE8F9; color:#0449a6; font-size:14px;">Weekly</span>
-                </div>
-              </div>
             </div>
             <div class="row pl-3">
-              <div class="col-md-9 mb-0 pl-0 d-flex align-items-center py-2">
-                <img src="img/img-dashboard/blue-pt-badge.png" height="55px" class="mr-2">
-                <h1 class="main-font-color mr-3" style="font-size: 3rem; margin-bottom: -10px;">
-                  <b>' . $weekly_prediction . '</b>
-                </h1>
-              </div>
-              <small class="font-weight-normal gray" style="font-size:x-small;">It is predicted that ' . $weekly_prediction . ' patients will visit the clinic each week.</small>
+                <div class="col-md-9 mb-0 pl-0 d-flex align-items-center py-2">
+                    <img src="img/img-dashboard/blue-pt-badge.png" height="55px" class="mr-2">
+                    <h1 class="main-font-color mr-3" style="font-size: 3rem; margin-bottom: -10px;">
+                        <b>' . $weekly_prediction . '</b>
+                    </h1>
+                </div>
+                <small class="font-weight-normal gray" style="font-size:x-small;">It is predicted that ' . $weekly_prediction . ' patients will visit the clinic each week.</small>
             </div>
-          </div>
-        </div>';
+        </div>
+    </div>';
 } else {
     // JSON parsing failed
     echo "Failed to parse JSON data!";
 }
+
 ?>
+
      </div>
                         
     </div>

@@ -74,9 +74,9 @@ if (isset($_GET['patientID'])) {
 
   if ($row = mysqli_fetch_assoc($result)) {
       // Store patient details in variables
-      $lastName = $row['LastName'];
-      $firstName = $row['FirstName'];
-      $middleName = $row['MiddleName'];
+      $lastName1 = $row['LastName'];
+      $firstName1 = $row['FirstName'];
+      $middleName1 = $row['MiddleName'];
       $age = $row['Age'];
       $birthDate = $row['BirthDate'];
       $weight = $row['Weight'];
@@ -87,7 +87,7 @@ if (isset($_GET['patientID'])) {
       $city = $row['City'];
       $address = $row['Address'];
       $emergencyContactName = $row['EmergencyContactName'];
-      $emergencyContactRelationship = $row['EmergencyContactRelationship'];
+      $EmergencyContactRelationship = $row['EmergencyContactRelationship'];
       $emergencyContactNumber = $row['EmergencyContactNumber'];
   } else {
       echo "No patient found with the given ID.";
@@ -197,15 +197,15 @@ if (isset($_GET['patientID'])) {
     <input type="hidden" name="patientID" value="<?php echo $patientID; ?>">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="fName">First Name<span class="red">*</span></label>
-        <input type="text" id="fName" name="fName" placeholder="First Name" value="<?php echo $firstName; ?>" class="form-control" oninput="preventLeadingSpace(event)" readonly>
+        <input type="text" id="fName" name="fName" placeholder="First Name" value="<?php echo $firstName1; ?>" class="form-control" oninput="preventLeadingSpace(event)" readonly>
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="mName">Middle Name</label>
-        <input type="text" id="mName" name="mName" placeholder="Middle Name" value="<?php echo $middleName; ?> "class="form-control" oninput="preventLeadingSpace(event)"readonly >
+        <input type="text" id="mName" name="mName" placeholder="Middle Name" value="<?php echo $middleName1; ?> "class="form-control" oninput="preventLeadingSpace(event)"readonly >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="lName">Last Name<span class="red">*</span></label>
-        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" value="<?php echo $lastName; ?>" oninput="preventLeadingSpace(event)" readonly>
+        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" value="<?php echo $lastName1; ?>" oninput="preventLeadingSpace(event)" readonly>
       </div>
     </div>
     <div class="row justify-content-center px-3">
@@ -271,7 +271,7 @@ if (isset($_GET['patientID'])) {
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="relationship">Relationship<span class="red">*</span></label>
-        <input type="text" id="relationship" name="relationship" placeholder="Relationship" class="form-control" value="<?php echo $emergencyContactRelationship; ?>"   oninput="preventLeadingSpace(event)" readonly >
+        <input type="text" id="relationship" name="relationship" placeholder="Relationship" class="form-control" value="<?php echo $EmergencyContactRelationship; ?>"   oninput="preventLeadingSpace(event)" readonly >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
                                 <label for="emergencyPhoneNumber">Phone Number<span class="red">*</span></label>

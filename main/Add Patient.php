@@ -200,7 +200,7 @@ $provincesAndCities = array(
         <div class="col-md-11"> 
             <div class="card" style="background-color: #f5f5f5;">
                 <div class="card-header card-header-patient-form text-center">
-                    <h3> <b>ADD PATIENT</b> <h3>
+                    <h3> <b>ADD PATIENT RECORD</b> <h3>
                 </div>
                 <div class="card-body px-5">
                 <div class="form-container">
@@ -260,23 +260,26 @@ $provincesAndCities = array(
     <div class="row justify-content-center px-3">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="birthDate">Birth Date<span class="red">*</span></label>
-        <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required max="<?php echo date('Y-m-d', strtotime('-1 year -1 day')); ?>" onkeydown="return false" onchange="calculateAge()">
+       <input type="date" id="birthDate" name="birthDate" placeholder="Birth Date" class="form-control" required 
+       min="<?php echo date('Y-m-d', strtotime('-124 years')); ?>"
+       max="<?php echo date('Y-m-d', strtotime('-1 year -1 day')); ?>"
+       onkeydown="return false"
+       onchange="calculateAge(); setMinExposureDate();">
 
 
       </div>
   
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="age">Age<span class="red">*</span></label>
-        <input type="tel" id="age" name="age" placeholder="Age" class="form-control"required readonly>
+        <input type="tel" id="age" name="age" placeholder="Age" class="form-control" readonly>
       </div>
    
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="sex">Sex<span class="red">*</span></label>
         <select id="sex" name="sex" class="form-control" required >
-          <option value="">Select Sex</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="other">Other</option>
+          <option value="" disabled selected>Select Sex</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
         </select>
       </div>
     </div>
@@ -301,7 +304,7 @@ $provincesAndCities = array(
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="province">Province<span class="red">*</span></label>
       <select id="provinceSelect" name="province" class="form-control" required >
-    <option value="">Select Province</option>
+    <option value="" disabled selected>Select Province</option>
     <?php foreach ($provincesAndCities as $province => $cities): ?>
         <option value="<?php echo $province; ?>"><?php echo $province; ?></option>
     <?php endforeach; ?>
@@ -310,7 +313,7 @@ $provincesAndCities = array(
       <div class="col-lg-4 form-group px-4 mb-3">
       <label for="city">City<span class="red">*</span></label>
       <select id="citySelect" name="city" class="form-control" required >
-    <option value="">Select City</option>
+    <option value="" disabled selected>Select City</option>
 </select>
 
       </div>
@@ -327,12 +330,11 @@ $provincesAndCities = array(
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="relationship">Relationship<span class="red">*</span></label>
         <select id="emergencyContactRelationship" name="emergency_contact_relationship" class="form-control" required >
-    <option value="">Select Relationship</option>
+    <option value="" disabled selected>Select Relationship</option>
     <option value="Spouse">Spouse</option>
     <option value="Parent">Parent</option>
     <option value="Child">Child</option>
     <option value="Sibling">Sibling</option>
-    <option value="Other Family Member">Other Family Member </option>
     <option value="Friend">Friend</option>
     <option value="Colleague">Colleague</option>
     <option value="Neighbor">Neighbor</option>
@@ -340,8 +342,6 @@ $provincesAndCities = array(
     <option value="Legal Representative">Legal Representative</option>
     <option value="Partner">Partner</option>
     <option value="Caretaker">Caretaker</option>
-    <option value="Doctor">Doctor</option>
-    <option value="Other">Other</option>
 </select>
 
       </div>
@@ -355,7 +355,7 @@ $provincesAndCities = array(
                             
                             </div>
     <div class="row justify-content-center">
-    <button type="button" class="btn-customized" onclick="nextStep(1)">Next</button>
+    <button type="button" class="btn-customized" onclick="nextStep(1)" style="border-radius: 27.5px !important;">Next</button>
 </div>
   </div>
   </div>
@@ -365,12 +365,12 @@ $provincesAndCities = array(
     <div class="row justify-content-center mt-3">
         <div class="col-lg-5 form-group mx-auto p-0">
             <label for="exposureDate">Date of Exposure</label>
-            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" max="<?php echo date('Y-m-d'); ?>" >
+            <input type="date" id="exposureDate" name="exposureDate" class="form-control" placeholder="Date of Exposure" onkeydown="return false" max="<?php echo date('Y-m-d'); ?>" >
         </div>
         <div class="col-lg-5 form-group  mx-auto p-0">
             <label for="exposureBy">Exposure by</label>
             <select id="exposureBy" name="exposureBy" class="form-control" >
-    <option value="">Select Option</option>
+    <option value="" disabled selected>Select Option</option>
     <option value="Bite">Bite</option>
     <option value="Scratch">Scratch</option>
     <option value="Saliva Contact with Open Wound">Saliva Contact with Open Wound</option>
@@ -383,7 +383,7 @@ $provincesAndCities = array(
     <div class="col-lg-3 form-group mx-auto mb-0 p-0">
     <label for="exposureType">Type of Exposure</label>
 <select id="exposureType" name="exposureType" class="form-control" >
-    <option value="">Select Type of Exposure</option>
+    <option value="" disabled selected>Select Type of Exposure</option>
     <option value="Category I">Category I</option>
     <option value="Category II">Category II</option>
     <option value="Category III">Category III</option>
@@ -409,7 +409,7 @@ $provincesAndCities = array(
         </div>
         <div class="row mt-0 mx-auto justify-content-center">
     <button type="button" class="prev mr-5 btn btn-outline-custom" onclick="prevStep(2)">Previous</button>
-    <button type="button" onclick="nextStep(2)" class="btn-customized">Next</button>
+    <button type="button" onclick="nextStep(2)" style="border-radius: 27.5px !important;" class="btn-customized">Next</button>
     </div>
 </div>
 <div class="step" id="step3">
@@ -420,9 +420,9 @@ $provincesAndCities = array(
     <div class="row justify-content-center align-items-end mx-auto pt-4 pb-0 mb-3 medicine-item">
 
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="medicineType">Type of Medicine</label>
+            <label for="medicineType">Type of Medicine<span class="red">*</span></label>
             <select name="medicineType[]" class="form-control medicineType" required>
-                <option value="">Select Type of Medicine</option>
+                <option value="" disabled selected>Select Type of Medicine</option>
                 <?php
                 // Assuming you have a connection to your database
                 // Fetch data from the "medicine" table
@@ -438,8 +438,9 @@ $provincesAndCities = array(
         </div>
 
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="medicineGiven">Medicine Given</label>
+            <label for="medicineGiven">Medicine Given<span class="red">*</span></label>
             <select name="medicineGiven[]" class="form-control medicineGiven" required>
+               <option value="" disabled selected>Select Brand</option>
             </select>
             <span class="total-quantity" style="color: gray; position: absolute;
     top: 20;
@@ -447,18 +448,18 @@ $provincesAndCities = array(
         </div>
 
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="dosageQuantity">Dosage</label>
+            <label for="dosageQuantity">Dosage<span class="red">*</span></label>
             <input type="number" name="dosageQuantity[]" class="form-control" placeholder="mL" required>
         </div>
         
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
-    <label for="route">Route</label>
+    <label for="route">Route<span class="red">*</span></label>
     <input type="text" name="route[]" placeholder="Route" class="form-control route" readonly>
 </div>
 
         
         <div class="col-lg-1 form-group mx-auto p-0 mb-0 pb-0">
-            <label for="quantity">Quantity</label>
+            <label for="quantity">Quantity<span class="red">*</span></label>
             <input type="number" name="quantity[]" class="form-control" placeholder="vl" required>
         </div>
         
@@ -475,9 +476,9 @@ $provincesAndCities = array(
     <!-- Initial equipment item row -->
     <div class="row mx-auto justify-content-center align-items-end mt-3 equipment-item">
     <div class="col-lg-7 form-group mx-auto mb-0 pb-0 pl-0 mr-3">
-        <label for="equipmentType">Type of Equipment</label>
+        <label for="equipmentType">Type of Equipment<span class="red">*</span></label>
         <select name="equipmentType[]" class="form-control equipmentType" required>
-            <option value="">Select Type of Equipment</option>
+            <option value="" disabled selected>Select Type of Equipment</option>
             <?php
             // Assuming you have a connection to your database
             // Fetch data from the "equipment" table
@@ -492,8 +493,8 @@ $provincesAndCities = array(
         </select>
     </div>
     <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-        <label for="equipmentAmount">Equipment Amount</label>
-        <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Amount(pcs)" required>
+        <label for="equipmentAmount">Equipment Quantity<span class="red">*</span></label>
+        <input type="number" name="equipmentAmount[]" class="form-control equipmentAmount" placeholder="Equipment Quantity(pcs)" required>
         <div class="invalid-feedback"></div>
     </div>
     <div class="col-lg-1 mx-auto form-group mb-0 pb-0 mt-auto">
@@ -512,18 +513,18 @@ $provincesAndCities = array(
 
     <div class="row justify-content-center mx-auto pt-4 pb-0 mb-0">
     <div class="col-lg-4 form-group mx-auto p-0 mb-0 pb-0">
-    <label for="treatmentCategory">Treatment Category</label>
+    <label for="treatmentCategory">Treatment Category<span class="red">*</span></label>
     <select id="treatmentCategory" name="treatmentCategory" class="form-control" required>
-        <option value="">Select Treatment Category</option>
-        <option value="pre-exposure">Pre Exposure</option>
-        <option value="post-exposure">Post Exposure</option>
+        <option value="" disabled selected>Select Treatment Category</option>
+        <option value="Pre-exposure">Pre Exposure</option>
+        <option value="Post-exposure">Post Exposure</option>
     </select>
 </div>
 
         <div class="col-lg-4 form-group mx-auto p-0 mb-0 pb-0">
-    <label for="sessions">Sessions</label>
+    <label for="sessions">Sessions<span class="red">*</span></label>
     <select id="sessions" name="sessions" class="form-control" required>
-    <option value="">Select Session</option>
+    <option value="" disabled selected>Select Session</option>
         <option value="1">1</option>
         <option value="2">2</option>
         <option value="3">3</option>
@@ -533,7 +534,7 @@ $provincesAndCities = array(
 </div>
 
         <div class="col-lg-3 form-group mx-auto p-0 mb-0 pb-0">
-    <label for="treatmentDate">Date of Treatment</label>
+    <label for="treatmentDate">Date of Treatment<span class="red">*</span></label>
     <input type="date" id="treatmentDate" name="treatmentDate" value="<?php echo date('Y-m-d'); ?>" placeholder="Date of Treatment" class="form-control" required readonly>
 </div>
 
@@ -548,8 +549,8 @@ $provincesAndCities = array(
 
     
     <div class="row justify-content-center mt-5">
-        <button type="button" class="prev mr-5 btn btn-outline-custom" onclick="prevStep(3)">Previous</button>
-        <button type="button" class="btn-customized" id="submit-button">Submit</button>
+        <button type="button" class="prev mr-5 btn btn-outline-custom" style="border-radius: 27.5px !important;" onclick="prevStep(3)">Previous</button>
+        <button type="button" class="btn-customized" style="border-radius: 27.5px !important;"  id="submit-button">Submit</button>
     </div>
 </div>
 </div>
@@ -561,6 +562,33 @@ $provincesAndCities = array(
 </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title p-3"></h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body justify-content-center align-items-center d-flex" style="flex-direction:column;">
+									<img src="img/img-alerts/caution-mark.png" style="height:50px; width:50px;">
+                                                                  <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>INVALID IMAGE</b></h2>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>FORMAT</b></h2>
+                                <div class="text-center">
+                                    <small style="letter-spacing: -1px; color:#5e6e82;">Only JPG, JPEG, and PNG can be accepted.<br></small>
+
+                                </div>
+                               
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
 
@@ -586,6 +614,27 @@ $provincesAndCities = array(
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <script src="js/notifications.js">
+  <script>
+
+function setMinExposureDate() {
+    // Get the value of the birth date
+    const birthDate = document.getElementById('birthDate').value;
+
+    if (birthDate) {
+        // Calculate 90 days after the birth date
+        const minExposureDate = new Date(birthDate);
+        minExposureDate.setDate(minExposureDate.getDate() + 90);
+
+        // Format minExposureDate to 'YYYY-MM-DD' for setting min attribute
+        const formattedMinExposureDate = minExposureDate.toISOString().split('T')[0];
+
+        // Set the min attribute of the exposureDate input to formattedMinExposureDate
+        document.getElementById('exposureDate').min = formattedMinExposureDate;
+    }
+}
+
+    </script>
   <script>
   document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
     event.preventDefault(); // Prevent the default action of the mousedown event
@@ -923,33 +972,7 @@ function validateStep3Fields() {
 }
 
 $(document).ready(function () {
-  function saveFormData() {
-        const formData = {};
-        $('#multi-step-form').find('input, select, textarea').each(function () {
-            formData[$(this).attr('name')] = $(this).val();
-        });
-        sessionStorage.setItem('formData', JSON.stringify(formData));
-    }
 
-    // Function to load form data from sessionStorage
-    function loadFormData() {
-        const formData = JSON.parse(sessionStorage.getItem('formData'));
-        if (formData) {
-            $('#multi-step-form').find('input, select, textarea').each(function () {
-                if (formData[$(this).attr('name')]) {
-                    $(this).val(formData[$(this).attr('name')]);
-                }
-            });
-        }
-    }
-
-    // Save form data on input change
-    $('#multi-step-form').on('input change', 'input, select, textarea', function () {
-        saveFormData();
-    });
-
-    // Load form data on page load
-    loadFormData();
     // Function to fetch brands and quantity based on selected medicine type
     function fetchBrandsAndQuantity(medicineTypeDropdown, medicineGivenDropdown, totalQuantityContainer) {
         const medicineId = medicineTypeDropdown.val();
@@ -961,7 +984,14 @@ $(document).ready(function () {
             data: { medicineType: medicineId },
             dataType: 'json',
             success: function (response) {
-                medicineGivenDropdown.empty().append('<option value="">Select Brand</option>');
+                        medicineGivenDropdown.empty();
+
+        // Create the default option
+        const defaultOption = $('<option>', {
+            value: '',
+            text: 'Select Brand'
+        }).prop('disabled', true).prop('selected', true);
+              medicineGivenDropdown.append(defaultOption);
                 $.each(response, function (index, value) {
                     if (!medicineGivenDropdown.find(`option[value="${value.MedicineBrandID}"]`).length) {
                         medicineGivenDropdown.append(`<option value="${value.MedicineBrandID}">${value.BrandName}</option>`);
@@ -1231,18 +1261,26 @@ $(document).ready(function () {
                 data: formData,
                 contentType: false, // Important for file uploads
                 processData: false, // Important for file uploads
-                success: function(response) {
-                    // Handle success response
-                    console.log(response);
+                 dataType: 'json', // Ensure the response is parsed as JSON
+            success: function(response) {
+                console.log("Success response:", response); // Log the success response for debugging
+                if (response.status === 'success') {
+                    console.log("Form submitted successfully. Redirecting to patient-list.php...");
                     // Optionally, you can reset the form after successful submission
                     sessionStorage.removeItem('formData');
                     window.location.href = 'patient-list.php'; // Replace 'patient-list.php' with the actual URL of your Patient List page
-                    
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    console.error(error);
+                } else {
+                    console.log("Form submission error: " + response.message);
+                    // Display error message
+                    $('#responseMessage').text(response.message);
+                    $('#responseModal').modal('show');
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error response:", xhr.responseText); // Log the error response for debugging
+                $('#responseMessage').text('An error occurred while processing your request. Please try again.');
+                $('#responseModal').modal('show');
+            }
             });
         } else {
             // If there are errors, prevent form submission
@@ -1251,7 +1289,33 @@ $(document).ready(function () {
     });
 });
 
+  function saveFormData() {
+        const formData = {};
+        $('#multi-step-form').find('input, select, textarea').each(function () {
+            formData[$(this).attr('name')] = $(this).val();
+        });
+        sessionStorage.setItem('formData', JSON.stringify(formData));
+    }
 
+    // Function to load form data from sessionStorage
+    function loadFormData() {
+        const formData = JSON.parse(sessionStorage.getItem('formData'));
+        if (formData) {
+            $('#multi-step-form').find('input, select, textarea').each(function () {
+                if (formData[$(this).attr('name')]) {
+                    $(this).val(formData[$(this).attr('name')]);
+                }
+            });
+        }
+    }
+
+    // Save form data on input change
+    $('#multi-step-form').on('input change', 'input, select, textarea', function () {
+        saveFormData();
+    });
+
+    // Load form data on page load
+    loadFormData();
 
 
 
@@ -1268,7 +1332,7 @@ var citySelect = document.getElementById("citySelect");
 // Add event listener to the province select element
 provinceSelect.addEventListener("change", function() {
     // Clear previous options in the city select element
-    citySelect.innerHTML = "<option value=''>Select City</option>";
+    citySelect.innerHTML = "<option value='' disabled selected>Select City</option>";
     
     // Get the selected province
     var selectedProvince = this.value;
@@ -1298,7 +1362,7 @@ provinceSelect.addEventListener("change", function() {
 
   // Function to validate age
   function validateAge(age) {
-    return age >= 1 && age <= 123;
+    return age >= 1 && age <= 124;
   }
 
   // Function to validate phone number format
@@ -1393,7 +1457,7 @@ function removeError(field) {
     const age = parseInt(document.getElementById('age').value, 10);
     const isValid = validateAge(age);
     if (!isValid) {
-      showError(document.getElementById('age'), 'Age should be between 1 and 123.');
+      showError(document.getElementById('age'), 'Age should be between 1 and 124.');
     } else {
       removeError(document.getElementById('age'));
     }
@@ -1408,7 +1472,7 @@ function removeError(field) {
     } else {
       removeError(document.getElementById('phoneNumber'));
     }
-  }
+  }	
   function validateEmergencyPhoneNumberField() {
     const emergencyPhoneNumber = document.getElementById('emergencyPhoneNumber').value;
     const isValid = validateEmergencyPhoneNumber(emergencyPhoneNumber);
@@ -1444,10 +1508,16 @@ function removeError(field) {
   // Add event listeners to input fields to validate them as the user types
   document.getElementById('birthDate').addEventListener('input', validateBirthDateField);
   document.getElementById('age').addEventListener('input', validateAgeField);
-  document.getElementById('phoneNumber').addEventListener('input', validatePhoneNumberField);
-  document.getElementById('emergencyPhoneNumber').addEventListener('input', validateEmergencyPhoneNumberField);
   document.getElementById('weight').addEventListener('input', validateWeightField);
-  document.getElementById('email').addEventListener('input', validateEmailField);
+     $('#phoneNumber').on('blur', function() {
+        validatePhoneNumberField();
+    });
+    $('#emergencyPhoneNumber').on('blur', function() {
+        validateEmergencyPhoneNumberField();
+    });
+    $('#email').on('blur', function() {
+        validateEmailField();
+    });
 
 </script>
 <script>
