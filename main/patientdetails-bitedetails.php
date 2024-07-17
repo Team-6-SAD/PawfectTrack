@@ -30,8 +30,6 @@ if ($row = mysqli_fetch_assoc($result)) {
     $email = $row['email'];
     $phoneNumber = $row['phonenumber'];
     $adminPhoto = $row['adminphoto'];
-
-    // Now you can use these variables to display the admin information in your HTML
 } else {
     // Admin information not found
     echo "Admin information not found!";
@@ -69,9 +67,6 @@ if(isset($_GET['patientID'])) {
 } else {
     $error = "Invalid patient ID.";
 }
-    // Prepare and execute the SQL query to fetch patient and bite details
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -96,6 +91,11 @@ if(isset($_GET['patientID'])) {
     position: relative;
     display: inline-block;
     width: 100%;
+}
+.fixed-size {
+    height: 305px !important;
+    width: 370px !important;
+    object-fit:fill; /* Ensures the image covers the container */
 }
 
 .custom-select {
@@ -132,6 +132,7 @@ if(isset($_GET['patientID'])) {
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 <!--Profile Picture and Details-->
@@ -184,7 +185,7 @@ if(isset($_GET['patientID'])) {
             <div class="col">
             <div class="custom-select-wrapper">
     <select class="custom-select" id="biteDetailsDate" onchange="loadBiteDetails(this.value)">
-        <option value="">Select Date</option>
+        <option value="" disabled selected>Select Date</option>
         <?php
         // Loop through all the bite details dates and populate the dropdown
         // Prepare and execute the SQL query to fetch distinct bite details dates
@@ -242,19 +243,44 @@ if(isset($_GET['patientID'])) {
                     </div>
                 </div>
             </div>
-            <div class="col-md-5 pt-4 d-flex justify-content-center" style="height: 340px; width:450px;">
-                <?php
-                // Check if $bitePicture is empty
-                if (!isset($bitePicture) || $bitePicture === "uploads/") {
-                    // If empty, set the path to the placeholder image
-                    $placeholderImagePath = "uploads/placeholder.png";
-                } else {
-                    // If not empty, use the value of $bitePicture
-                    $placeholderImagePath = $bitePicture;
-                }
-                ?>
-                <img id="bitePicture" src="<?php echo $placeholderImagePath; ?>" alt="Placeholder Image" class="img-fluid">
-            </div>
+            <div class="col-md-5 pt-4 d-flex justify-content-center flex-wrap" style="height: 340px; width: 450px; overflow-y: auto;">
+            <div id="biteCarousel" class="carousel slide" data-ride="carousel">
+    <div class="carousel-inner" id="carouselInner">
+        <?php
+        // Placeholder image path
+        $placeholderImagePath = "uploads/placeholder.png";
+
+        // Check if $bitePictures is set and not empty
+        if (isset($bitePictures) && is_array($bitePictures) && !empty($bitePictures)) {
+            // Loop through each bite picture path and display the image in the carousel
+            $activeClass = 'active'; // First image is active
+            foreach ($bitePictures as $bitePicture) {
+                // Set the path to the image or use the placeholder if the path is invalid
+                $imagePath = (trim($bitePicture) !== "" && trim($bitePicture) !== "uploads/") ? $bitePicture : $placeholderImagePath;
+                echo '<div class="carousel-item ' . $activeClass . '">';
+                echo '<img src="' . $imagePath . '" class="d-block fixed-size"  alt="Bite Picture">';
+                echo '</div>';
+                $activeClass = ''; // Remove active class after the first item
+            }
+        } else {
+            // If no images are available, display the placeholder image
+            echo '<div class="carousel-item active">';
+            echo '<img src="' . $placeholderImagePath . '" class="d-block fixed-size"  style="height:300px; width:300px;" alt="Placeholder Image">';
+            echo '</div>';
+        }
+        ?>
+    </div>
+    <a class="carousel-control-prev" href="#biteCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#biteCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
+                                    </div>
+
         </div>
     </div>
     <div class="col-md-11 mt-4 pl-0 mb-5">
@@ -313,48 +339,66 @@ if(isset($_GET['patientID'])) {
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
+  <script src="js/notifications.js"></script>
 <!-- Include jQuery -->
-
 <script>
-function loadBiteDetails(selectedDate) {
-    // Get the patient ID from a hidden input or another source in your HTML
-    var patientID = '<?php echo $patientID; ?>';
+    // Function to load bite details based on selected date
+    function loadBiteDetails(date) {
+        // Check if date is not empty
+        if (date !== "") {
+            // Get the patientID from the URL
+            var patientID = <?php echo isset($patientID) ? $patientID : 'null'; ?>;
 
-    // Make an AJAX request
-    $.ajax({
-        url: 'backend/fetch-bite-details.php',
-        type: 'GET',
-        data: {
-            date: selectedDate,
-            patientID: patientID
-        },
-        success: function(response) {
-            // Parse the JSON response
-            var data = JSON.parse(response);
+            // AJAX call to fetch bite details for the selected date and patientID
+            $.ajax({
+                url: 'backend/fetch-bite-details.php',
+                type: 'GET',
+                data: { date: date, patientID: patientID },
+                dataType: 'json',
+                success: function(response) {
+                    // Update other HTML elements with the fetched data (e.g., animal type, exposure type, etc.)
+                    $('#animalType').text(response.AnimalType);
+                    $('#exposureType').text(response.ExposureType);
+                    $('#exposureDate').text(response.ExposureDate);
+                    $('#biteLocation').text(response.BiteLocation);
+                    $('#exposureMethod').text(response.ExposureMethod);
+                    $('#dateofTreatment').text(response.DateofTreatment);
 
-            // Check for an error in the response
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
+                    // Clear existing carousel items
+                    $('#carouselInner').empty();
 
-            // Update HTML content with response data
-            $('#animalType').text(data.AnimalType);
-            $('#exposureType').text(data.ExposureType);
-            $('#exposureDate').text(data.ExposureDate);
-            $('#biteLocation').text(data.BiteLocation);
-            $('#exposureMethod').text(data.ExposureMethod);
-            $('#dateofTreatment').text(data.DateofTreatment);
-            $('#bitePicture').attr('src', data.BitePicture !== "uploads/" ? data.BitePicture : "uploads/placeholder.png");
-        },
-        error: function(xhr, status, error) {
-            console.error(xhr.responseText);
+                    // Check if there are bite pictures
+                    if (response.BitePictures.length > 0) {
+                        // Update the carousel items with bite pictures
+                        $.each(response.BitePictures, function(index, bitePicture) {
+                            var imageElement = '<div class="carousel-item' + (index === 0 ? ' active' : '') + '">' +
+                                                '<img src="' + bitePicture + '" class="d-block fixed-size"  alt="Bite Picture">' +
+                                                '</div>';
+                            $('#carouselInner').append(imageElement);
+                        });
+                    } else {
+                        // If no images are available, display the placeholder image
+                        var placeholderImage = '<div class="carousel-item active">' +
+                                                '<img src="uploads/placeholder.png" class="d-block fixed-size"  alt="Placeholder Image">' +
+                                                '</div>';
+                        $('#carouselInner').append(placeholderImage);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert('Error fetching bite details. Please try again.');
+                }
+            });
+        }
+    }
+
+    // Initial call to load bite details for the first date in the dropdown (if available)
+    $(document).ready(function() {
+        var initialDate = $('#biteDetailsDate').val();
+        if (initialDate !== "") {
+            loadBiteDetails(initialDate);
         }
     });
-}
-
-
 </script>
 
 

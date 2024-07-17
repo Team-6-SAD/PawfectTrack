@@ -4,7 +4,7 @@ session_start();
 // Check if the 'admin' session variable is not set or is false (user not logged in)
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSION['adminID'])) {
     // Redirect the user to the login page
-    header("Location: Admin Login.php");
+    header("Location: ../Admin Login.php");
     exit(); // Terminate the script
 }
 
@@ -13,30 +13,46 @@ require_once 'pawfect_connect.php';
 
 // Get the AdminID from the session
 $adminID = $_SESSION['adminID'];
+
 // Check if a picture file is uploaded
 if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-    // Define a directory to store uploaded files
-    $uploadDirectory = '../uploads/';
+    // Define allowed file types
+    $allowedFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
 
-    // Generate a unique filename for the uploaded picture
-    $fileName = basename($_FILES['profile_picture']['name']);
-    $targetFilePath = $uploadDirectory . $fileName;
-    // Move the uploaded file to the specified directory
-    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
-        // File upload successful, update the picture path in the database
-        $sqlUpdatePicture = "UPDATE admininformation SET adminphoto = ? WHERE AdminID = ?";
-        $stmtUpdatePicture = mysqli_prepare($conn, $sqlUpdatePicture);
-        mysqli_stmt_bind_param($stmtUpdatePicture, "si", $fileName, $adminID);
-        
-        if (mysqli_stmt_execute($stmtUpdatePicture)) {
-            $_SESSION['success_message'] = "Profile picture updated successfully!";
+    // Get the file type
+    $fileType = mime_content_type($_FILES['profile_picture']['tmp_name']);
+
+    // Check if the file type is allowed
+    if (in_array($fileType, $allowedFileTypes)) {
+        // Define a directory to store uploaded files
+        $uploadDirectory = '../uploads/';
+
+        // Generate a unique filename for the uploaded picture
+        $fileName = basename($_FILES['profile_picture']['name']);
+        $targetFilePath = $uploadDirectory . $fileName;
+
+        // Move the uploaded file to the specified directory
+        if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
+            // File upload successful, update the picture path in the database
+            $sqlUpdatePicture = "UPDATE admininformation SET adminphoto = ? WHERE AdminID = ?";
+            $stmtUpdatePicture = mysqli_prepare($conn, $sqlUpdatePicture);
+            mysqli_stmt_bind_param($stmtUpdatePicture, "si", $fileName, $adminID);
+            
+            if (mysqli_stmt_execute($stmtUpdatePicture)) {
+                $_SESSION['success_message'] = "Profile picture updated successfully!";
+            } else {
+                $_SESSION['error_message'] = "Error updating profile picture: " . mysqli_error($conn);
+            }
+
+            mysqli_stmt_close($stmtUpdatePicture);
         } else {
-            $_SESSION['error_message'] = "Error updating profile picture: " . mysqli_error($conn);
+            $_SESSION['error_message'] = "Error uploading profile picture.". mysqli_error($conn);
         }
-
-        mysqli_stmt_close($stmtUpdatePicture);
     } else {
-        $_SESSION['error_message'] = "Error uploading profile picture.";
+        $_SESSION['error_message'] = "Invalid file type. Only JPG and JPEG files are allowed.";
+        header("Location: ../admin-settings.php");
+        exit();
+        
     }
 }
 
@@ -64,6 +80,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql .= "middlename=?, ";
         $params[] = $middleName;
         $types .= 's';
+    } else {
+        // If middle name is empty, add NULL
+        $sql .= "middlename=NULL, ";
     }
     if (!empty($lastName)) {
         $sql .= "lastname=?, ";
@@ -85,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = rtrim($sql, ", ");
 
     // Check if any fields are being updated before adding the WHERE clause
-    if (!empty($params)) {
+    if (!empty($params) || isset($_FILES['profile_picture'])) {
         $sql .= " WHERE AdminID=?";
         // Append the AdminID to the parameters array
         $params[] = $adminID;

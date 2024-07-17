@@ -199,6 +199,48 @@ if ($result) {
       .card {
             border-radius: 8px !important;
         }
+        #genderChart {
+            margin: 0 auto;
+        }
+        .chart-label {
+    font-family: 'Rubik', sans-serif;
+    color: #000; /* Black color */
+}
+.chart-table {
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Adjust the spacing (horizontal vertical) */
+}
+
+        .chart-table th, .chart-table td {
+            padding: 5px 10px;
+            text-align: center;
+        }
+        .chart-table th {
+            background-color: #f4f4f4;
+        }
+        .chart-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .chart-table tr:nth-child(odd) {
+            background-color: #fff;
+        }
+        .count {
+            color: white;
+       
+            padding: 5px 10px;
+            display: inline-block;
+        }
+        .info {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .info strong {
+            color: #333;
+        }
+      
+
   </style>
 </head>
 
@@ -211,6 +253,7 @@ if ($result) {
       <div class="sidebar">
         <?php include 'includes/sidebar.php'; ?>
       </div>
+      <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 
@@ -337,7 +380,7 @@ if ($result) {
   </div>
 
 
-  <div class="col-md-12 p-0 m-0  mt-4 card h-100">
+  <div class="col-md-12 p-0 m-0  mt-4 card h-100 "  style="max-height:412px">
   <div class="row mb-4 m-0 p-0 h-100">
     <div class="col-md-5 border-right m-0 p-0 h-100" style="border-width: 2px !important;">
       <div class="card-body bg-main-color-2 text-center mt-4">
@@ -366,8 +409,114 @@ if ($result) {
     </div>
   </div>
 </div>
+<div class="row">
+    <div class="col-sm-12 col-md-10 col-lg-12 mt-2 mx-auto mb-4">
+      <div class="line my-4"></div>
+    </div>
+  </div>
 
-        
+  <div class="col-md-12 p-0 m-0 mt-0 card h-100" style="max-height: 412px;">
+  <h5 class="gray font-weight-normal p-3">Demographics Information</h5>
+    <div class="row mb-4 m-0 p-0 h-100">
+
+        <div class="col-md-4 m-0 p-0 h-100" style="border-width: 2px !important;">
+            <div class="card-body bg-main-color-2 text-center mt-0 pt-1">
+                <div class="d-flex justify-content-center align-items-center mt-0">
+                    <canvas id="topCitiesChart" height="330"></canvas>
+                </div>
+                <p class="info pt-0 mt-2">Most popular <strong>LOCATION (CITY)</strong> of animal bite, scratch, or wound exposure cases.</p>
+            </div>
+        </div>
+        <div class="col-md-4 m-0 p-0 h-100">
+            <div class="card table-card h-100">
+                <div class="card-body bg-main-color-2 text-left pl-5 mt-0 pt-0">
+                    <div class="col-md-12 d-flex justify-content-between">
+                        <!-- Placeholder for any content you want -->
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center mb-0 pb-0" style="height: 300px;">
+                        <canvas id="genderChart" width="250" height="250"></canvas>
+                    </div>
+                    <p class="info pt-1 mt-2">Most likely to get exposed based on <strong>SEX</strong>.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 m-0 p-0 h-100">
+            <div class="card table-card h-100">
+                <div class="card-body bg-main-color-2 text-left pl-5 pr-5 mt-3 pt-0">
+                    <div class="col-md-12 d-flex justify-content-between">
+                        <?php
+                        $sql = "SELECT 
+                                    AgeRange,
+                                    COUNT(*) AS Count
+                                FROM (
+                                    SELECT 
+                                        CASE 
+                                            WHEN Age BETWEEN 1 AND 10 THEN '1-10'
+                                            WHEN Age BETWEEN 11 AND 19 THEN '11-19'
+                                            WHEN Age BETWEEN 20 AND 29 THEN '20-29'
+                                            WHEN Age BETWEEN 30 AND 39 THEN '30-39'
+                                            WHEN Age BETWEEN 40 AND 49 THEN '40-49'
+                                            WHEN Age BETWEEN 50 AND 59 THEN '50-59'
+                                            WHEN Age BETWEEN 60 AND 69 THEN '60-69'
+                                            WHEN Age BETWEEN 70 AND 79 THEN '70-79'
+                                            WHEN Age BETWEEN 80 AND 89 THEN '80-89'
+                                            WHEN Age BETWEEN 90 AND 99 THEN '90-99'
+                                            WHEN Age BETWEEN 100 AND 109 THEN '100-109'
+                                            WHEN Age BETWEEN 110 AND 119 THEN '110-119'
+                                            WHEN Age BETWEEN 120 AND 124 THEN '120-124'
+                                            ELSE 'Unknown'
+                                        END AS AgeRange
+                                    FROM patient
+                                ) AS AgeRanges
+                                GROUP BY AgeRange
+                                ORDER BY Count DESC
+                                LIMIT 5";
+
+                        $result = $conn->query($sql);
+
+                        // HTML table structure
+                        echo '<table class="chart-table">
+                                <thead class="d-none">
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Age Range</th>
+                                        <th>Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody>';
+
+                        // Counter for ranking
+                        $rank = 1;
+
+                        // Fetch data and populate table rows
+                        if ($result->num_rows > 0) {
+                            while ($row = $result->fetch_assoc()) {
+                                $ageRange = $row['AgeRange'];
+                                $count = $row['Count'];
+
+                                // Output table row
+                                echo '<tr>
+                                        <td style="background-color:#FFFFFF !important;">' . $rank . '</td>
+                                        <td>' . $ageRange . '</td>
+                                        <td style="background-color:#10AC84;"><span class="count">' . $count . '</span></td>
+                                      </tr>';
+                                $rank++;
+                            }
+                        } else {
+                            echo '<tr><td colspan="3">No data available</td></tr>';
+                        }
+
+                        echo '</tbody></table>';
+
+                        // Close connection
+                        ?>
+                    </div>
+                    <p class="info mt-3 pt-4">Most likely to get exposed based on <strong>AGE</strong>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -388,7 +537,7 @@ if ($result) {
             <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-          
+            <script src="js/notifications.js"></script>
             <script>
               document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {
                 event.preventDefault(); // Prevent the default action of the mousedown event
@@ -511,7 +660,7 @@ if ($result) {
                 }
               };
 
-              // Create the chart
+    
               const ctx3 = document.getElementById('monthlyTreatmentChart').getContext('2d');
               const monthlyTreatmentChart = new Chart(ctx3, monthlyTreatmentChartConfig);
             </script>
@@ -608,7 +757,189 @@ if ($result) {
                 }
               });
             </script>
+  
+        <?php $sql = "SELECT 
+            SUM(CASE WHEN sex = 'Male' THEN 1 ELSE 0 END) AS MaleCount,
+            SUM(CASE WHEN sex = 'Female' THEN 1 ELSE 0 END) AS FemaleCount
+        FROM patient";
 
+$result = $conn->query($sql);
+
+// Initialize variables
+$malePercentage = 0;
+$femalePercentage = 0;
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    
+    // Calculate percentages
+    $totalPatients = $row['MaleCount'] + $row['FemaleCount'];
+    $malePercentage = ($totalPatients > 0) ? ($row['MaleCount'] / $totalPatients) * 100 : 0;
+    $femalePercentage = ($totalPatients > 0) ? ($row['FemaleCount'] / $totalPatients) * 100 : 0;
+}
+?>
+  <script>
+     
+        var ctx = document.getElementById('genderChart').getContext('2d');
+        var maleIcon = new Image();
+        maleIcon.src = 'img/img-dashboard/male-icon.png'; // Path to male icon
+
+        var femaleIcon = new Image();
+        femaleIcon.src = 'img/img-dashboard/female-icon.png'; // Path to female icon
+
+        var malePercentage = <?php echo number_format($malePercentage, 2); ?>; // Format male percentage to 2 decimal places
+    var femalePercentage = <?php echo number_format($femalePercentage, 2); ?>; // Format female percentage to 2 decimal places
+        var genderChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [
+                    {
+                        label: 'Filled',
+                        data: [malePercentage, femalePercentage],
+                        backgroundColor: ['#0449A6', '#F765A3'],
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Empty',
+                        data: [100 - malePercentage, 100 - femalePercentage],
+                        backgroundColor: 'lightgrey',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        display: false, // Remove the y-axis
+                        beginAtZero: true,
+                        max: 100,
+                        stacked: true,
+                        ticks: {
+                            display: false // Hide the ticks (percentages)
+                        }
+                    },
+                    x: {
+                        stacked: true,
+                        grid: {
+                            display: false // Remove grid lines on the x-axis
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                labels: {
+                    font: {
+                        size: 12,
+                        family: "Rubik"
+                    }},
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw + '%'; // Show percentage in tooltip
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customLabels',
+                afterDatasetsDraw: function(chart) {
+                    var ctx = chart.ctx;
+
+                    // Set the font to Rubik
+                    ctx.font = '12px Rubik';  // Adjust the font size and style as needed
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        var meta = chart.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            if (i === 0) { // Only label the filled portion
+                                var value = dataset.data[index] + '%';
+                                var img = (index === 0) ? maleIcon : femaleIcon;
+                                var imgWidth = (index === 0) ? 20 : 13.75; // Adjusted widths for male and female icons
+                                var imgHeight = (index === 0) ? 18 : 20; // Adjusted heights for male and female icons
+                                var imgX = bar.x + bar.width - 130; // Adjusted x position for icons
+                                var imgY = bar.y + bar.height + 8; // Adjusted y position for icons
+                                ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
+
+                                // Adjust text position relative to the bar
+                                var textX = bar.x + bar.width - 85;
+                                var textY = bar.y + bar.height - 210;
+                                ctx.fillText(value, textX, textY);
+                            }
+                        });
+                    });
+                }
+            }]
+        });
+    </script>
+    <?php
+$sql = "SELECT City, COUNT(*) AS CityCount 
+        FROM patientaddress 
+        GROUP BY City 
+        ORDER BY CityCount DESC 
+        LIMIT 5";
+
+$result = $conn->query($sql);
+
+$cities = [];
+$counts = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $cities[] = $row['City'];
+        $counts[] = $row['CityCount'];
+    }
+}
+?>
+     <script>
+        // Data fetched from PHP
+        var cities = <?php echo json_encode($cities); ?>;
+        var counts = <?php echo json_encode($counts); ?>;
+
+        // Chart.js configuration
+        var ctx = document.getElementById('topCitiesChart').getContext('2d');
+        var topCitiesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: cities,
+                datasets: [{
+                    label: 'Patient Counts',
+                    data: counts,
+                    backgroundColor: 'rgba(29, 209, 161, 1)',
+                    borderColor: 'rgba(29, 209, 161, 1)',
+                    borderWidth: 1,
+                    barThickness: 40 // Adjust the bar thickness as needed
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+            x: {
+                display: false, // Hide x-axis
+                grid: {
+                    display: false // Remove grid lines for x-axis
+                }
+            },
+            y: {
+                grid: {
+                    display: false // Remove grid lines for y-axis
+                }
+            }
+        },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

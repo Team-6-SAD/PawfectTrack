@@ -82,12 +82,7 @@ table.dataTable thead{
       .table thead th{
           border-bottom: none;
       }
-      #example thead th:first-child::after {
-  display: none;
-}
-#example thead th:first-child::before {
-  display: none;
-}
+
 #EquipmentTable thead th:first-child::after {
   display: none;
 }
@@ -435,7 +430,7 @@ z-index: 10;
 box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.15);
 }
 .profile-container {
-  position: absolute; /* Position the profile container absolutely */
+  position: fixed; /* Position the profile container absolutely */
   top: 0; /* Align the profile container to the top of the navbar */
   right: 0; /* Align the profile container to the right side of the navbar */
   background-color: #003D8F;
@@ -446,6 +441,17 @@ box-shadow: 4px 4px 6px 0px rgba(0, 0, 0, 0.15);
   padding-top:10px;
   padding-bottom:10px;
   cursor: pointer;
+}
+ ::-webkit-scrollbar {
+
+  width: 8px;
+
+  height: 10px;
+
+}
+ ::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: #c2c9d2;
 }
 .sidebar.collapsed .hamburger {
   margin-top: 13px;
@@ -655,6 +661,19 @@ opacity:0.8;
     top: 3rem; /* Adjust the top position as needed */
     z-index: 1000; /* Ensure the buttons appear above other elements */
 }
+.emergency-contact {
+  flex-shrink: 0; /* Prevent shrinking */
+  margin-right: 10px; /* Optional: Add space between the label and content */
+  white-space: nowrap; /* Ensure label does not wrap */
+}
+
+.emergency-contact-content {
+  flex-grow: 1; /* Allow content to grow */
+  word-wrap: break-word; /* Ensure long words will break to the next line */
+  overflow-wrap: break-word; /* Ensure text will wrap within the container */
+  white-space: normal; /* Ensure content wraps */
+}
+
 
 #update_fp {
     left: 400px; /* Adjust the left position for the first button */
@@ -832,7 +851,9 @@ height: 2.5rem;
   background-color:#22396c;
   color:#af6c01;
 }
-
+.badge-notif{
+  margin-right: 150px !important;
+}
 
 
 /* Style the custom button */
@@ -993,6 +1014,18 @@ height: 20px;
   margin-left: 10px; /* Adjust as needed */
 }
 
+.dropdown-content2 {
+  display: none;
+  position: absolute;
+  background-color: #ffffff;
+  min-width: 200px;
+  box-shadow: 0 2px 32px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 0; /* Position the dropdown content at the right */
+  margin-top: 6px; /* Adjust as needed */
+  margin-right: 40px;
+  border-radius: 10px;
+}
 /* Dropdown content */
 .dropdown-content {
   display: none;
@@ -1268,3 +1301,21 @@ height: 20px;
 
   color: #0449A6;
 }
+
+.toast-container {
+  position: fixed;
+  min-width: 100vw;
+  z-index: 9999;
+  position: fixed;
+  bottom: 0px;
+  left: 70%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  }
+
+  .toast {
+  position: relative;
+
+
+  }

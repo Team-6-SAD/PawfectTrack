@@ -108,6 +108,9 @@ $conn->close();
         height: 120px;
         object-fit: cover; /* This ensures that the image covers the entire 120x120 area */
     }
+    #deactivateButton:disabled{
+        background-color: #5e6e82 !important;
+    }
     </style>
 </head>
 <body>
@@ -119,7 +122,7 @@ $conn->close();
 
 
 <!--Profile Picture and Details-->
-        <div class="content" id="content">
+        <div class="content mb-5" id="content">
     <div class="row justify-content-center align-items-center d-flex">
 
         <div class="col-md-12"> 
@@ -142,24 +145,14 @@ $conn->close();
             <form id="profileForm" action="patient-backend/patient-settings-backend.php" method="POST" enctype="multipart/form-data">
             <div class="card-body">
     <div id="details" class="row">
-    <?php
-// Check if adminPhoto is empty
-if (!empty($profilePicture)) {
-    // Display the admin photo
-    echo '<img src="../uploads/' . $profilePicture . '" alt="Admin Photo" class="admin-photo">';
-} else {
-    // Display the placeholder image
-    echo '<img src="../uploads/placeholder.png" alt="Placeholder Image" class="admin-photo">';
-}
-
-?>
+    <img src="../uploads/<?php if (!empty($profilePicture)) {echo  $profilePicture; } else { echo 'placeholder.png';}?>" alt="Admin Photo" class="admin-photo" id="admin-photo">
 
         <div class="settings-container ml-4">
             <!-- Label associated with file input -->
             <label for="profile_picture" class="custom-file-upload">Upload  New Photo</label>
             <!-- Actual file input element -->
           <!-- Actual file input element with accept attribute -->
-<input id="profile_picture" name="profile_picture" class="form-control-file" type="file" accept=".jpg, .jpeg, .png">
+          <input id="profile_picture" name="profile_picture" class="form-control-file" type="file" accept=".jpg, .jpeg, .png" onchange="previewImage(event)">
 
             <!-- Optional: Element to display selected file name -->
             <span class="gray">Allowed JPG or PNG. Max size of 800k </span>
@@ -184,19 +177,19 @@ if (!empty($profilePicture)) {
 
 <div class="col-md-4 form-group">
     <label for="fName">First Name</label>
-    <input type="text" class="form-control" id="fName" name="fName" placeholder="<?php echo $firstName ?>" >
+    <input type="text" class="form-control" id="fName" name="fName" placeholder="<?php echo $firstName ?>" oninput="preventLeadingSpace(event)" >
 </div>
 
 <div class="col-md-4 form-group">
     <label for="mName">Middle Name</label>
-    <input type="text" class="form-control" id="mName" name="mName" placeholder="<?php echo $middleName ?>" >
+    <input type="text" class="form-control" id="mName" name="mName" placeholder="<?php echo $middleName ?>" oninput="preventLeadingSpace(event)">
 </div>
 
 
 
 <div class="col-md-4 form-group">
     <label for="lName">Last Name</label>
-        <input type="text" class="form-control" id="lName" name="lName" placeholder="<?php echo $lastName?>"  >
+        <input type="text" class="form-control" id="lName" name="lName" placeholder="<?php echo $lastName?>" oninput="preventLeadingSpace(event)"  >
         </div>
     </div>
 
@@ -205,12 +198,12 @@ if (!empty($profilePicture)) {
 
 <div class="col-md-4 form-group">
     <label for="username">Username</label>
-    <input type="text" class="form-control" id="username" name="username" placeholder="<?php echo $username ?>" >
+    <input type="text" class="form-control" id="username" name="username" placeholder="<?php echo $username ?>" oninput="preventSpaces(event)" >
 </div>
 
 <div class="col-md-4 form-group">
     <label for="email">Email</label>
-    <input type="email" class="form-control" id="email" name="email" placeholder="<?php echo $emailAddress ?>" >
+    <input type="email" class="form-control" id="email" name="email" placeholder="<?php echo $emailAddress ?>" oninput="preventSpaces(event)">
 </div>
 
 
@@ -218,10 +211,8 @@ if (!empty($profilePicture)) {
 <div class="col-md-4 form-group">
     <label for="phoneNumber">Phone Number</label>
     <div class="input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text">PH</span>
-        </div>
-        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="<?php echo $phoneNumber?>" >
+       
+        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="<?php echo $phoneNumber?>"oninput="preventSpaces(event)" >
     </div>
 </div>
 
@@ -251,7 +242,7 @@ if (!empty($profilePicture)) {
                 <label for="accountDeactivation"> I understand this action cannot be undone.</label>
     
         </div>
-        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;">Delete Account</button>
+        <button  type="button" id="deactivateButton" class="btn-settings-2 bg-danger ml-3" style="font-size:13px; border-radius:6px;" disabled>Delete Account</button>
     </div>
 </div>
 
@@ -313,6 +304,12 @@ if (!empty($profilePicture)) {
 
 
 <!-- Include jQuery -->
+<script>
+        document.getElementById('accountDeactivation').addEventListener('change', function() {
+            var deactivateButton = document.getElementById('deactivateButton');
+            deactivateButton.disabled = !this.checked;
+        });
+    </script>
 <script>
 $(document).ready(function() {
   $('#deactivateButton').click(function(event) {
@@ -740,6 +737,55 @@ const lastName = document.getElementById('lName').value;
 
 </script>
 
+<script>
+function preventLeadingSpace(event) {
+    const input = event.target;
+    if (input.value.startsWith(' ')) {
+        input.value = input.value.trim(); // Remove leading space
+    }
+    // Replace multiple consecutive spaces with a single space
+    input.value = input.value.replace(/\s{2,}/g, ' ');
+}
+
+function preventSpaces(event) {
+        const input = event.target;
+        if (input.value.includes(' ')) {
+            input.value = input.value.replace(/\s/g, ''); // Remove all spaces
+        }
+    }
+
+
+
+
+</script>
+<script>
+    function previewImage(event) {
+        var input = event.target;
+        var reader = new FileReader();
+        
+        reader.onload = function() {
+            var dataURL = reader.result;
+            var imgElement = document.getElementById('admin-photo');
+            
+            if (imgElement) {
+                imgElement.src = dataURL;
+            } else {
+                console.error('Element with id "admin-photo" not found.');
+            }
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+</script>
+<script>
+    function isNumberKey(event) {
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+</script>
 
 
 

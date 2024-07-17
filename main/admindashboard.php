@@ -98,9 +98,7 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
         .table thead th{
             border-bottom: none;
         }
-        #example thead th:first-child::after {
-    display: none;
-}
+
 #example thead th:first-child::before {
     display: none;
 }
@@ -115,20 +113,45 @@ tbody tr:nth-child(odd) {
         background-color: #FFFFFF;
     }   
 </style>
+  <style>
+  .toast-container {
+  position: fixed;
+  min-width: 100vw;
+  z-index: 9999;
+  position: fixed;
+  bottom: 0px;
+  left: 70%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  }
+
+  .toast {
+  position: relative;
+
+
+  }
+</style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="main-container">
+          
             <!-- Header and Sidebar -->
             <?php include 'includes/admin_header.php'; ?>
             <div class="sidebar">
                 <?php include 'includes/sidebar.php'; ?>
             </div>
             
+<div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
             <!-- Content -->
             <div class="content" id="content">
                 <div class="row mr-5 ml-3 mt-0 pt-0">
                     <div class="col-12 mt-0 pt-0">
+        
+
+
+
                         <div class="card-body card-image p-0 align-items-center">
                             <div class="row logo-font-color mt-0 pl-2">
                                 <div class="col-md-6 text-left mt-5 ml-4">
@@ -222,16 +245,11 @@ if ($result) {
                         <div class="card mx-auto table-card px-3 mb-5">
                             <div class="table-header-1 d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mt-5 ml-4 gray"><b>List of Upcoming Vaccine Sessions</b></h5>
-                                <div class="flex-grow-1"></div>
-                                <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-4 mt-1 mt-4">
-                                <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 px-3" style="color:white;  border-radius: 8px">
-  Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-</button>
-                                    <!-- Additional buttons next to Edit -->
-                                    <div class="d-flex flex-row flex-wrap align-items-center">
-                                        <button id="viewButton" style="white-space: nowrap; color: white;  border-radius: 8px;" class="btn btn-custom btn-blue-color btn-outline-info px-4 mr-3" >View</button>
-                                    </div>
-                                </div>
+                               <a href="patient-list.php"> <button class="btn btn-info mr-4 mt-4" style="background-color:#2E86DE;" type="button">View All</button></a>
+
+                              
+                              
+                            
                             </div>
 
                             <div class="table-responsive"> <!-- Added this div for responsiveness -->
@@ -244,22 +262,26 @@ if ($result) {
                                     <input type="hidden" name="selectedRows[]" id="selectedRowsInput">
                                     <div class="card-body">
                                  <?php  $sql = "SELECT DISTINCT
-            ai.AppointmentDate, 
-            ai.SessionDays, 
-            ai.PatientID, 
-            CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
-            bd.ExposureType
-        FROM 
-            appointmentinformation AS ai
-        JOIN 
-            patient AS p ON ai.PatientID = p.PatientID
-        JOIN 
-            bitedetails AS bd ON ai.PatientID = bd.PatientID
-        WHERE 
-            ai.Status = 'Pending'
-        ORDER BY 
-            ABS(DATEDIFF(NOW(), ai.AppointmentDate))
-        LIMIT 5";
+    ai.AppointmentDate, 
+    ai.SessionDays, 
+    ai.PatientID, 
+    CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
+    t.Category
+FROM 
+    appointmentinformation AS ai
+JOIN 
+    patient AS p ON ai.PatientID = p.PatientID
+JOIN
+    treatment AS t ON ai.TreatmentID = t.TreatmentID
+WHERE 
+    ai.Status = 'Pending' 
+    AND ai.ActiveStatus = 'Active'
+    AND ai.AppointmentDate > NOW()  -- Ensure AppointmentDate is after NOW()
+ORDER BY 
+    ABS(DATEDIFF(NOW(), ai.AppointmentDate))
+LIMIT 5
+";
+
 
 // Execute the SQL query
 $result = mysqli_query($conn, $sql);
@@ -270,12 +292,12 @@ if (mysqli_num_rows($result) > 0) {
     <table id="example" class="table">
         <thead class="table-header-alt">
             <tr style="font-size:12px;">
-                <th></th>
-                <th>Patient ID</th>
+            <th>Patient ID</th>
                 <th>Full Name</th>
                 <th>Current Session</th>
                 <th>Appointment Date</th>
                 <th>Type of Exposure</th>
+             
             </tr>
         </thead>
         <tbody>
@@ -283,12 +305,12 @@ if (mysqli_num_rows($result) > 0) {
     // Output data of each row
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr style="font-size:12px;">';
-        echo '<td><input type="checkbox" class="select-checkbox" name="selectedRows[]" value="' . $row['PatientID'] . '"></td>';
         echo '<td>' . $row['PatientID'] . '</td>';
-        echo '<td>' . $row['FullName'] . '</td>';
+        echo '<td><a href="patientdetails-appointments.php?patientID=' . $row['PatientID'] . '">' . $row['FullName'] . '</a></td>';
+
         echo '<td>' . $row['SessionDays'] . '</td>';
         echo '<td>' . $row['AppointmentDate'] . '</td>';
-        echo '<td>' . $row['ExposureType'] . '</td>';
+        echo '<td>' . $row['Category'] . '</td>';
         echo '</tr>';
     }
     ?>
@@ -318,7 +340,6 @@ if (mysqli_num_rows($result) > 0) {
 
 
 
-
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     
     <!-- Data Table JS -->
@@ -333,6 +354,7 @@ if (mysqli_num_rows($result) > 0) {
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/notifications.js"></script>
 
 
 <!-- Include jQuery -->
@@ -356,6 +378,12 @@ if (mysqli_num_rows($result) > 0) {
 });
 
 </script>
+
+
+
+
+
+
 
 
 
@@ -521,21 +549,8 @@ $(document).ready(function () {
 
 
 
-        // Implement your update logic here
-        $('#viewButton').on('click', function () {
-    var selectedCheckbox = $('.select-checkbox:checked');
+  
 
-    // Check if exactly one checkbox is checked
-    if (selectedCheckbox.length === 1) {
-        var applicantID = selectedCheckbox.val();
-
-        // Redirect to the view profile page with the selected Applicant ID
-        window.location.href = 'patientdetails-appointments.php?patientID=' + applicantID;
-    } else {
-        // If no checkbox or more than one checkbox is checked, show an alert
-        alert('Please select exactly one row to view.');
-    }
-});
 
   
 
@@ -583,9 +598,6 @@ $(document).ready(function () {
                 className: 'btn-img'
             }
         ],
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable ordering for the first column with checkboxes
-        ],
         
         language: {
             info: ""
@@ -620,5 +632,6 @@ $('#toggleButtons').on('click', function () {
   
 });
 </script>
+
 </body>
 </html>

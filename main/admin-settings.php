@@ -88,6 +88,9 @@ mysqli_close($conn);
 <body>
 <div class="container-fluid">
     <div class="main-container">
+    <div class="justify-content-end d-flex">
+  <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
+  </div>
         <!-- Header and Sidebar -->
         <?php include 'includes/admin_header.php'; ?>
         <div class="sidebar">
@@ -123,7 +126,7 @@ mysqli_close($conn);
     
 // Check if adminPhoto is empty
 ?>
-                    <img src="uploads/<?php if (!empty($adminPhoto)) {echo  $adminPhoto; } else { echo 'placeholder.png';}?>" alt="Admin Photo" class="admin-photo" id="admin-photo">';
+                    <img src="uploads/<?php if (!empty($adminPhoto)) {echo  $adminPhoto; } else { echo 'placeholder.png';}?>" alt="Admin Photo" class="admin-photo" id="admin-photo">
 
         <div class="settings-container ml-4">
             <!-- Label associated with file input -->
@@ -160,7 +163,7 @@ mysqli_close($conn);
 
 <div class="col-md-4 form-group">
     <label for="mName">Middle Name</label>
-    <input type="text" class="form-control" id="mName" name="mName" placeholder="<?php echo $middleName ?>"oninput="preventLeadingSpace(event)" maxlength="50">
+    <input type="text" class="form-control" id="mName" name="mName" value="<?php echo $middleName ?>"oninput="preventLeadingSpace(event)" maxlength="50">
 </div>
 
 
@@ -275,7 +278,7 @@ mysqli_close($conn);
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+  <script src="js/notifications.js"></script>
 
 <!-- Include jQuery -->
 <script>
@@ -654,7 +657,7 @@ const lastName = document.getElementById('lName').value;
     }
 
     // Check if any field is filled
-    if (email.trim() === '' && username.trim() === '' && phoneNumber.trim() === '' && profilePicture.trim() === '' && firstName.trim() === '' && lastName.trim() === '' && middleName.trim() === '') {
+    if (email.trim() === '' && username.trim() === '' && phoneNumber.trim() === '' && profilePicture.trim() === '' && firstName.trim() === '' && lastName.trim() === '' && middleName.trim() === '<?php echo $middleName;?>') {
         alert('Please fill in at least one field.');
         return false; // Prevent form submission
     }

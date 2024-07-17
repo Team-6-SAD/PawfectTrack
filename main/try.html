@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart.js Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik&display=swap">
+
+    <style>
+        canvas {
+            margin: 0 auto;
+        }
+        .chart-label {
+    font-family: 'Rubik', sans-serif;
+    color: #000; /* Black color */
+}
+
+    </style>
+</head>
+<body>
+    <canvas id="genderChart" width="250" height="250"></canvas>
+    <script>
+        // Create the chart
+        var ctx = document.getElementById('genderChart').getContext('2d');
+        var maleIcon = new Image();
+        maleIcon.src = 'img/img-dashboard/male-icon.png'; // Path to male icon
+
+        var femaleIcon = new Image();
+        femaleIcon.src = 'img/img-dashboard/female-icon.png'; // Path to female icon
+
+        var genderChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [
+                    {
+                        label: 'Filled',
+                        data: [66.7, 33.3],
+                        backgroundColor: ['#0449A6', '#F765A3'],
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Empty',
+                        data: [33.3, 66.7],
+                        backgroundColor: 'lightgrey',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        display: false, // Remove the y-axis
+                        beginAtZero: true,
+                        max: 100,
+                        stacked: true,
+                        ticks: {
+                            display: false // Hide the ticks (percentages)
+                        }
+                    },
+                    x: {
+                        stacked: true,
+                        grid: {
+                            display: false // Remove grid lines on the x-axis
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                labels: {
+                    font: {
+                        size: 12,
+                        family: "Rubik"
+                    }},
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw + '%'; // Show percentage in tooltip
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'customLabels',
+                afterDatasetsDraw: function(chart) {
+                    var ctx = chart.ctx;
+
+                    // Set the font to Rubik
+                    ctx.font = '12px Rubik';  // Adjust the font size and style as needed
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        var meta = chart.getDatasetMeta(i);
+                        meta.data.forEach(function(bar, index) {
+                            if (i === 0) { // Only label the filled portion
+                                var value = dataset.data[index] + '%';
+                                var img = (index === 0) ? maleIcon : femaleIcon;
+                                var imgWidth = (index === 0) ? 20 : 13.75; // Adjusted widths for male and female icons
+                                var imgHeight = (index === 0) ? 18 : 20; // Adjusted heights for male and female icons
+                                var imgX = bar.x + bar.width - 130; // Adjusted x position for icons
+                                var imgY = bar.y + bar.height + 8; // Adjusted y position for icons
+                                ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
+
+                                // Adjust text position relative to the bar
+                                var textX = bar.x + bar.width - 85;
+                                var textY = bar.y + bar.height - 210;
+                                ctx.fillText(value, textX, textY);
+                            }
+                        });
+                    });
+                }
+            }]
+        });
+    </script>
+</body>
+</html>

@@ -74,9 +74,9 @@ if (isset($_GET['patientID'])) {
 
   if ($row = mysqli_fetch_assoc($result)) {
       // Store patient details in variables
-      $lastName = $row['LastName'];
-      $firstName = $row['FirstName'];
-      $middleName = $row['MiddleName'];
+      $lastName1 = $row['LastName'];
+      $firstName1 = $row['FirstName'];
+      $middleName1 = $row['MiddleName'];
       $age = $row['Age'];
       $birthDate = $row['BirthDate'];
       $weight = $row['Weight'];
@@ -241,7 +241,7 @@ $provincesAndCities = array(
             <?php include 'includes/sidebar.php'; ?>
         </div>
 
-
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 <!--Profile Picture and Details-->
         <div class="content" id="content">
     <div class="row justify-content-center mb-5 mt-4">
@@ -264,15 +264,15 @@ $provincesAndCities = array(
     <input type="hidden" name="patientID" value="<?php echo $patientID; ?>">
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="fName">First Name</label>
-        <input type="text" id="fName" name="fName" placeholder="First Name" value="<?php echo $firstName; ?>" class="form-control" oninput="preventLeadingSpace(event)" >
+        <input type="text" id="fName" name="fName" placeholder="First Name" value="<?php echo $firstName1; ?>" class="form-control" oninput="preventLeadingSpace(event)" >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="mName">Middle Name</label>
-        <input type="text" id="mName" name="mName" placeholder="Middle Name" value="<?php echo $middleName; ?> "class="form-control" oninput="preventLeadingSpace(event)" >
+        <input type="text" id="mName" name="mName" placeholder="Middle Name" value="<?php echo $middleName1; ?> "class="form-control" oninput="preventLeadingSpace(event)" >
       </div>
       <div class="col-lg-4 form-group px-4 mb-3">
         <label for="lName">Last Name</label>
-        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" value="<?php echo $lastName; ?>" oninput="preventLeadingSpace(event)" >
+        <input type="text" id="lName" name="lName" placeholder="Last Name"class="form-control" value="<?php echo $lastName1; ?>" oninput="preventLeadingSpace(event)" >
       </div>
     </div>
     <div class="row justify-content-center px-3">
@@ -292,7 +292,6 @@ $provincesAndCities = array(
     <select id="sex" name="sex" class="form-control">
         <option value="Male" <?php echo ($sex == 'Male') ? 'selected' : ''; ?>>Male</option>
         <option value="Female" <?php echo ($sex == 'Female') ? 'selected' : ''; ?>>Female</option>
-        <option value="Other" <?php echo ($sex == 'Other') ? 'selected' : ''; ?>>Other</option>
     </select>
 </div>
 
@@ -426,7 +425,7 @@ $provincesAndCities = array(
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
+  <script src="js/notifications.js"></script>
   <script>
     // Define JavaScript variable to hold PHP-generated data
 var provincesAndCities = <?php echo json_encode($provincesAndCities); ?>;
@@ -628,13 +627,96 @@ $(document).ready(function () {
         $('#content').toggleClass('collapsed'); // Toggle 'collapsed' class on #content
     });
 });
-
-
-
-
+</script>
+<script>
 document.getElementById('submit-button').addEventListener('click', function(e) {
     e.preventDefault(); // Prevent default form submission
-    
+
+    // Get current values echoed from PHP (ensure these PHP variables are correctly populated)
+    var firstName1 = "<?php echo $firstName1; ?>".trim();
+    var middleName1 = "<?php echo $middleName1; ?>".trim();
+    var lastName1 = "<?php echo $lastName1; ?>".trim();
+    var birthDate = "<?php echo $birthDate; ?>".trim();
+    var sex = "<?php echo $sex; ?>".trim();
+    var weight = "<?php echo $weight; ?>".trim();
+    var contactNumber = "<?php echo $contactNumber; ?>".trim();
+    var emailAddress = "<?php echo $emailAddress; ?>".trim();
+    var currentProvince = "<?php echo $currentProvince; ?>".trim();
+    var currentCity = "<?php echo $currentCity; ?>".trim();
+    var address = "<?php echo $address; ?>".trim();
+    var emergencyContactName = "<?php echo $emergencyContactName; ?>".trim();
+    var emergencyContactRelationship = "<?php echo $emergencyContactRelationship; ?>".trim();
+    var emergencyContactNumber = "<?php echo $emergencyContactNumber; ?>".trim();
+
+    // Log current values
+    console.log("Current Values:", {
+        firstName1, middleName1, lastName1, birthDate, sex, weight,
+        contactNumber, emailAddress, currentProvince, currentCity, address,
+        emergencyContactName, emergencyContactRelationship, emergencyContactNumber
+    });
+
+    // Get form values
+    var form = document.getElementById('multi-step-form');
+    var fName = form.querySelector('#fName').value.trim();
+    var mName = form.querySelector('#mName').value.trim();
+    var lName = form.querySelector('#lName').value.trim();
+    var bd = form.querySelector('#birthDate').value.trim();
+    var gender = form.querySelector('#sex').value.trim();
+    var wt = form.querySelector('#weight').value.trim();
+    var phone = form.querySelector('#phoneNumber').value.trim();
+    var email = form.querySelector('#email').value.trim();
+    var province = form.querySelector('#provinceSelect').value.trim();
+    var city = form.querySelector('#citySelect').value.trim();
+    var addr = form.querySelector('#address').value.trim();
+    var emContact = form.querySelector('#emergencyContact').value.trim();
+    var emRelationship = form.querySelector('#emergencyContactRelationship').value.trim();
+    var emPhone = form.querySelector('#emergencyPhoneNumber').value.trim();
+
+    // Log form values
+    console.log("Form Values:", {
+        fName, mName, lName, bd, gender, wt, phone, email,
+        province, city, addr, emContact, emRelationship, emPhone
+    });
+
+    // Debug each individual comparison
+    console.log("Comparisons:");
+    console.log("First Name:", fName === firstName1, fName, firstName1);
+    console.log("Middle Name:", mName === middleName1, mName, middleName1);
+    console.log("Last Name:", lName === lastName1, lName, lastName1);
+    console.log("Birth Date:", bd === birthDate, bd, birthDate);
+    console.log("Gender:", gender === sex, gender, sex);
+    console.log("Weight:", wt === weight, wt, weight);
+    console.log("Phone Number:", phone === contactNumber, phone, contactNumber);
+    console.log("Email:", email === emailAddress, email, emailAddress);
+    console.log("Province:", province === currentProvince, province, currentProvince);
+    console.log("City:", city === currentCity, city, currentCity);
+    console.log("Address:", addr === address, addr, address);
+    console.log("Emergency Contact:", emContact === emergencyContactName, emContact, emergencyContactName);
+    console.log("Emergency Relationship:", emRelationship === emergencyContactRelationship, emRelationship, emergencyContactRelationship);
+    console.log("Emergency Phone:", emPhone === emergencyContactNumber, emPhone, emergencyContactNumber);
+
+    // Compare form values with current values
+    if (
+        fName === firstName1 &&
+        mName === middleName1 &&
+        lName === lastName1 &&
+        bd === birthDate &&
+        gender === sex &&
+        wt === weight &&
+        phone === contactNumber &&
+        email === emailAddress &&
+        province === currentProvince &&
+        city === currentCity &&
+        addr === address &&
+        emContact === emergencyContactName &&
+        emRelationship === emergencyContactRelationship &&
+        emPhone === emergencyContactNumber
+    ) {
+        // Show alert and prevent form submission
+        alert('Please edit a field to continue.');
+        return;
+    }
+
     // Validate the form before submitting
     if (validateForm()) {
         // If no errors, proceed with form submission using AJAX
@@ -648,13 +730,13 @@ document.getElementById('submit-button').addEventListener('click', function(e) {
             processData: false, // Important for file uploads
             success: function(response) {
                 // Handle success response
-                console.log(response);
+                console.log("Success:", response);
                 // Optionally, you can reset the form after successful submission
                 window.location.href = 'patient-list.php'; // Replace with your actual URL
             },
             error: function(xhr, status, error) {
                 // Handle error response
-                console.error(error);
+                console.error("Error:", error);
                 // Optionally, display an error message to the user
                 alert('An error occurred while submitting the form. Please try again later.');
             }
@@ -664,7 +746,6 @@ document.getElementById('submit-button').addEventListener('click', function(e) {
         console.log('Please fill in all required fields correctly.');
     }
 });
-
 
 function validateForm() {
     let isValid = true;
@@ -690,15 +771,15 @@ function validateForm() {
         document.getElementById('emergency-phone-number-error').textContent = '';
     }
 
- // Validate email domain (if email is provided)
-if (emailField.value.trim() !== '' && !validateEmailDomain(emailField.value)) {
-    isValid = false;
-    emailField.setCustomValidity('Email must be from outlook.com, yahoo.com, or gmail.com');
-    emailError.textContent = 'Please apply valid email(gmail,outlook,yahoo)'; // Display error message
-} else {
-    emailField.setCustomValidity('');
-    emailError.textContent = ''; // Clear error message
-}
+    // Validate email domain (if email is provided)
+    if (emailField.value.trim() !== '' && !validateEmailDomain(emailField.value)) {
+        isValid = false;
+        emailField.setCustomValidity('Email must be from outlook.com, yahoo.com, or gmail.com');
+        emailError.textContent = 'Please use a valid email (gmail, outlook, yahoo)'; // Display error message
+    } else {
+        emailField.setCustomValidity('');
+        emailError.textContent = ''; // Clear error message
+    }
 
     // Additional validations for other fields can be added here
 
@@ -718,10 +799,12 @@ function validateEmailDomain(email) {
     const domain = email.split('@')[1];
     return allowedDomains.includes(domain);
 }
-
-
-
 </script>
+
+
+
+
+
 <script>
 function preventLeadingSpace(event) {
     const input = event.target;

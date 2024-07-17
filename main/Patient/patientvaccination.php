@@ -156,7 +156,7 @@ if ($resultProfilePic->num_rows === 1) {
           </div>
           </div>
                         <div class="card p-5">
-                        <div class="card-body  p-0 align-items-center">
+                        <div class="card-body  p-4 px-5 align-items-center">
                             <section  id="my-section"> 
                         <div id="pdfContent" class="html-content" style="margin-top: 0;">
                             <div class="col-md-12 justify-content-center align-items-center d-flex pb-4" style="border-bottom: 1px solid black;">
@@ -203,9 +203,7 @@ if ($resultProfilePic->num_rows === 1) {
 <div class="col-lg-4 form-group m-0">
     <label for="phoneNumber">Phone Number<span class="red">*</span></label>
     <div class="input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text" style="color: white; background-color: #5E6E82; font-size: 14px;"><b>PH </b></span>
-        </div>
+
         <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" placeholder="09123456789" style="min-width: 140px"  required readonly>
     </div>
     <small id="phone-number-error" class="error-message"></small>
@@ -223,16 +221,16 @@ if ($resultProfilePic->num_rows === 1) {
         </div>
         <div class="col-lg-6 form-group">
             <label for="TreatmentDate   ">Date of Treatment</label>
-            <input type="date" id="TreatmentDate" name="TreatmentDate" class="form-control" placeholder="Date of Exposure"   max="<?php echo date('Y-m-d'); ?>" required readonly>
+            <input type="date" id="TreatmentDate" name="TreatmentDate" class="form-control" placeholder="Date of Treatment"   max="<?php echo date('Y-m-d'); ?>" required readonly>
         </div>
         
         <div class="col-lg-3 form-group m-0">
             <label for="animalType">Type of Exposure</label>
-            <input type="tel" id="exposureType" name="animalType" placeholder="Type of Animal" class="form-control"   required readonly><br><br>
+            <input type="tel" id="exposureType" name="exposureType" placeholder="Type of Exposure" class="form-control"   required readonly><br><br>
         </div>
         <div class="col-lg-3 form-group m-0">
             <label for="animalType">Exposure By</label>
-            <input type="text" id="exposureMethod" name="animalType" placeholder="Type of Animal" class="form-control"  required readonly><br><br>
+            <input type="text" id="exposureMethod" name="exposureMethod" placeholder="Exposure by" class="form-control"  required readonly><br><br>
         </div>
  
         <div class="col-lg-3 form-group m-0">
@@ -356,7 +354,11 @@ if ($resultProfilePic->num_rows === 1) {
                 $('#Relationship').val(details.EmergencyContactRelationship);
                 $('#phoneNumber').val(details.EmergencyContactLineNumber);
                 $('#exposureDate').val(details.ExposureDate);
-                $('#TreatmentDate').val(details.DateofTreatment);
+                var treatmentDate = new Date(details.DateofTreatment);
+var formattedDate = treatmentDate.toISOString().split('T')[0]; // Extract 'yyyy-MM-dd' part
+
+// Set formattedDate as the value of #TreatmentDate input
+$('#TreatmentDate').val(formattedDate);
                 $('#exposureType').val(details.ExposureType);
                 $('#animalType').val(details.AnimalType);
                 $('#exposureMethod').val(details.ExposureMethod);
@@ -461,27 +463,31 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 }
-    function PrintPDFfromHTML() {
-        var exposureDate = $('#exposureDates').val();
+function PrintPDFfromHTML() {
+    var exposureDate = $('#exposureDates').val();
     if (!exposureDate) {
-      alert('Please select a date.');
-      return;
-    }
-    else {
-
-  
+        alert('Please select a date.');
+        return;
+    } else {
         // Hide the button
         var generatePdfButton = document.getElementById('generatePdfButton');
         var generatePdfButton2 = document.getElementById('generatePdfButton2');
         generatePdfButton.style.display = 'none';
         generatePdfButton2.style.display = 'none';
 
+        // Margins (in points)
+        var top_margin = 40; // Adjust top margin
+        var left_margin = 100; // Adjust left margin
+        var right_margin = 100; // Adjust right margin
+        var bottom_margin = 40; // Adjust bottom margin
+
         // Rest of your PDF generation code
         var HTML_Width = $(".html-content").width();
         var HTML_Height = $(".html-content").height();
-        var top_left_margin = 15;
-        var PDF_Width = HTML_Width + (top_left_margin * 2);
-        var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+        
+        var PDF_Width = HTML_Width + left_margin + right_margin;
+        var PDF_Height = HTML_Height + top_margin + bottom_margin;
+
         var canvas_image_width = HTML_Width;
         var canvas_image_height = HTML_Height;
 
@@ -490,14 +496,15 @@ document.addEventListener('DOMContentLoaded', function() {
         html2canvas($(".html-content")[0]).then(function (canvas) {
             var imgData = canvas.toDataURL("image/jpeg", 1.0);
             var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
-            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+            pdf.addImage(imgData, 'JPEG', left_margin, top_margin, canvas_image_width, canvas_image_height);
+            
             for (var i = 1; i <= totalPDFPages; i++) { 
                 pdf.addPage(PDF_Width, PDF_Height);
-                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height*i)+(top_left_margin*4),canvas_image_width,canvas_image_height);
+                pdf.addImage(imgData, 'JPEG', left_margin, -(PDF_Height*i) + top_margin, canvas_image_width, canvas_image_height);
             }
 
-            // Save the PDF
-          
+            // Save the PDF (if needed)
+            // Example: pdf.save('filename.pdf');
 
             // Print the PDF
             pdf.autoPrint();
@@ -510,6 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 }
+
     // Function to show the button
     function showGeneratePDFButton() {
         var generatePdfButton = document.getElementById('generatePdfButton');

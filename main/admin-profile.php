@@ -87,7 +87,7 @@ mysqli_close($conn);
             <?php include 'includes/sidebar.php'; ?>
         </div>
 
-
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 <!--Profile Picture and Details-->
         <div class="content" id="content">
     <div class="row justify-content-center d-flex align-items-center">
@@ -169,7 +169,7 @@ if (!empty($adminPhoto)) {
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+  <script src="js/notifications.js"></script>
 
 <!-- Include jQuery -->
 

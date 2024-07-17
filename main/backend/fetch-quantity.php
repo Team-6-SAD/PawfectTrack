@@ -8,10 +8,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $selectedBrandID = $_POST["medicineBrandID"];
 
     // Prepare the SQL query to fetch the Route and TotalQuantity for the selected brand
-    $sql = "SELECT mb.BrandName, mb.Route, mb.MedicineBrandID, SUM(ms.StockQuantity) AS TotalQuantity 
-            FROM medicinebrand mb
-            INNER JOIN medicineinventory ms ON mb.MedicineBrandID = ms.MedicineBrandID
-            WHERE mb.MedicineBrandID = ?";
+$sql = "SELECT mb.BrandName, mb.Route, mb.MedicineBrandID, SUM(ms.StockQuantity) AS TotalQuantity 
+        FROM medicinebrand mb
+        INNER JOIN medicineinventory ms ON mb.MedicineBrandID = ms.MedicineBrandID
+        WHERE mb.MedicineBrandID = ?
+        GROUP BY mb.BrandName, mb.Route, mb.MedicineBrandID";
+
 
     // Prepare the statement
     $stmt = mysqli_prepare($conn, $sql);

@@ -63,6 +63,29 @@ include 'inventory-query.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
     <title>Inventory</title>
     <style>
+      input[type="date"]::placeholder {
+ 
+    font-size: 12px;
+}
+      
+      .form-control{
+    font-size: 12px !important;
+}
+
+input[type="date"]:valid {
+ 
+    font-size: 12px;
+}
+            input::placeholder {
+    font-size: 12px; /* Adjust the font size as needed */
+}
+      select {
+    font-size: 12px; /* Adjust font size */
+}
+
+select option {
+    font-size: 12px; /* Adjust font size of dropdown options */
+}
         .row-spacing {
             margin-bottom: 10px;
             /* Adjust the value to control the spacing between rows */
@@ -84,9 +107,7 @@ include 'inventory-query.php';
             background-color: #5e6e82 !important;
             border: 1px solid black !important;
         }
-        .hidden {
-            display: none;
-        }
+  
         
     </style>
 
@@ -100,7 +121,7 @@ include 'inventory-query.php';
             <div class="sidebar">
                 <?php include 'includes/sidebar.php'; ?>
             </div>
-
+            <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
             <!--Profile Picture and Details-->
             <div class="content" id="content">
@@ -128,9 +149,7 @@ include 'inventory-query.php';
                                 <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-2 mt-1">
                                     <!-- Edit button on the left -->
 
-                                    <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 ml-0 " style="color:white;  border-radius: 6px; font-weight: 400;">
-                                        Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-                                    </button>
+                                
                                     <!-- Additional buttons next to Edit -->
                                     <div class="d-flex flex-row flex-wrap align-items-center">
 
@@ -139,7 +158,7 @@ include 'inventory-query.php';
 
                                     </div>
                                     <div class="ml-auto">
-        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addStockModal">Add Stock</button>
+        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addStockModal"><img src="img/img-dashboard/white-add.png" alt="Icon" class="mr-2" style="width: 17px; height: 17px; margin-right: 3px; margin-bottom:1px;">Add Stock</button>
     </div>
                                 </div>
 
@@ -148,89 +167,62 @@ include 'inventory-query.php';
                                 </form>
 
                                 <table id="example" class="table table-striped">
-                                    <thead class="table-header no-break sm-text text-left">
-                                        <tr>
-                                            <th class="px-3"> <input type="checkbox" id="selectAllCheckbox"></th>
-                                            <th>Product Name</th>
-                                            <th>Quantity</th>
-                                            <th>Price Sold</th>
-                                            <th>Expiry Date</th>
-                                            <th>Price Bought</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $sql = "SELECT 
-mb.MedicineBrandID,
-mb.BrandName,
-mb.Route,
-SUM(mi.StockQuantity) AS TotalStockQuantity,
-mi.InventoryID,
-mi.StockPrice,
-mi.StockDosage,
-mi.StockExpiryDate,
-mi.StockBoughtPrice
-FROM 
-medicineinventory mi
-JOIN 
-medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
-GROUP BY 
-mb.BrandName, mi.StockExpiryDate;
-"; // Group by MedicineID, BrandName, and StockExpiryDate
+    <thead class="table-header no-break sm-text text-left">
+        <tr>
+            <th>Brand Name</th>
+            <th>Quantity</th>
+            <th>Price Sold</th>
+            <th>Expiry Date</th>
+            <th>Price Bought</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $sql = "
+            SELECT 
+                mb.MedicineBrandID,
+                mb.BrandName,
+                mb.Route,
+                SUM(mi.StockQuantity) AS TotalStockQuantity,
+                mi.InventoryID,
+                mi.StockPrice,
+                mi.StockDosage,
+                mi.StockExpiryDate,
+                mi.StockBoughtPrice
+            FROM 
+                medicineinventory mi
+            JOIN 
+                medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+            GROUP BY 
+                mb.MedicineBrandID,
+                mb.BrandName,
+                mb.Route,
+                mi.InventoryID,
+                mi.StockPrice,
+                mi.StockDosage,
+                mi.StockExpiryDate,
+                mi.StockBoughtPrice;
+        ";
 
-                                        $result = $conn->query($sql);
+        $result = $conn->query($sql);
 
-                                        if ($result->num_rows > 0) {
-                                            // Output data of each row
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<tr>";
-                                                echo "<td class='px-3'><input type='checkbox' class='select-checkbox' name='selectedRows[]' value='" . $row['InventoryID'] . "'></td>";
-                                                echo "<td>" . $row['BrandName'] . "</td>";
-                                                echo "<td>" . ($row['TotalStockQuantity'] !== null ? $row['TotalStockQuantity'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockPrice'] !== null ? $row['StockPrice'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockExpiryDate'] !== null ? $row['StockExpiryDate'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockBoughtPrice'] !== null ? $row['StockBoughtPrice'] : 'N/A') . "</td>";
-                                                echo "</tr>";
-                                            }
-                                        } else {
-                                        }
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr data-id='" . $row['InventoryID'] . "'>";
+                echo "<td>" . $row['BrandName'] . "</td>";
+                echo "<td>" . ($row['TotalStockQuantity'] !== null ? $row['TotalStockQuantity'] : '0') . "</td>";
+                echo "<td>" . ($row['StockPrice'] !== null ? $row['StockPrice'] : '0') . "</td>";
+                echo "<td>" . ($row['StockExpiryDate'] !== null ? $row['StockExpiryDate'] : '0') . "</td>";
+                echo "<td>" . ($row['StockBoughtPrice'] !== null ? $row['StockBoughtPrice'] : '0') . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            // Handle no rows case
+        }
+        ?>
+    </tbody>
+</table>
 
-                                        $sql = "SELECT 
-            SUM(es.Quantity) AS TotalQuantity,
-            e.EquipmentID,
-            e.Name
-        FROM 
-            equipmentstock es
-        JOIN 
-            equipment e ON es.EquipmentID = e.EquipmentID
-        GROUP BY 
-            es.EquipmentID";
-
-                                        $result = $conn->query($sql);
-
-                                        // Check if the query was successful
-                                        if ($result) {
-                                            // Initialize an empty array to store the query results
-                                            $equipmentStockData = array();
-
-                                            // Fetch the rows from the result set
-                                            while ($row = $result->fetch_assoc()) {
-                                                // Add each row to the equipment stock data array
-                                                $equipmentStockData[] = $row;
-                                            }
-
-                                            // Now $equipmentStockData contains the fetched data
-                                        } else {
-                                            // Error executing the query
-                                            echo "Error: " . $conn->error;
-                                        }
-                                        ?>
-
-
-
-
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
 
@@ -241,18 +233,25 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="col-md-6 col-lg-6 mt-2">
                                 <div class="card table-card h-100">
                                     <div class="card-body bg-main-color-2 p-4">
-                                        <div class="medicine-header m-0">
-                                        <button id="actionButton" class="btn btn-gray-color action-button" style="color:white;  border-radius: 6px; font-weight: 400;">Action  <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span></button>
-                                        <button id="deleteButton2" class="btn btn-danger action-button hidden">Delete Selected</button>
-                                            <button id="addMedicineButton" class="btn greener mb-0  mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addMedicineModal">Add Medicine</button>
-                                        </div>
+<div class="medicine-header m-0">
+    <div class="d-flex justify-content-start align-items-center">
+
+        <button id="deleteButton2" class="btn btn-danger action-button ml-2 hidden"><img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove</button>
+    </div>
+    <div class="ml-auto">
+        <button id="addMedicineButton" class="btn greener mb-0 mr-sm-2 pt-2 no-break" data-toggle="modal" data-target="#addMedicineModal">
+            <img src="img/img-dashboard/white-add.png" alt="Icon" class="mr-2" style="width: 17px; height: 17px; margin-right: 3px; margin-bottom:1px;"> Add Medicine
+        </button>
+    </div>
+</div>
+
 
 
                                         <table id="TotalStock" class="table table-with-spacing gfg w-100">
                                             <thead>
                                                 <tr>
                                                     <th class="d-none">Medicine Name</th>
-                                                    <th class="d-none">Brand Name</th>
+                                                    <th class="d-none">Medicine Brand</th>
                                                     <th class="d-none">Total Stock Quantity</th>
                                                 </tr>
                                             </thead>
@@ -348,15 +347,16 @@ mb.BrandName, mi.StockExpiryDate;
 
 
 
-                                    <div class="medicine-header">
-                                        <h5 class="main-color"> <b>Medicine Usage History</b></h5>
+                                    <div class="medicine-header justify-content-start">
+                                      <img src="img/img-dashboard/Usage History Image.png" class="mr-2" style="height:20px; width:auto;">
+                                        <h5 class="main-color mb-0 pb-0 font-weight-normal" style="color:#5E6E82;">Medicine Usage History</h5>
 
                                     </div>
 
                                     <table id="UsageTable" class="table table-striped">
                                         <thead class="table-header no-break text-center">
                                             <tr>
-                                                <th>Product Name</th>
+                                                <th>Brand Name</th>
                                                 <th>Quantity</th>
                                                 <th>Dosage</th>
                                                 <th>Date Used</th>
@@ -395,18 +395,21 @@ mb.BrandName, mi.StockExpiryDate;
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="addMedicineModalLabel">Add Medicine</h5>
+                                    <h5 class="modal-title p-3" id="addMedicineModalLabel"></h5>
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
+                             
                                 <div class="modal-body">
                                     <!-- Form for adding medicine -->
                                     <form id="addMedicineForm" action="backend/add_medicine.php" method="post">
-                                        <div class="form-group">
+                                      
+                                    <div class="row">       
+                                        <div class="form-group col-md-6">
                                             <?php
                                             if (isset($_SESSION['productNameExists']) && $_SESSION['productNameExists'] === true) {
-                                                echo '<div class="alert alert-danger" role="alert">Product Name already exists</div>';
+                                                echo '<div class="alert alert-danger" role="alert">Medical Treatment already exists</div>';
                                                 unset($_SESSION['productNameExists']); // Clear the session variable
                                             }
                                             ?>
@@ -416,26 +419,28 @@ mb.BrandName, mi.StockExpiryDate;
                                                 unset($_SESSION['productBrandExists']); // Clear the session variable
                                             }
                                             ?>
-                                            <label for="productName">Product Name</label>
+                                          <label for="productName"><small class="font-weight-bold">Medical Treatment</small></label>
                                             <input type="text" class="form-control" id="productName" name="productName" required oninput="preventLeadingSpace(event)">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="productBrand">Product Brand</label>
-                                            <input type="text" class="form-control" id="productBrand" name="productBrand" required oninput="prevenLeadingtSpace(event)">
+                                        <div class="form-group col-md-6">
+                                          <label for="productBrand"><small class="font-weight-bold">Product Brand</small></label>
+                                            <input type="text" class="form-control" id="productBrand" name="productBrand" required oninput="preventLeadingSpace(event)">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="route">Route</label>
+                                        <div class="form-group col-md-6">
+                                          <label for="route"><small class="font-weight-bold">Route</small></label>
                                             <select class="form-control" id="route" name="route" required>
-                                                <option value="">Select Route</option>
-                                                <option value="Intramuscular">Intramuscular</option>
-                                                <option value="Intradermal">Intradermal</option>
+                                                <option value="" disabled selected>Select Route</option>
+                                                <option value="IM">Intramuscular</option>
+                                                <option value="ID">Intradermal</option>
                                             </select>
                                         </div>
+                                      </div>
                                         <div class="justify-content-center align-items-center d-flex">
-                                            <button type="submit" style="background-color:#10AC84; font-weight:bold;" class="btn btn-success px-4">List Medicine</button>
+                                            <button type="submit" style="background-color:#10AC84; font-weight:bold; border-radius:27.5px !important;" class="btn btn-success px-5">Add Medicine</button>
                                         </div>
                                     </form>
-                                </div>
+                                
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -465,12 +470,19 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="modal-content">
                                 <!-- Modal Header -->
                                 <div class="modal-header">
-                                    <h4 class="modal-title">Already Exists!</h4>
+                                    <h4 class="modal-title p-3"></h4>
                                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                                 </div>
                                 <!-- Modal body -->
-                                <div class="modal-body">
-                                    <p>The product brand already exists for this medicine.</p>
+                                <div class="modal-body justify-content-center align-items-center d-flex" style="flex-direction:column;">
+									<img src="img/img-alerts/caution-mark.png" style="height:50px; width:50px;">
+                                                                  <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>BRAND ALREADY</b></h2>
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>EXISTS</b></h2>
+                                <div class="text-center">
+                                    <small style="letter-spacing: -1px; color:#5e6e82;">Brand already exists for this product.<br></small>
+
+                                </div>
+                               
                                 </div>
                                 <!-- Modal footer -->
                                 <div class="modal-footer">
@@ -484,18 +496,18 @@ mb.BrandName, mi.StockExpiryDate;
                             <div class="modal-content">
                                 <form id="addStockForm" method="post" action="backend/add_stock.php">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="addStockModalLabel">Add Stock</h5>
+                                        <h5 class="modal-title p-3" id="addStockModalLabel"></h5>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="brandName">Brand Name:</label>
+                                                  <label for="brandName"><small><b>Brand Name:</b></small></label>
                                                     <select class="form-control" id="brandName" name="brandName" required>
-                                                        <option value="">Select Brand Name</option>
+                                                        <option value="" disabled selected>Select Brand Name</option>
                                                         <?php
                                                         // Fetch all available brand names from the database
                                                         $sql = "SELECT * FROM medicinebrand";
@@ -515,44 +527,44 @@ mb.BrandName, mi.StockExpiryDate;
                                                 </div>
                                             </div>
                                             <!-- Stock Quantity input -->
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                             <div class="form-group">
-    <label for="stockQuantity">Stock Quantity:</label>
+                                              <label for="stockQuantity"><small><b>Stock Quantity:</b> </small></label>
     <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" min="0" step="1"  max="100000" required>
 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="stockPrice">Stock Price:</label>
+                                                    <label for="stockPrice"><small><b>Stock Price:</b> </small></label>
                                                     <input type="number" class="form-control" id="stockPrice" name="stockPrice" required min="0" step="1" max="100000" >
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                             <div class="form-group">
-    <label for="stockDosage">Stock Dosage:</label>
+                                              <label for="stockDosage"><small><b>Stock Dosage:</b> </small></label>
     <input type="text" class="form-control" id="stockDosage" name="stockDosage" required>
 </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pr-1 pl-4">
                                                 <div class="form-group">
-                                                    <label for="stockExpiryDate">Stock Expiry Date:</label>
+                                                    <label for="stockExpiryDate"><small><b>Stock Expiry Date:</b> </small></label>
                                                     <input type="date" class="form-control" id="stockExpiryDate" name="stockExpiryDate" required min="<?php echo date('Y-m-d', strtotime('+7 days')); ?>" onkeydown="return false">
                                                 </div>
 
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-6 pl-1 pr-4">
                                                 <div class="form-group">
-                                                    <label for="stockBoughtPrice">Stock Bought Price:</label>
+                                                    <label for="stockBoughtPrice"><small><b>Stock Bought Price:</b> </small></label>
                                                     <input type="number" class="form-control" id="stockBoughtPrice" name="stockBoughtPrice" min="0" step="1" max="100000"  required>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="modal-footer justify-content-center align-items-center d-flex">
-                                            <button type="submit" style="background-color:#10AC84; font-weight:bold;" class="btn btn-success px-4">Add Stock</button>
+                                        <div class="modal-footer justify-content-center align-items-center d-flex" style="border-top: none !important;">
+                                            <button type="submit" style="background-color:#10AC84; font-weight:bold; border-radius:27.5px !important;" class="btn btn-success px-5">Add Stock</button>
                                         </div>
                                 </form>
                             </div>
@@ -678,24 +690,23 @@ mb.BrandName, mi.StockExpiryDate;
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
-                                <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
+                                <h5 class="modal-title p-3" id="usernamePasswordMismatchModalLabel"></h5>
+                       
 
                                 </i>
                             </div>
                             <div class="modal-body">
                                 <div class="justify-content-center d-flex">
-                                    <img src="img/img-alerts/caution-mark.png">
+                                    <img src="img/img-alerts/caution-mark.png" style="height:50px;">
                                 </div>
-                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>REMOVE</b></h2>
-                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>ITEM</b></h2>
-                                <div class="text-center">
+                                <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>REMOVE ITEM</b></h2>
+								<div class="text-center">
                                     <small style="letter-spacing: -1px; color:#5e6e82;">Are you sure you want to delete<br></small>
                                     <small style="letter-spacing: -1px; color:#5e6e82;">the selected item/s?<br></small>
                                 </div>
                                 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-                                    <button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-                                    <button type="button" style="background-color: #EE5253; border:none;" class="btn btn-success px-3 py-2" id="confirmDeleteButton"><b>Remove</b></button>
+                                    <button type="button" style="background-color: none; border:none; color:#5e6e82" class="btn px-3 mr-4 py-2" data-dismiss="modal">Cancel</button>
+                                    <button type="button" style="background-color: #EE5253; border:none; border-radius:27.5px !important;" class="btn btn-success px-3 py-2 font-weight-bold" id="confirmDeleteButton">Remove</button>
                                 </div>
                             </div>
                         </div>
@@ -756,7 +767,10 @@ mb.BrandName, mi.StockExpiryDate;
                 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
                 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="js/notifications.js"></script>
+
                 <script>
+                  
     document.getElementById('stockDosage').addEventListener('input', function (e) {
         // Remove any non-numeric characters except dot
         this.value = this.value.replace(/[^0-9.]/g, '');
@@ -834,78 +848,70 @@ mb.BrandName, mi.StockExpiryDate;
         }
     });
 </script>
-                <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const actionButton = document.getElementById('actionButton');
-            const deleteButton = document.getElementById('deleteButton2');
-            const rows = document.querySelectorAll('#TotalStock tbody tr');
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const stockModal = new bootstrap.Modal(document.getElementById('stockModal'));
-            let selectedRows = [];
-            let selectionMode = false;
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const deleteButton = document.getElementById('deleteButton2');
+        const rows = document.querySelectorAll('#TotalStock tbody tr');
+        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const stockModal = new bootstrap.Modal(document.getElementById('stockModal'));
+        let selectedRows = [];
+        let selectionMode = true;
 
-            actionButton.addEventListener('click', () => {
-                selectionMode = !selectionMode;
-                actionButton.textContent = selectionMode ? 'Cancel' : 'Action';
-                if (!selectionMode) {
-                    selectedRows.forEach(row => row.classList.remove('selected'));
-                    selectedRows = [];
-                    deleteButton.classList.add('hidden');
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                if (selectionMode) {
+                    if (row.classList.contains('selected')) {
+                        row.classList.remove('selected');
+                        selectedRows = selectedRows.filter(r => r !== row);
+                    } else {
+                        row.classList.add('selected');
+                        selectedRows.push(row);
+                    }
                 }
             });
+        });
 
-            rows.forEach(row => {
-                row.addEventListener('click', () => {
-                    if (selectionMode) {
-                        if (row.classList.contains('selected')) {
-                            row.classList.remove('selected');
-                            selectedRows = selectedRows.filter(r => r !== row);
-                        } else {
-                            row.classList.add('selected');
-                            selectedRows.push(row);
-                        }
-                        deleteButton.classList.toggle('hidden', selectedRows.length === 0);
-                    }
-                });
-            });
-
-            deleteButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', () => {
+            if (selectedRows.length === 0) {
+                alert('Please select a row for deletion.');
+            } else {
                 // Show the confirmation modal
                 confirmDeleteModal.show();
-            });
+            }
+        });
 
-            document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-                const idsToDelete = selectedRows.map(row => ({
-                    medicineId: row.getAttribute('data-medicine-id'),
-                    medicineBrandId: row.getAttribute('data-medicine-brand-id')
-                }));
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            const idsToDelete = selectedRows.map(row => ({
+                medicineId: row.getAttribute('data-medicine-id'),
+                medicineBrandId: row.getAttribute('data-medicine-brand-id')
+            }));
 
-                fetch('backend/delete_medicine.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ ids: idsToDelete }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        selectedRows.forEach(row => row.remove());
-                        selectedRows = [];
-                        deleteButton.classList.add('hidden');
-                        selectionMode = false;
-                        actionButton.textContent = 'Action';
-                        location.reload();
-                    } else {
-                        stockModal.show();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            fetch('backend/delete_medicine.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ids: idsToDelete }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    selectedRows.forEach(row => row.remove());
+                    selectedRows = [];
+                    deleteButton.classList.add('hidden');
+                    selectionMode = false;
+                    location.reload();
+                } else {
+                    stockModal.show();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
         });
-    </script>
+    });
+</script>
+
                 <script>
                     feather.replace();
                 </script>
@@ -1096,103 +1102,13 @@ mb.BrandName, mi.StockExpiryDate;
         updatePageInfo();
     });
 
-    // Initially hide all checkboxes
-    $('.select-checkbox').hide();
+
 
     // Flag to track edit mode status
-    var editMode = false;
+    var editMode = true;
 
-    // Function to toggle checkboxes visibility inside DataTable rows
-    function toggleCheckboxesVisibility() {
-        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
 
-        $(rows).each(function() {
-            var checkbox = $(this).find('.select-checkbox');
-            if (editMode) {
-                checkbox.show(); // Show checkbox if edit mode is on
-            } else {
-                checkbox.hide(); // Hide checkbox if edit mode is off
-                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
-            }
-        });
 
-        // Update buttons visibility after toggling checkboxes
-        toggleButtonsVisibility();
-    }
-
-    // Function to toggle buttons visibility based on number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton, #deleteButton, #viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton, #deleteButton').show();
-            $('#viewButton').hide();
-        } else {
-            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
-        }
-    }
-
-    // Hide "View", "Delete", "Edit" and "Select All" initially
-    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
-
-    // Handle "Edit" button click
-    $('#editButton').on('click', function() {
-        editMode = !editMode; // Toggle edit mode
-
-        // Toggle checkboxes visibility
-        toggleCheckboxesVisibility();
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle().data('checked', false);
-
-        // Uncheck "Select All" checkbox when edit mode is turned off
-        if (!editMode) {
-            $('#selectAllCheckbox').prop('checked', false);
-        }
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function() {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
-        $('.select-checkbox', rows).each(function() {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function() {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle "Update" button click
-    $('#updateButton').on('click', function() {
-        var selectedCheckbox = $('.select-checkbox:checked');
-
-        // Handle update logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'Edit Patient.php?patientID=' + patientID;
-        } else {
-            alert('Please select exactly one row to update.');
-        }
-    });
 
         // Link custom search input with DataTable
         var customSearchInput = $('#customSearchInput');
@@ -1214,22 +1130,33 @@ mb.BrandName, mi.StockExpiryDate;
 });
 
 
-$('#confirmDeleteButton').on('click', function() {
-        var selectedRows = [];
-        $('#example').DataTable().$('tr').each(function() {
-        var checkbox = $(this).find('.select-checkbox');
-        if (checkbox.is(':checked')) {
-            selectedRows.push(checkbox.val());
+$(document).ready(function() {
+    var selectedRows = [];
+
+    // Handle row click
+    $('#example').on('click', 'tr', function() {
+        var id = $(this).data('id');
+        
+        // Toggle row selection
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            selectedRows = selectedRows.filter(function(rowId) {
+                return rowId !== id;
+            });
+        } else {
+            $(this).addClass('selected');
+            selectedRows.push(id);
         }
     });
 
+    $('#confirmDeleteButton').on('click', function() {
         if (selectedRows.length > 0) {
             $.ajax({
                 type: 'POST',
                 url: 'backend/remove_medicine.php',
                 data: { selectedRows: selectedRows },
                 success: function(response) {
-                    window.location.href = 'inventory.php';
+                    window.location.href = 'Inventory.php';
                 },
                 error: function(xhr, status, error) {
                     alert('An error occurred: ' + xhr.responseText);
@@ -1239,6 +1166,8 @@ $('#confirmDeleteButton').on('click', function() {
             alert('No rows selected for deletion.');
         }
     });
+});
+
                 </script>
                 <script>
                     $(document).ready(function() {

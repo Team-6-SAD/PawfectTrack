@@ -1,0 +1,477 @@
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 53
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 54
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 46
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 47
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 51
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 21
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 21
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 21
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 21
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 23
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 28
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 32
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 34
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 24
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 53
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 54
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 46
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 42
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 51
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 47
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 23
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 25
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 26
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 33
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 27
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 28
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [medicine_brand_id] => 53
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for medicine and related brand
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 29
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 30
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 31
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 21
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)
+Incoming Data:
+Array
+(
+    [equipment_id] => 32
+)
+Response:
+Array
+(
+    [status] => success
+    [message] => Notification dismissed for equipment and related equipment stock
+)

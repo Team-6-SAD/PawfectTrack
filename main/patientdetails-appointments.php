@@ -101,6 +101,7 @@ if (isset($_GET['patientID'])) {
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 <!--Profile Picture and Details-->
@@ -194,16 +195,15 @@ while ($row = mysqli_fetch_assoc($result)) {
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="changeStatusModalLabel">Change Status</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <h5 class="modal-title p-3" id="changeStatusModalLabel"></h5>
+
       </div>
       <div class="modal-body">
+        <h4 class="text-center font-weight-bold" style="color:#5e6082">CHANGE STATUS </h4>
     <form id="changeStatusForm" method="post">
         <input type="hidden" id="appointmentID" name="appointmentID">
-        <div class="form-group">
-            <label for="status">Status:</label>
+        <div class="form-group px-5">
+          <label for="status"><small>Status</small></label>
             <select class="form-control" id="status" name="status">
             <option value="Pending" >Pending</option>
                 <option value="Done">Done</option>
@@ -212,8 +212,11 @@ while ($row = mysqli_fetch_assoc($result)) {
         </div>
   
         <div id="medicalDetails"></div> <!-- Display medical details here -->
-        <div id="equipmentDetails"></div>
-        <button type="submit" class="btn btn-primary">Change Status</button>
+        <div id="equipmentDetails" style="font-size:12px;" class="text-muted"></div>
+      <div class="d-flex justify-content-center">
+        <button type="button" class="btn mr-4 close" data-dismiss="modal" aria-label="Close">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="border-radius:27.5px !important;">Change Status</button>
+      </div>
     </form>
 </div>
 
@@ -246,6 +249,7 @@ while ($row = mysqli_fetch_assoc($result)) {
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/notifications.js"></script>
 
   <script>
 $(document).ready(function() {
@@ -276,9 +280,11 @@ $(document).ready(function() {
 
 // Event listener for clicking the status button
 $('.status-button').click(function() {
-    $('#medicalDetails').empty(); // Clear previous medical details
-    var status = $(this).text().trim();
+      var status = $(this).text().trim();
     var appointmentID = $(this).data('appointment-id');
+   if (status === 'Pending') {
+    $('#medicalDetails').empty(); // Clear previous medical details
+
 
     // Update the appointment ID input field in the modal
     $('#appointmentID').val(appointmentID);
@@ -318,8 +324,13 @@ $('.status-button').click(function() {
             }
         });
     });
+        } else {
+        // Optionally provide feedback that only "Pending" status can be changed
+        console.log('Only appointments with "Pending" status can be changed.');
+    }
 });
-
+});// Function to update form fields based on status
+// Function to update form fields based on status
 // Function to update form fields based on status
 function updateFormFields(response) {
     var selectStatus = $('#status').val(); // Get the selected status
@@ -327,43 +338,113 @@ function updateFormFields(response) {
     $('#equipmentDetails').empty(); // Clear previous equipment details
     
     $.each(response.medicalDetails, function(index, item) {
-        var formField = '<div class="form-group">';
-     
+        var formField = '<div class="form-group px-5">';
         formField += '<input type="hidden" name="medicineBrand[]" value="' + item.medicineBrand + '">';
         formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
-        
+
         if (selectStatus === 'Done') {
-            formField+='    <h5><b>  Used Medicine </b> </h5>';
+            formField += '<h6 class="text-center font-weight-bold" style="color:#5E6082">USED MEDICINE</h6>';
             formField += '<input type="hidden" name="dosage[]" value="' + item.dosage + '">';
             formField += '<input type="hidden" name="medicineName[]" value="' + item.medicineName + '">';
-            formField += '<label>' + item.medicineBrand + '</label>';
-            formField += '<input type="number" class="form-control" name="quantity[]" value="' + item.quantity + '" min="0">';
-        } // No handling for Cancel status in medical details
+            formField += '<label><small>' + item.medicineBrand + '</small></label>';
+
+            // Get the available stock quantity for the current medicineBrand
+            var stockQuantity = getStockQuantity(response.medicineStockDetails, item.medicineBrand);
+
+            // Input field for quantity with validation based on stockQuantity
+            formField += '<input type="number" class="form-control" name="quantity[]" value="' + item.quantity + '" min="0" max="' + stockQuantity + '" onchange="validateQuantity(this)">';
+
+            // Informational message about maximum quantity
+            formField += '<small class="form-text text-muted">Max available quantity: ' + stockQuantity + '</small>';
+
+            // Error message container
+            formField += '<div class="invalid-feedback">Quantity exceeds available stock.</div>';
+        }
 
         formField += '</div>';
-
         $('#medicalDetails').append(formField);
     });
 
     $.each(response.equipmentDetails, function(index, item) {
-        var formField = '<div class="form-group">';
+        var formField = '<div class="form-group px-5 font-weight-normal">';
         formField += '<input type="hidden" name="equipmentName[]" value="' + item.equipmentName + '">';
         formField += '<input type="hidden" name="treatmentID[]" value="' + item.treatmentID + '">';
-        
+
         if (selectStatus === 'Done') {
-            formField+='   <h5><b>  Used Equipment </b> </h5>';
-            formField += '<label>' + item.equipmentName + '</label>';
-            formField += '<input type="number" class="form-control" name="equipmentQuantity[]" value="' + item.quantity + '" min="0">';
-        } // No handling for Cancel status in equipment details
+            formField += '<h6 class="text-center font-weight-bold" style="color:#5E6082">USED EQUIPMENT</h6>';
+            formField += '<label><small>' + item.equipmentName + '</small></label>';
+            
+            // Get the available stock quantity for the current equipmentName
+            var stockQuantity = getEquipmentStockQuantity(response.equipmentStockDetails, item.equipmentName);
+
+            // Input field for quantity with validation based on stockQuantity
+            formField += '<input type="number" class="form-control" name="equipmentQuantity[]" value="' + item.quantity + '" min="0" max="' + stockQuantity + '" onchange="validateEquipmentQuantity(this)"';
+
+            // Informational message about maximum quantity
+            formField += '<small class="form-text text-muted font-weight-normal" style="font-weight:normal !important;">Max available quantity: ' + stockQuantity + '</small>';
+
+            // Error message container
+            formField += '<div class="invalid-feedback">Quantity exceeds available stock.</div>';
+        }
 
         formField += '</div>';
-
         $('#equipmentDetails').append(formField);
     });
 }
 
+// Function to get the stock quantity for a specific medicineBrand
+function getStockQuantity(medicineStockDetails, medicineBrand) {
+    for (var i = 0; i < medicineStockDetails.length; i++) {
+        if (medicineStockDetails[i].medicineBrand === medicineBrand) {
+            return medicineStockDetails[i].stockQuantity;
+        }
+    }
+    return 0; // Default to 0 if stock quantity not found (should not happen ideally)
+}
 
-});
+// Function to validate quantity input for medicine
+function validateQuantity(input) {
+    var quantity = parseInt($(input).val());
+    var maxQuantity = parseInt($(input).attr('max'));
+
+    if (quantity > maxQuantity) {
+        $(input).addClass('is-invalid');
+        $(input).closest('.form-group').find('.invalid-feedback').show();
+        $(input).val(maxQuantity); // Set value to maxQuantity
+    } else {
+        $(input).removeClass('is-invalid');
+        $(input).closest('.form-group').find('.invalid-feedback').hide();
+    }
+}
+
+// Function to get the stock quantity for a specific equipmentName
+function getEquipmentStockQuantity(equipmentStockDetails, equipmentName) {
+    for (var i = 0; i < equipmentStockDetails.length; i++) {
+        if (equipmentStockDetails[i].equipmentName === equipmentName) {
+            return equipmentStockDetails[i].stockQuantity;
+        }
+    }
+    return 0; // Default to 0 if stock quantity not found (should not happen ideally)
+}
+
+// Function to validate equipment quantity input
+function validateEquipmentQuantity(input) {
+    var quantity = parseInt($(input).val());
+    var maxQuantity = parseInt($(input).attr('max'));
+
+    if (quantity > maxQuantity) {
+        $(input).addClass('is-invalid');
+        $(input).closest('.form-group').find('.invalid-feedback').show();
+        $(input).val(maxQuantity); // Set value to maxQuantity
+    } else {
+        $(input).removeClass('is-invalid');
+        $(input).closest('.form-group').find('.invalid-feedback').hide();
+    }
+}
+
+
+
+
 </script>
 
 

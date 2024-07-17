@@ -8,6 +8,23 @@ if (isset($_SESSION['error'])) {
 if (isset($_SESSION['registered'])) {
     unset($_SESSION['registered']);
 }
+function isSessionExpired() {
+    $expiryTime = isset($_SESSION['reset_code_expiry']) ? $_SESSION['reset_code_expiry'] : 0;
+    return (time() > $expiryTime);
+}
+if(isset($_SESSION['reset_code']) && isset($_SESSION['reset_code_expiry'])) {
+    $storedCode = $_SESSION['reset_code'];
+    $expiryTime = $_SESSION['reset_code_expiry'];
+    $now = time();
+
+}
+if(isSessionExpired()) {
+    unset($_SESSION['reset_code']);
+    unset($_SESSION['reset_code_expiry']);
+
+ 
+}
+
 if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
     // Redirect the user to the login page
     header("Location: admindashboard.php");
@@ -135,7 +152,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
         }
         
     
-        .form-control::placeholder{
+        .form-control::placeholder{ 
             color:#ECECEC;
             font-size: 12px;
         }
@@ -161,6 +178,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
 </head>
 <body>  <div class="container mb-5">
         <div class="row justify-content-center px-5">
+            
             <div class="col-lg-6 mt-3 pb-0 pt-5 px-0 image-container">
                 <img src="img/img-login-register/Admin Authentication.png" alt="Admin Authentication">
                 <img src="img/img-login-register/PawfectTrackSign.png" alt="Pawfect Track Sign" style="margin-top: -60px; width:400px;">
@@ -177,8 +195,8 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="username">Username<span class="red">*</span></label>
-                                        <input type="text" id="username" name="username" class="form-control" placeholder="Username" oninput="preventSpaces(event)">
-                                        <div id="username-error" class="text-danger"></div>
+                                        <input type="text" id="username" name="username" class="form-control" placeholder="Username" oninput="preventSpaces(event)" maxlength="16">
+                                        <small id="username-error" class="text-danger"></small>
                                     </div>
                                 </div>
   <div class="col-md-12">
@@ -215,7 +233,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel">Login Failed</h5>
+        <h5 class="modal-title" id="usernamePasswordMismatchModalLabel"></h5>
         <i data-feather="x-circle" class="text-end featherer" data-dismiss="modal">
 
 </i>
@@ -316,8 +334,11 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>RESET CODE</b></h2>
     <h2 style="letter-spacing: -1px; color:#5e6e82;" class="text-center m-0"><b>DELIVERED</b></h2>
     <div class="text-center">
-        <small style="letter-spacing: -1px; color:#5e6e82;">To reset your own password<br></small>
-        <small style="letter-spacing: -1px; color:#5e6e82;">Enter reset code</small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">We have sent a code to your email. Please enter <br></small>
+        <small style="letter-spacing: -1px; color:#5e6e82;">the code sent to your email to reset your password.</small>
+        <div id="countdown">
+            Time remaining: <span id="timer"></span>
+        </div>
     </div>
     <div class="col-md-12 w-100 px-5">
     <form action="backend/verify_reset_code.php" method="post">
@@ -360,7 +381,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
                 <input type="password" name="newPassword" id="newPassword" class="form-control" placeholder="New Password" maxlength="16">
                 <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('newPassword')">SHOW</button>
             </div>
-            <small id="new-password-error" class="text-danger"></small>
+            <small id="new-password-info" class="text-secondary">Password must be 8-16 characters and include letters, numbers, and symbols.</small>
         </div>
         <div class="col-md-12 form-group mt-3 px-5">
             <label for="confirmNewPassword" class="form-label"><b>Confirm New Password:<span style="color:red;">*</span></b></label>
@@ -442,11 +463,14 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>INCORRECT RESET</b></h2>
 <h2 style="letter-spacing: -1px; color:#5e6e82;"class="text-center m-0"><b>CODE</b></h2>
 <div class="text-center">
-<small style="letter-spacing: -1px; color:#5e6e82;">The reset code you inserted is<br></small>
-<small style="letter-spacing: -1px; color:#5e6e82;">incorrect.<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">The reset code you entered is<br></small>
+<small style="letter-spacing: -1px; color:#5e6e82;">incorrect. Please try again.<br></small>
 </div>
 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-5 py-2" data-dismiss="modal"><b>OK</b></button>
+<button type="button" style="background-color: none; border:none; color:#5E6E82;" class="btn  px-5 py-2 mr-3" data-dismiss="modal">Cancel</button>
+<button type="button" style="background-color: #1DD1A1; border:none;" class="btn btn-success px-4 py-2" data-dismiss="modal" data-toggle="modal" data-target="#forgotPassword2Modal">Try Again</button>
+
+
 </div>
 </div>
 </div>
@@ -478,7 +502,44 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+    <script>
+        // JavaScript for countdown timer
+        document.addEventListener('DOMContentLoaded', function () {
+            var timerElement = document.getElementById('timer');
+
+            function updateTimer() {
+                // Get current time in seconds since Unix epoch
+                var now = Math.floor(Date.now() / 1000);
+
+                // Get expiry time from PHP session (PHP passes as JS variable)
+                var expiryTime = <?php echo $_SESSION['reset_code_expiry']; ?>;
+
+                // Calculate remaining time in seconds
+                var timeLeft = expiryTime - now;
+
+                // Display minutes and seconds
+                var minutes = Math.floor(timeLeft / 60);
+                var seconds = timeLeft % 60;
+
+                // Format timer output
+                var timerOutput = minutes + 'm ' + seconds + 's';
+
+                // Update timer display
+                timerElement.textContent = timerOutput;
+
+                // Update timer every second
+                if (timeLeft > 0) {
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    timerElement.textContent = 'Expired';
+                    // Handle timer expiry, e.g., show message, disable form, etc.
+                }
+            }
+
+            // Start updating the timer
+            updateTimer();
+        });
+    </script>
     <script>
       feather.replace();
     </script>
@@ -724,7 +785,7 @@ function preventSpaces(event) {
             const newPassword = newPasswordInput.value;
             const confirmNewPassword = confirmNewPasswordInput.value;
 
-            if (newPassword !== confirmNewPassword) {
+            if (newPassword !== confirmNewPassword && confirmNewPassword !== '') {
                 showPasswordError(confirmNewPasswordError, 'Passwords do not match.');
             } else {
                 clearPasswordError(confirmNewPasswordError);
@@ -734,11 +795,7 @@ function preventSpaces(event) {
         newPasswordInput.addEventListener('input', function() {
             const newPassword = newPasswordInput.value;
 
-            if (!validatePassword(newPassword)) {
-                showPasswordError(newPasswordError, 'Password must be 8-16 characters and include letters, numbers, and symbols.');
-            } else {
-                clearPasswordError(newPasswordError);
-            }
+          
 
             // Check if passwords match whenever a new password is entered
             checkPasswordsMatch();

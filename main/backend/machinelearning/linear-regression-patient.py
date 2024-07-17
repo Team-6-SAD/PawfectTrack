@@ -1,14 +1,14 @@
 import mysql.connector
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from datetime import datetime, timedelta
 import json
+import warnings
 
 def retrieve_patient_data(connection):
     """Retrieve patient data from the MySQL database."""
     try:
         # Modify the SQL query to group by DateAdded and calculate the count of patients for each day
-        sql = "SELECT DateAdded, COUNT(*) AS PatientCount FROM patient_ml GROUP BY DateAdded"
+        sql = "SELECT DateAdded, COUNT(*) AS PatientCount FROM patient GROUP BY DateAdded"
         patient_data = pd.read_sql(sql, connection)
         return patient_data
     except Exception as e:
@@ -66,15 +66,17 @@ def predict_next_days(model, latest_data_point):
         print(f"Error predicting next days: {e}")
         return None
 
-
 def main():
     """Main function."""
     try:
+        # Suppress pandas warning about DBAPI2 objects
+        warnings.filterwarnings("ignore", category=UserWarning, module="pandas")
+
         # Connect to the MySQL database
         conn = mysql.connector.connect(
             host="localhost",
-            user="root",
-            password="",
+            user="pawfect",
+            password="EJHts0D5qExNa9P4IOAt",
             database="pawfect"
         )
 

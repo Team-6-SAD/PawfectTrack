@@ -100,8 +100,8 @@ def main():
         # Connect to the MySQL database
         conn = mysql.connector.connect(
             host="localhost",
-            user="root",
-            password="",
+            user="pawfect",
+            password="EJHts0D5qExNa9P4IOAt",
             database="pawfect"
         )
 
