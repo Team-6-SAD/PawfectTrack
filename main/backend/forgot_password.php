@@ -15,7 +15,7 @@ use PHPMailer\PHPMailer\Exception;
 $emailHost = 'smtp.gmail.com';
 $emailUsername = 'dummyacc0894@gmail.com';
 $emailPassword = 'jmqxgzcmremoudtk';
-$emailSenderAddress = 'dummyacc0894@gmail.com';
+$emailSenderAddress = 'pawfecttrack@gmail.com';
 $emailSenderName = 'Dummy Daccount';
 
 // Check if the form was submitted with an email
@@ -38,6 +38,7 @@ if(isset($_POST['email'])) {
 
         // Store the random code in a session variable
         $_SESSION['reset_code'] = $randomCode;
+        $_SESSION['reset_code_expiry'] = time() + (30 * 60);
 
         // Send the code via email
         $mail = new PHPMailer(true);
@@ -56,10 +57,16 @@ if(isset($_POST['email'])) {
             $mail->setFrom($emailSenderAddress, $emailSenderName);
             $mail->addAddress($email); // Add a recipient
 
-            // Content
-            $mail->isHTML(true); // Set email format to HTML
+            $mail->isHTML(false); // Set email format to HTML
             $mail->Subject = 'Password Reset Code';
-            $mail->Body    = 'Your password reset code is: ' . $randomCode;
+            $mail->Body    = "Dear User,\r\n";
+            $mail->Body   .= "We received a request to reset your password for your account on PawfectTrack. If you did not request a password reset, please ignore this email.\r\n";
+            $mail->Body   .= "To reset your password, please use the reset code below:\r\n\r\n";
+            $mail->Body   .= "{$randomCode}\r\n";
+            $mail->Body   .= "This reset code will be available for 30 minutes only for security reasons.\r\n";
+            $mail->Body   .= "If you have any questions or need further assistance, please contact our team at pawfecttrack@gmail.com\r\n\r\n";
+            $mail->Body   .= "Thank you,\r\n";
+            $mail->Body   .= "PawfectTrack Team";
 
             $mail->send();
 

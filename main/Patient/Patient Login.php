@@ -5,6 +5,11 @@ if (isset($_SESSION['error'])) {
     $errorMessage = $_SESSION['error'];
     unset($_SESSION['error']);
 }
+if (isset($_SESSION['user']) && isset($_SESSION['userID'])) {
+    // Redirect the user to the login page
+    header("Location: patientdashboard.php");
+    exit(); // Terminate the script
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -169,7 +174,7 @@ if (isset($_SESSION['error'])) {
                     <form method="post" action="patient-backend/patient-login-backend.php" id="loginForm">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="last-name"><b>Username</b><span class="red">*</span></label>
+                            <label for="last-name">Username<span class="red">*</span></label>
                             <input type="text" id="username" name="username" class="form-control" placeholder="Username"  oninput="preventSpaces(event)">
                             <div id="username-error" class="text-danger"></div>
                         </div>

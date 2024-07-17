@@ -158,6 +158,7 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
 </head>
 <body>
 <div class="container mb-5">
+    
     <div class="row justify-content-center px-5 ">
         <div class="col-lg-6 mt-3 pb-0 pt-5 px-0 image-container">
             <img src="img/img-login-register/Admin Authentication.png" alt="Admin Authentication" style="height:522px; width:600px;">
@@ -197,6 +198,24 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
                                 </div>
                             </div>
                             <div class="col-md-6">
+                            <div class="form-group">
+    <label for="suffix">Suffix</label>
+    <select id="suffix" name="suffix" class="form-control">
+        <option value="" disabled selected>Select a suffix</option>
+        <option value="Jr.">Jr.</option>
+        <option value="Sr.">Sr.</option>
+        <option value="II">II</option>
+        <option value="III">III</option>
+        <option value="IV">IV</option>
+        <option value="Other">Other</option>
+    </select>
+    
+    <input type="text" id="custom-suffix" name="custom-suffix" class="form-control mt-2" placeholder="Enter suffix" style="display: none;" maxlength="7" oninput="preventLeadingSpace(event)">
+    <small id="suffix-error" class="text-danger"></small>
+</div>
+
+                            </div>
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="username">Username<span class="red">*</span></label>
                                     <input type="text" id="username" name="username" class="form-control" placeholder="Username" oninput="preventSpaces(event)" maxlength="16">
@@ -227,7 +246,12 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
                                         <button type="button" class="toggle-btn" onclick="togglePasswordVisibility('password')">SHOW</button>
                     
                                     </div>
-                                    <small id="password-error" class="text-danger"></small>
+                                    <div style="font-size: 12px; line-height: 10px;">
+                                    <span id="password-message" class="text-secondary" >
+    Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).
+</span>
+</div>
+
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -259,6 +283,32 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $('#suffix').change(function() {
+        if ($(this).val() === 'Other') {
+            $('#custom-suffix').show();
+        } else {
+            $('#custom-suffix').hide();
+        }
+    });
+
+    // Function to prevent leading space
+    function preventLeadingSpace(event) {
+        const input = event.target;
+        if (input.value.startsWith(' ')) {
+            input.value = input.value.trimStart();
+        }
+    }
+
+    // Add event listener for custom suffix input
+    $('#custom-suffix').on('input', function(event) {
+        preventLeadingSpace(event);
+    });
+});
+
+</script>
     <script>
         document.getElementById('phone-number').addEventListener('input', function (e) {
             const input = e.target;
@@ -345,237 +395,234 @@ if (isset($_SESSION['admin']) || isset($_SESSION['adminID'])) {
         input.value = value;
     }
 
-    $(document).ready(function() {
-        const touchedFields = {
-            'first-name': false,
-            'last-name': false,
-            'username': false,
-            'phone-number': false,
-            'email': false,
-            'password': false,
-            'confirmPassword': false
-        };
+    </script>
+<script>
+$(document).ready(function() {
+    const validDomains = []; // Array to store valid domains
 
-        function validateField(field) {
-            const value = field.val().trim();
-            let isValid = true;
-            let errorMessage = '';
-            let successMessage = '';
+    // Fetch valid domains from CSV file
+    fetch('free-domains-2.csv')
+        .then(response => response.text())
+        .then(csvData => {
+            validDomains.push(...csvData.split('\n').map(domain => domain.trim()));
+            console.log('Valid domains:', validDomains); // Debug log to check valid domains
+        })
+        .catch(error => console.error('Error fetching CSV file:', error));
 
-            switch (field.attr('id')) {
-                case 'first-name':
-                    if (value === '') {
-                        isValid = false;
-                        errorMessage = 'Please enter your First Name.';
-                    }
-                    break;
-                case 'last-name':
-                    if (value === '') {
-                        isValid = false;
-                        errorMessage = 'Please enter your Last Name.';
-                    }
-                    break;
-                case 'username':
-                    if (value === '') {
-                        isValid = false;
-                        errorMessage = 'Please enter a Username.';
-                    } else if (value.length < 8 || value.length > 16) {
-                        isValid = false;
-                        errorMessage = 'Username must be between 8 and 16 characters.';
-                    }
-                    break;
-                case 'phone-number':
-                    if (value === '' || !validatePhoneNumber(value)) {
-                        isValid = false;
-                        errorMessage = 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.';
-                    }
-                    break;
-                case 'email':
-                    if (value === '' || !validateEmail(value)) {
-                        isValid = false;
-                        errorMessage = 'Please enter a valid Email.';
-                    }
-                    break;
-                case 'password':
-                    if (value === '' || !validatePassword(value)) {
-                        isValid = false;
-                        errorMessage = 'Password must be 8-16 characters long and contain at least one letter, one number, and one special character (@$!%*?&).';
-                    }
-                    break;
-                case 'confirmPassword':
-                    const password = $('#password').val().trim();
-                    if (value === '') {
-                        isValid = false;
-                        errorMessage = 'Please confirm your Password.';
-                    } else if (value !== password) {
-                        isValid = false;
-                        errorMessage = 'Passwords do not match.';
-                    } else {
-                        successMessage = 'Passwords match!';
-                    }
-                    break;
-            }
+    // Function to validate email format and domain
+    function validateEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailDomain = email.split('@')[1];
 
-            if (!isValid && touchedFields[field.attr('id')]) {
-                showError(field, errorMessage);
-            } else if (isValid && touchedFields[field.attr('id')]) {
-                removeError(field);
-                if (field.attr('id') === 'confirmPassword') {
-                    showSuccess(field, successMessage);
+        if (!emailPattern.test(email)) {
+            return 'Invalid email format.';
+        } else if (!validDomains.includes(emailDomain)) {
+            return 'Please enter an email with a known domain.';
+        } else {
+            return ''; // Email is valid
+        }
+    }
+
+    // Function to validate password format
+    function validatePassword(password) {
+        const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        return re.test(password);
+    }
+    function validateconfirmPassword(confirmPassword) {
+        const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+        return re.test(confirmPassword);
+    }
+
+    // Function to validate phone number format
+    function validatePhoneNumber(phoneNumber) {
+        const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
+        return re.test(phoneNumber);
+    }
+
+    // Function to validate name format
+    function validateName(name) {
+        const namePattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/; // Allows letters, spaces, hyphens, and apostrophes
+        const repeatingCharsPattern = /(.)\1{2,}/; // Matches any character repeated 3 or more times
+
+        if (!namePattern.test(name)) {
+            return 'Names should only contain letters, spaces, hyphens, and apostrophes.';
+        } else if (repeatingCharsPattern.test(name)) {
+            return 'Names should not contain repeating characters.';
+        } else if (/[A-Z]{2,}/.test(name) || /^[a-z]/.test(name) && /[A-Z]/.test(name.substring(1))) {
+            return 'Names should not have unusual capitalization.';
+        } else {
+            return '';
+        }
+    }
+
+    // Function to show error message for a field
+    function showError(input, message) {
+        const errorElement = $('#' + input.attr('id') + '-error');
+        errorElement.text(message);
+        errorElement.removeClass('text-success').addClass('text-danger');
+        input.addClass('error-border');
+    }
+
+    // Function to remove error message for a field
+    function removeError(input) {
+        input.removeClass('error-border');
+        const errorElement = $('#' + input.attr('id') + '-error');
+        errorElement.text('');
+    }
+
+    // Function to check individual field validity
+    function checkFieldValidity(fieldId, value) {
+        let errorMessage = '';
+
+        switch (fieldId) {
+            case 'username':
+                if (value && value.length < 8 || value.length > 16) {
+                    errorMessage = 'Username must be between 8 and 16 characters.';
                 }
-            }
-
-            return isValid;
+                break;
+            case 'phone-number':
+                if (!validatePhoneNumber(value)) {
+                    errorMessage = 'Please enter a valid Phone Number starting with "09" and containing exactly 11 digits.';
+                }
+                break;
+            case 'email':
+                errorMessage = validateEmail(value); // Validate email format and domain
+                break;
+            case 'password':
+                if (!validatePassword(value)) {
+                    errorMessage = 'Please enter a valid password with at least one letter, one number, and one special character (@$!%*?&).';
+                }
+                break;
+            case 'confirmPassword':
+                const password = $('#password').val().trim();
+                if (!validateconfirmPassword(value)) {
+                    errorMessage = 'Password must be a combination of text, numbers, and symbols (@$!%*?&).';
+                } else if (value && value !== password) {
+                    errorMessage = 'Passwords do not match.';
+                }
+                break;
+            case 'first-name':
+            case 'last-name':
+                errorMessage = validateName(value);
+                break;
         }
 
-        function validateForm() {
-            let isFormValid = true;
+        return errorMessage;
+    }
 
-            $('input').each(function() {
-                if (!validateField($(this))) {
-                    isFormValid = false;
-                }
-            });
-
-            $('#submit-button').prop('disabled', !isFormValid);
-
-            return isFormValid;
-        }
+    // Function to check overall form validity
+    function checkFormValidity() {
+        let isFormValid = true;
 
         $('input').each(function() {
             const field = $(this);
-            const fieldId = field.attr('id');
+            const value = field.val().trim();
+            const errorMessage = checkFieldValidity(field.attr('id'), value);
 
-            field.val(sessionStorage.getItem(fieldId) || ''); // Load saved value
-
-            field.on('blur', function() {
-                touchedFields[fieldId] = true;
-                validateField(field);
-                validateForm();
-            });
-
-            field.on('input', function(event) {
-                sessionStorage.setItem(fieldId, field.val()); // Save value
-
-                // Immediate validation for correct format (e.g., phone number)
-                if (fieldId === 'phone-number') {
-                    formatPhoneNumber(event);
-                }
-
-                // Remove error messages immediately if field value is valid
-                if (validateField(field) && touchedFields[fieldId]) {
-                    removeError(field);
-                }
-
-                validateForm();
-            });
-        });
-
-        $('#registrationForm').on('submit', function(event) {
-            event.preventDefault();
-
-            // Mark all fields as touched for final validation
-            for (const field in touchedFields) {
-                touchedFields[field] = true;
-            }
-
-            if (validateForm()) {
-                submitForm();
+            if (errorMessage) {
+                isFormValid = false; // Mark form as invalid if any field has an error
             }
         });
 
-        function validateEmail(email) {
-            const re = /^[\w-]+(\.[\w-]+)*@(?:(?:gmail|yahoo|outlook)\.com)$/;
-            return re.test(email);
-        }
-
-        function validatePhoneNumber(phoneNumber) {
-            const re = /^09\d{9}$/; // Matches "09" followed by 9 digits
-            return re.test(phoneNumber);
-        }
-
-        function validatePassword(password) {
-            const re = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
-            return re.test(password);
-        }
-
-        function showError(input, message) {
-            const errorElement = $('#' + input.attr('id') + '-error');
-            errorElement.text(message);
-            errorElement.removeClass('text-success').addClass('text-danger');
-            input.addClass('error-border');
-        }
-
-        function removeError(input) {
-            input.removeClass('error-border');
-            const errorElement = $('#' + input.attr('id') + '-error');
-            errorElement.text('');
-        }
-
-        function showSuccess(input, message) {
-            const errorElement = $('#' + input.attr('id') + '-error');
-            errorElement.text(message);
-            errorElement.removeClass('text-danger').addClass('text-success');
-        }
-
-        function submitForm() {
-            const formData = new FormData($('#registrationForm')[0]);
-
-            $.ajax({
-                url: $('#registrationForm').attr('action'),
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-              success: function(result) {
-    console.log('Form submitted successfully:', result); // Debug log
-
-    // Parse result as JSON
-    try {
-        result = JSON.parse(result);
-    } catch (e) {
-        console.error('Error parsing JSON:', e);
-        return;
+        // Enable or disable the submit button based on form validity
+        $('#submit-button').prop('disabled', !isFormValid);
     }
 
-    // Continue with handling the parsed result
-    if (result.status === 'success') {
-        console.log('Redirecting to Registration Success.php');
-        sessionStorage.clear();
-        window.location.href = 'Registration Success.php';
-    } else if (result.status === 'error') {
-        console.log('Server returned an error:', result.message); // Log the error message
-        $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-            result.message +
-            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-            '<span aria-hidden="true">&times;</span>' +
-            '</button>' +
-            '</div>');
-    } else {
-        console.log('Unexpected server response:', result); // Log unexpected response
-    }
-},
-
-error: function(error) {
-    console.error('Error submitting form:', error);
-}
-
-            });
-        }
-
-        // Bind togglePasswordVisibility function to click events
-        $('.toggle-password').on('click', function() {
-            const id = $(this).prev().attr('id');
-            togglePasswordVisibility(id);
-        });
-
-        // Bind preventLeadingSpace and preventSpaces to relevant inputs
-        $('.no-leading-space').on('input', preventLeadingSpace);
-        $('.no-spaces').on('input', preventSpaces);
-
+    // Event listener for input fields to enable/disable submit button
+    $('input').on('input', function() {
+        checkFormValidity();
     });
-</script>
 
+    // Event listener for showing error messages
+    $('input').on('input', function() {
+        $(this).toggleClass('touched');
+    });
+
+    $('input').on('input', function() {
+        const field = $(this);
+        const value = field.val().trim();
+        const errorMessage = checkFieldValidity(field.attr('id'), value);
+
+        if (errorMessage) {
+            showError(field, errorMessage);
+        } else {
+            removeError(field);
+        }
+    });
+
+    // Validate the entire form on submit
+    $('#registrationForm').on('submit', function(event) {
+        event.preventDefault();
+
+        let isFormValid = true;
+        $('input').each(function() {
+            const field = $(this);
+            const value = field.val().trim();
+            const errorMessage = checkFieldValidity(field.attr('id'), value);
+
+            if (errorMessage) {
+                showError(field, errorMessage);
+                isFormValid = false; // Mark form as invalid if any field has an error
+            } else {
+                removeError(field);
+            }
+        });
+
+        console.log('Form validity:', isFormValid); // Debug log
+
+        // If form is valid, submit it via AJAX
+        if (isFormValid) {
+            submitForm();
+        }
+    });
+
+    // Function to submit the form via AJAX
+    function submitForm() {
+        console.log('Submitting form...'); // Debug log
+        const formData = new FormData($('#registrationForm')[0]);
+
+        $.ajax({
+            url: $('#registrationForm').attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(result) {
+                console.log('Form submitted successfully:', result); // Debug log
+
+                // Parse result as JSON
+                try {
+                    result = JSON.parse(result);
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    return;
+                }
+
+                // Continue with handling the parsed result
+                if (result.status === 'success') {
+                    console.log('Redirecting to Registration Success.php');
+                    sessionStorage.clear();
+                    window.location.href = 'Registration Success.php';
+                } else if (result.status === 'error') {
+                    console.log('Server returned an error:', result.message); // Log the error message
+                    $('#alertMessages').html('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                        result.message +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span>' +
+                        '</button>' +
+                        '</div>');
+                } else {
+                    console.log('Unexpected server response:', result); // Log unexpected response
+                }
+            },
+            error: function(error) {
+                console.error('Error submitting form:', error);
+            }
+        });
+    }
+});
+
+</script>
 
 
 

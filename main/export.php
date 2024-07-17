@@ -131,11 +131,92 @@ if ($result) {
     exit;
 }
 
+// Query 6: Get top 5 cities based on patient addresses
+$sql = "SELECT City, COUNT(*) AS CityCount 
+        FROM patientaddress 
+        GROUP BY City 
+        ORDER BY CityCount DESC 
+        LIMIT 5";
+
+$result = $conn->query($sql);
+
+$cities = [];
+$counts = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $cities[] = $row['City'];
+        $counts[] = $row['CityCount'];
+    }
+}
+
+// Query 7: Get age range counts
+$sql = "SELECT 
+            AgeRange,
+            COUNT(*) AS Count
+        FROM (
+            SELECT 
+                CASE 
+                    WHEN Age BETWEEN 1 AND 10 THEN '1-10'
+                    WHEN Age BETWEEN 11 AND 19 THEN '11-19'
+                    WHEN Age BETWEEN 20 AND 29 THEN '20-29'
+                    WHEN Age BETWEEN 30 AND 39 THEN '30-39'
+                    WHEN Age BETWEEN 40 AND 49 THEN '40-49'
+                    WHEN Age BETWEEN 50 AND 59 THEN '50-59'
+                    WHEN Age BETWEEN 60 AND 69 THEN '60-69'
+                    WHEN Age BETWEEN 70 AND 79 THEN '70-79'
+                    WHEN Age BETWEEN 80 AND 89 THEN '80-89'
+                    WHEN Age BETWEEN 90 AND 99 THEN '90-99'
+                    WHEN Age BETWEEN 100 AND 109 THEN '100-109'
+                    WHEN Age BETWEEN 110 AND 119 THEN '110-119'
+                    WHEN Age BETWEEN 120 AND 124 THEN '120-124'
+                    ELSE 'Unknown'
+                END AS AgeRange
+            FROM patient
+        ) AS AgeRanges
+        GROUP BY AgeRange
+        ORDER BY Count DESC
+        LIMIT 5";
+
+$result = mysqli_query($conn, $sql);
+
+// Check if the query was successful
+if ($result) {
+    // Initialize an array to store age range data
+    $ageData = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $ageData[] = $row;
+    }
+} else {
+    // Error executing the query
+    echo "Error fetching age range data: " . mysqli_error($conn);
+    exit;
+}
+
+// Query 8: Get gender count and percentages
+$sql = "SELECT 
+            SUM(CASE WHEN sex = 'Male' THEN 1 ELSE 0 END) AS MaleCount,
+            SUM(CASE WHEN sex = 'Female' THEN 1 ELSE 0 END) AS FemaleCount
+        FROM patient";
+
+$result = $conn->query($sql);
+
+// Initialize variables
+$malePercentage = 0;
+$femalePercentage = 0;
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    
+    // Calculate percentages
+    $totalPatients = $row['MaleCount'] + $row['FemaleCount'];
+    $malePercentage = ($totalPatients > 0) ? ($row['MaleCount'] / $totalPatients) * 100 : 0;
+    $femalePercentage = ($totalPatients > 0) ? ($row['FemaleCount'] / $totalPatients) * 100 : 0;
+}
+
 // Set headers for Excel file download
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=Weekly_Report.xls");
-
-// Output content for Excel file
 ?>
 <html>
 <head>
@@ -202,6 +283,43 @@ header("Content-Disposition: attachment; filename=Weekly_Report.xls");
                 <td><?php echo sanitizeForExcel($data[$i]); ?></td>
             </tr>
         <?php endfor; ?>
+        <tr>
+            <th colspan="2">Top 5 Cities by Patient Count</th>
+        </tr>
+        <tr>
+            <td>City</td>
+            <td>City Count</td>
+        </tr>
+        <?php for ($i = 0; $i < count($cities); $i++): ?>
+            <tr>
+                <td><?php echo sanitizeForExcel($cities[$i]); ?></td>
+                <td><?php echo sanitizeForExcel($counts[$i]); ?></td>
+            </tr>
+        <?php endfor; ?>
+        <tr>
+            <th colspan="2">Age Range Distribution</th>
+        </tr>
+        <tr>
+            <td>Age Range</td>
+            <td>Count</td>
+        </tr>
+        <?php foreach ($ageData as $age): ?>
+            <tr>
+                <td><?php echo sanitizeForExcel($age['AgeRange']); ?></td>
+                <td><?php echo sanitizeForExcel($age['Count']); ?></td>
+            </tr>
+        <?php endforeach; ?>
+        <tr>
+            <th colspan="2">Gender Distribution</th>
+        </tr>
+        <tr>
+            <td>Male Percentage (%)</td>
+            <td><?php echo sanitizeForExcel(number_format($malePercentage, 2)); ?></td>
+        </tr>
+        <tr>
+            <td>Female Percentage (%)</td>
+            <td><?php echo sanitizeForExcel(number_format($femalePercentage, 2)); ?></td>
+        </tr>
     </table>
 </body>
 </html>

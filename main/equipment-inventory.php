@@ -205,6 +205,7 @@ if ($result) {
             <div class="sidebar">
                 <?php include 'includes/sidebar.php'; ?>
             </div>
+            <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
             <?php
 
 
@@ -269,10 +270,7 @@ if ($result) {
                                     <div class="card-body bg-main-color-2 p-5">
                                     <div class="col-md-12 col-lg-12 col-xl-12 d-flex align-items-center p-0">
                                     <div class="d-flex justify-content-between align-items-center mb-2 ml-2 mt-1 w-100">
-    <!-- Edit button on the left -->
-    <button id="editButton" class="btn btn-gray-color btn-custom mr-3 ml-0" style="color:white; border-radius: 6px; font-weight: 400;">
-        Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-    </button>
+
     <!-- Delete button next to Edit -->
     <button id="deleteButton" class="btn btn-danger mr-3">
         <img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove
@@ -290,39 +288,35 @@ if ($result) {
                                         </form>
 
                                         <table id="EquipmentTable" class="table table-striped">
-                                            <thead class="table-header">
-                                                <tr>
-                                                    <th class="px-3"> <input type="checkbox" id="selectAllCheckbox"></th>
-                                                    <th>Product Name</th>
-                                                    <th>Quantity</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <!-- Table rows -->
-                                                <?php
-                                                $sql = "SELECT e.EquipmentID, e.Name AS EquipmentName, SUM(es.Quantity) AS TotalQuantity
-                     FROM equipment e
-                     LEFT JOIN equipmentstock es ON e.EquipmentID = es.EquipmentID
-                     GROUP BY e.EquipmentID, e.Name";
-                                                $result = $conn->query($sql);
-                                                // Iterate over the data to sum quantities for products with the same name
-                                                if ($result->num_rows > 0) {
-                                                    // Output data of each row
-                                                    while ($row = $result->fetch_assoc()) {
-                                                        echo "<tr>";
-                                                        echo "<td class='px-3'><input type='checkbox' class='select-Equip' name='selectedRows[]' value='" . $row['EquipmentID'] . "'></td>";
-                                                        echo "<td>" . $row['EquipmentName'] . "</td>";
-                                                        echo "<td>" . $row['TotalQuantity'] . "</td>";
-                                                        echo "</tr>";
-                                                    }
-                                                } else {
-                                                    echo "<tr><td></td><td>No equipment data available</td><td></td></tr>";
-                                                }
+    <thead class="table-header">
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Table rows -->
+        <?php
+        $sql = "SELECT e.EquipmentID, e.Name AS EquipmentName, SUM(es.Quantity) AS TotalQuantity
+                FROM equipment e
+                LEFT JOIN equipmentstock es ON e.EquipmentID = es.EquipmentID
+                GROUP BY e.EquipmentID, e.Name";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr data-id='" . $row['EquipmentID'] . "'>";
+                echo "<td>" . $row['EquipmentName'] . "</td>";
+                echo "<td>" . $row['TotalQuantity'] . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='2'>No equipment data available</td></tr>";
+        }
+        ?>
+        <!-- More rows here -->
+    </tbody>
+</table>
 
-                                                ?>
-                                                <!-- More rows here -->
-                                            </tbody>
-                                        </table>
                                     </div>
 
                                 </div>
@@ -593,7 +587,7 @@ if ($result) {
                         <!-- Equipment Name Input -->
                         <div class="form-group">
                           <label for="equipmentName"><small><b>Product Name</b></small></label>
-                            <input type="text" class="form-control" id="equipmentName" placeholder="Product Name" name="equipmentName" required oninput="preventSpaces(event)">
+                            <input type="text" class="form-control" id="equipmentName" placeholder="Product Name" name="equipmentName" required oninput="preventLeadingSpace(event)" maxlength="60">
                         </div>
                         <!-- Quantity Input -->
                         <div class="form-group">
@@ -607,7 +601,7 @@ if ($result) {
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center d-flex align-items-center" style="border-top:none">
-                        <button type="submit" class="btn btn-success px-5" style="background-color: #10AC84; !important; border-radius:27.5px !important;">Add Equipment</button> <!-- Submit button added -->
+                        <button type="submit" class="btn btn-success px-5" style="background-color: #10AC84 !important; border-radius:27.5px !important;">Add Equipment</button> <!-- Submit button added -->
                     </div>
                 </form> <!-- Form ends here -->
             </div>
@@ -733,17 +727,11 @@ if ($result) {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="js/notifications.js"></script>
     <script>
         feather.replace();
     </script>
-    <script>
-        $(document).ready(function() {
-            $('#deleteButton').click(function() {
-                $('#removalConfirmationModal').modal('show');
-            });
-        });
-    </script>
+
     <script>
         $(document).ready(function() {
             <?php if (isset($_SESSION['successMessage'])) { ?>
@@ -1013,103 +1001,15 @@ $(document).ready(function() {
         updatePageInfo();
     });
 
-    // Initially hide all checkboxes
-    $('.select-Equip').hide();
 
-    // Flag to track edit mode status
-    var editMode = false;
 
-    // Function to toggle checkboxes visibility inside DataTable rows
-    function toggleCheckboxesVisibility() {
-        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
+ 
+ 
 
-        $(rows).each(function() {
-            var checkbox = $(this).find('.select-Equip');
-            if (editMode) {
-                checkbox.show(); // Show checkbox if edit mode is on
-            } else {
-                checkbox.hide(); // Hide checkbox if edit mode is off
-                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
-            }
-        });
+ 
 
-        // Update buttons visibility after toggling checkboxes
-        toggleButtonsVisibility();
-    }
 
-    // Function to toggle buttons visibility based on number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-Equip:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton, #deleteButton, #viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton, #deleteButton').show();
-            $('#viewButton').hide();
-        } else {
-            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
-        }
-    }
 
-    // Hide "View", "Delete", "Edit" and "Select All" initially
-    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
-
-    // Handle "Edit" button click
-    $('#editButton').on('click', function() {
-        editMode = !editMode; // Toggle edit mode
-
-        // Toggle checkboxes visibility
-        toggleCheckboxesVisibility();
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle().data('checked', false);
-
-        // Uncheck "Select All" checkbox when edit mode is turned off
-        if (!editMode) {
-            $('#selectAllCheckbox').prop('checked', false);
-        }
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-Equip:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function() {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
-        $('.select-Equip', rows).each(function() {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#EquipmentTable tbody').on('change', '.select-Equip', function() {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle "Update" button click
-    $('#updateButton').on('click', function() {
-        var selectedCheckbox = $('.select-Equip:checked');
-
-        // Handle update logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'Edit Patient.php?patientID=' + patientID;
-        } else {
-            alert('Please select exactly one row to update.');
-        }
-    });
 
         // Link custom search input with DataTable
         var customSearchInput = $('#customSearchInput');
@@ -1117,45 +1017,63 @@ $(document).ready(function() {
         table.search(this.value).draw();
     });
     // Handle "View" button click
-    $('#viewButton').on('click', function() {
-        var selectedCheckbox = $('.select-Equip:checked');
 
-        // Handle view logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
+});
+
+$(document).ready(function() {
+    const deleteButton = $('#deleteButton');
+    const rows = $('#EquipmentTable tbody tr');
+    let selectedRows = [];
+
+    rows.on('click', function() {
+        const row = $(this);
+        const id = row.data('id');
+
+        if (row.hasClass('selected')) {
+            row.removeClass('selected');
+            selectedRows = selectedRows.filter(rowId => rowId !== id);
         } else {
-            alert('Please select exactly one row to view.');
+            row.addClass('selected');
+            selectedRows.push(id);
         }
+    });
+
+    deleteButton.on('click', function() {
+        if (selectedRows.length === 0) {
+            alert('Please select a row for deletion.');
+        } else {
+            // Show the confirmation modal
+            $('#removalConfirmationModal').modal('show');
+        }
+    });
+
+    $('#confirmDeleteButton').on('click', function() {
+        $.ajax({
+            type: 'POST',
+            url: 'backend/remove_equipment.php',
+            contentType: 'application/json',
+            data: JSON.stringify({ selectedRows: selectedRows }),
+            success: function(response) {
+                if (response.success) {
+                    selectedRows.forEach(id => {
+                        $(`#EquipmentTable tbody tr[data-id="${id}"]`).remove();
+                        location.reload();
+                    });
+                    selectedRows = [];
+                    $('#removalConfirmationModal').modal('hide');
+                    location.reload();
+                } else {
+                    location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
     });
 });
 
 
-$('#confirmDeleteButton').on('click', function() {
-        var selectedRows = [];
-        $('#EquipmentTable').DataTable().$('tr').each(function() {
-        var checkbox = $(this).find('.select-Equip');
-        if (checkbox.is(':checked')) {
-            selectedRows.push(checkbox.val());
-        }
-    });
-
-        if (selectedRows.length > 0) {
-            $.ajax({
-                type: 'POST',
-                url: 'backend/remove_equipment.php',
-                data: { selectedRows: selectedRows },
-                success: function(response) {
-                    window.location.href = 'equipment-inventory.php';
-                },
-                error: function(xhr, status, error) {
-                    alert('An error occurred: ' + xhr.responseText);
-                }
-            });
-        } else {
-            alert('No rows selected for deletion.');
-        }
-    });
                 </script>
 <script>
     $(document).ready(function() {

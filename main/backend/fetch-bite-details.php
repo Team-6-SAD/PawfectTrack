@@ -21,6 +21,9 @@ mysqli_stmt_bind_param($stmtPatientBite, "is", $patientID, $date);
 mysqli_stmt_execute($stmtPatientBite);
 $resultPatientBite = mysqli_stmt_get_result($stmtPatientBite);
 
+// Initialize an array to store bite pictures
+$bitePictures = [];
+
 // Check if there is a row returned for patient and bite details
 if ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
     // Patient and bite details retrieved successfully
@@ -35,8 +38,15 @@ if ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
     $exposureDate = $rowPatientBite['ExposureDate'];
     $biteLocation = $rowPatientBite['BiteLocation'];
     $exposureMethod = $rowPatientBite['ExposureMethod'];
-    $bitePicture = $rowPatientBite['BitePicture'];
     $dateofTreatment = $rowPatientBite['DateofTreatment'];
+
+    // Add the first bite picture to the array
+    $bitePictures[] = $rowPatientBite['BitePicture'];
+
+    // Fetch additional bite pictures if available
+    while ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
+        $bitePictures[] = $rowPatientBite['BitePicture'];
+    }
 
     // Return the data as a JSON object
     echo json_encode([
@@ -51,7 +61,7 @@ if ($rowPatientBite = mysqli_fetch_assoc($resultPatientBite)) {
         'ExposureDate' => $exposureDate,
         'BiteLocation' => $biteLocation,
         'ExposureMethod' => $exposureMethod,
-        'BitePicture' => $bitePicture,
+        'BitePictures' => $bitePictures,  // Return the array of bite pictures
         'DateofTreatment' => $dateofTreatment
     ]);
 } else {

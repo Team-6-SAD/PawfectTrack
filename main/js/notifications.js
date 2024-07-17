@@ -1,198 +1,203 @@
-
-    $(document).ready(function () {
-        // Attach click event handler to the logout link
-        $('#logoutLink').on('click', function (e) {
-            // Clear sessionStorage
-            sessionStorage.clear();
-        });
+$(document).ready(function () {
+    $('#logoutLink').on('click', function (e) {
+        sessionStorage.clear();
     });
 
+    fetchAndDisplayNotifications();
 
-// Function to redirect to Inventory.php with MedicineBrandID or EquipmentID
+    // Event listeners for the filters
+    $('#allFilter').on('click', function() {
+        fetchAndDisplayNotifications('all');
+        // Update filter UI
+        $('#allFilter').addClass('active-filter');
+        $('#unreadFilter').removeClass('active-filter');
+    });
+
+    $('#unreadFilter').on('click', function() {
+        fetchAndDisplayNotifications('unread');
+        // Update filter UI
+        $('#unreadFilter').addClass('active-filter');
+        $('#allFilter').removeClass('active-filter');
+    });
+});
+
 function redirectToInventory(id, type) {
-  if (type === 'medicine') {
-    window.location.href = `Inventory.php?MedicineBrandID=${id}`;
-  } else if (type === 'equipment') {
-    window.location.href = `equipment-inventory.php?EquipmentID=${id}`;
-  }
+    if (type === 'medicine') {
+        window.location.href = `Inventory.php?MedicineBrandID=${id}`;
+    } else if (type === 'equipment') {
+        window.location.href = `equipment-inventory.php?EquipmentID=${id}`;
+    }
 }
 
-function fetchAndDisplayToasts() {
-  const toastContainer = document.getElementById('toastContainer');
-  
-  // Function to fetch data and generate toast HTML
-  function fetchAndGenerateToasts(endpoint) {
-    return fetch(endpoint)
-      .then(response => response.json())
-      .then(data => {
-        // Generate toast HTML based on type and dismissal status
-        const toastHTML = data.map(item => {
-          if (!item.dismissed_at || new Date(item.dismissed_at) < new Date(Date.now() - 15 * 60 * 1000)) {
-            if (item.type === 'low_stock') {
-              return `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                  <div class="toast-header" style="background-color:#FFC700F2 !important;">
-                    <img src="img/img-dashboard/notif-warn.png" style="height:20px; width:auto;" class="mr-2">
-                    <strong class="mr-auto">Warning: Low Stock</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" data-id="${item.MedicineBrandID || item.EquipmentID}" data-type="${item.type === 'low_stock' ? 'medicine' : 'equipment'}">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="toast-body">
-                    ${item.type === 'low_stock' ? `Stock for ${item.BrandName} is at ${item.TotalQuantity}.` : `Stock for ${item.EquipmentName} is low.`} <br>
-                    ${item.type === 'low_stock' ? `<button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.MedicineBrandID}, 'medicine')">` :
-                    `<button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.EquipmentID}, 'equipment')">`}
-                      Go to Inventory
-                    </button>
-                  </div>
-                </div>
-              `;
-            } else if (item.type === 'no_stock') {
-              return `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                  <div class="toast-header" style="background-color:#FFC700F2 !important;">
-                    <img src="img/img-dashboard/notif-warn.png" style="height:20px; width:auto;" class="mr-2">
-                    <strong class="mr-auto">No Stock Available</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" data-id="${item.MedicineBrandID}" data-type="medicine">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="toast-body">
-                    There is no more stock for ${item.BrandName}. <br>
-                    <button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.MedicineBrandID}, 'medicine')">
-                      Go to Inventory
-                    </button>
-                  </div>
-                </div>
-              `;
-            } else if (item.type === 'expiring_stock') {
-              return `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                  <div class="toast-header" style="background-color:#FFC700F2 !important;">
-                    <img src="img/img-dashboard/notif-warn.png" style="height:20px; width:auto;" class="mr-2">
-                    <strong class="mr-auto">Warning: Expiring Stock</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" data-id="${item.MedicineBrandID}" data-type="medicine">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="toast-body">
-                    Stock for ${item.BrandName} is expiring soon. <br>
-                    Expiry Date: ${item.StockExpiryDate} <br>
-                    <button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.MedicineBrandID}, 'medicine')">
-                      Go to Inventory
-                    </button>
-                  </div>
-                </div>
-              `;
-            } else if (item.type === 'equipment_no_stock') {
-              return `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                  <div class="toast-header" style="background-color:#FFC700F2 !important;">
-                    <img src="img/img-dashboard/notif-warn.png" style="height:20px; width:auto;" class="mr-2">
-                    <strong class="mr-auto">No Equipment Stock Available</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" data-id="${item.EquipmentID}" data-type="equipment">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="toast-body">
-                    There is no more stock for ${item.EquipmentName}. <br>
-                    <button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.EquipmentID}, 'equipment')">
-                      Go to Inventory
-                    </button>
-                  </div>
-                </div>
-              `;
-            }
-   else if (item.type === 'equipment_low_stock') {
-              return `
-                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
-                  <div class="toast-header" style="background-color:#FFC700F2 !important;">
-                    <img src="img/img-dashboard/notif-warn.png" style="height:20px; width:auto;" class="mr-2">
-                    <strong class="mr-auto">Low Equipment Stock </strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close" data-id="${item.EquipmentID}" data-type="equipment">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="toast-body">
-                     ${item.EquipmentName} is low on stock . <br>
-					Current Stock: ${item.Quantity} <br>
-                    <button type="button" class="btn btn-primary btn-sm mt-2" style="border:none !important ;background-color:#0449A6 !important; border-radius:27.5px !important;" onclick="redirectToInventory(${item.EquipmentID}, 'equipment')">
-                      Go to Inventory
-                    </button>
-                  </div>
-                </div>
-              `;
-            }
-          } else {
-            return ''; // Don't display if dismissed within the last 15 minutes
-          }
-        }).join('');
-
-        return toastHTML;
-      })
-      .catch(error => console.error('Error fetching data:', error));
-  }
-
-  // Function to dismiss notification on the server
-  function dismissNotification(id, type) {
+function dismissNotification(id, type) {
     let data = {};
-    if (type === 'medicine') {
-      data.medicine_brand_id = id;
-    } else if (type === 'equipment') {
-      data.equipment_id = id;
+
+    // Handle different notification types
+    if (type === 'low_stock' || type === 'no_stock' || type === 'expiring_stock') {
+        data.medicine_brand_id = id;
+    } else if (type === 'equipment_low_stock' || type === 'equipment_no_stock') {
+        data.equipment_id = id;
+    } else {
+        console.error('Invalid notification type:', type);
+        return;
     }
 
+    console.log('Sending dismiss request:', data);
+
     fetch('dismiss_notification.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     })
-      .then(response => {
+    .then(response => {
+        console.log('Dismiss response:', response);
         if (!response.ok) {
-          console.error('Failed to dismiss notification');
+            throw new Error('Dismiss request failed');
         }
-      })
-      .catch(error => {
-        console.error('Error dismissing notification:', error);
-      });
-  }
-
-  // Clear the toast container
-  toastContainer.innerHTML = ''; 
-
-  // Fetch and display toasts
-  fetchAndGenerateToasts('notifications.php')
-    .then(toastHTML => {
-      // Append generated toast HTML to toastContainer
-      toastContainer.innerHTML += toastHTML;
-
-      // Initialize Bootstrap toasts
-      const toastElements = toastContainer.querySelectorAll('.toast');
-      toastElements.forEach(toastEl => {
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-      });
-
-      // Close toast on button click
-      const closeButtons = toastContainer.querySelectorAll('.close');
-      closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-id');
-          const type = btn.getAttribute('data-type');
-          dismissNotification(id, type); // Dismiss notification on server
-          const toast = btn.closest('.toast');
-          const toastInstance = bootstrap.Toast.getInstance(toast);
-          toastInstance.hide();
-        });
-      });
+        // Check response type before parsing as JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json(); // Attempt to parse response as JSON
+        } else {
+            throw new Error('Invalid JSON response from server');
+        }
     })
-    .catch(error => console.error('Error generating toasts:', error));
-
-  // Reload notifications after 15 minutes
-  setTimeout(fetchAndDisplayToasts, 15 * 60 * 1000); // 15 minutes in milliseconds
+    .then(data => {
+        console.log('Dismiss response data:', data);
+        // Update UI to remove unread indicator for the dismissed notification
+        const notificationElement = document.getElementById(`notification-${id}`);
+        if (notificationElement) {
+            notificationElement.classList.remove('unread');
+            const unreadIndicator = notificationElement.querySelector('.unread-indicator');
+            if (unreadIndicator) {
+                unreadIndicator.remove();
+            }
+        }
+        // Optionally, perform additional UI updates or actions upon successful dismissal
+    })
+    .catch(error => {
+        // Handle fetch errors or parsing errors
+        console.error('Error dismissing notification:', error);
+        
+        // Log specific error details if needed
+        if (error instanceof TypeError || error.message === 'Invalid JSON response from server') {
+            response.text().then(text => {
+                console.error('Dismiss response text:', text);
+            });
+        } else {
+            console.error('Dismiss request failed:', error.message);
+        }
+    });
 }
 
-// Fetch and display toasts when the page loads
-document.addEventListener('DOMContentLoaded', fetchAndDisplayToasts);
+function fetchAndDisplayNotifications(filter = 'all') {
+    const notificationContainer = document.getElementById('notificationContainer');
+
+    function fetchAndGenerateNotifications(endpoint) {
+        return fetch(endpoint)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notifications fetched:', data);
+
+                // Update the notification count
+                const notificationCount = data.count;
+                document.querySelector('.badge-notif').textContent = notificationCount;
+
+                // Generate notification HTML
+                const notificationsHTML = data.notifications.map(item => {
+                    const isUnread = !item.dismissed || (new Date() - new Date(item.dismissed)) <= (24 * 60 * 60 * 1000);
+                    const showNotification = filter === 'all' || (filter === 'unread' && isUnread);
+
+                    if (showNotification) {
+                        let redirectURL = '';
+                        let id = '';
+                        if (item.type === 'low_stock' || item.type === 'no_stock' || item.type === 'expiring_stock') {
+                            redirectURL = `Inventory.php?MedicineBrandID=${item.MedicineBrandID}`;
+                            id = item.MedicineBrandID;
+                        } else if (item.type === 'equipment_no_stock' || item.type === 'equipment_low_stock') {
+                            redirectURL = `equipment-inventory.php?EquipmentID=${item.EquipmentID}`;
+                            id = item.EquipmentID;
+                        }
+
+                        let notificationText = '';
+                        if (item.type === 'low_stock') {
+                            notificationText = `<strong><div style="line-height:15px !important;"><span style="font-size:15px;">Low Stock</strong></span> <br><span style="font-size:13px;"> The current stock for ${item.BrandName} is at ${item.TotalQuantity}.</span> </div>`;
+                        } else if (item.type === 'no_stock') {
+                            notificationText = `<strong><div style="line-height:15px !important;"><span style="font-size:15px;"> No Stock Available </strong> </span> <br><span style="font-size:13px;"> There is no more stock for ${item.BrandName}. </span></div>`;
+                        } else if (item.type === 'expiring_stock') {
+                            const expiryDate = formatDate(item.StockExpiryDate);
+                            notificationText = `<strong><div style="line-height:15px !important;"><span style="font-size:15px;">Expiring Stock</span></strong> <br><span style="font-size:13px;">Stock for ${item.BrandName} is expiring soon. Expiry Date is on ${expiryDate}</span> </div>`;
+                        } else if (item.type === 'equipment_no_stock') {
+                            notificationText = `<strong> <div style="line-height:15px !important;"><span style="font-size:15px;"> No Equipment Stock Available</strong> </span><br><span style="font-size:13px;"> There is no more stock for ${item.EquipmentName}.</span> </div>`;
+                        } else if (item.type === 'equipment_low_stock') {
+                            notificationText = `<strong><div style="line-height:15px !important;"><span style="font-size:15px;"> Low Equipment Stock</strong> </span> <br> <span style="font-size:13px;"> ${item.EquipmentName} is low on stock. The current stock for  ${item.EquipmentName} is at  ${item.Quantity} </span> </div>`;
+                        }
+
+                        let unreadIndicator = '';
+                        if (isUnread) {
+                            unreadIndicator = `<span class="unread-indicator"></span>`;
+                        }
+
+                        return `
+                            <div id="notification-${id}" class="notification-item card mb-2 ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick('${id}', '${item.type}', '${redirectURL}')" style="cursor: pointer;">
+                                <div class="card-body">
+                                    ${notificationText}
+                                    ${unreadIndicator}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return ''; // Don't display if not matching the filter
+                    }
+                }).join('');
+                return notificationsHTML;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    notificationContainer.innerHTML = '';
+
+    fetchAndGenerateNotifications('notifications.php')
+        .then(notificationsHTML => {
+            notificationContainer.innerHTML += notificationsHTML;
+        })
+        .catch(error => console.error('Error generating notifications:', error));
+
+    setTimeout(() => fetchAndDisplayNotifications(filter), 15 * 60 * 1000); // Refresh notifications every 15 minutes
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const notifButton = document.querySelector('.button-notif');
+    const notifDropdown = document.getElementById('notificationsDropdown');
+
+    notifButton.addEventListener('click', function() {
+        if (notifDropdown.style.display === 'block') {
+            notifDropdown.style.display = 'none';
+        } else {
+            notifDropdown.style.display = 'block';
+        }
+    });
+
+    // Close the dropdown if clicked outside
+    window.addEventListener('click', function(event) {
+        if (!notifButton.contains(event.target) && !notifDropdown.contains(event.target)) {
+            notifDropdown.style.display = 'none';
+        }
+    });
+
+    // Set active filter background color on page load
+    $('#allFilter').addClass('active-filter');
+});
+
+function handleNotificationClick(id, type, redirectURL) {
+    console.log('Notification clicked:', id, type);
+    dismissNotification(id, type); // Dismiss the notification before redirecting
+    window.location.href = redirectURL; // Redirect to the specified URL
+}
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}

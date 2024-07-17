@@ -38,12 +38,12 @@ if ($row = mysqli_fetch_assoc($result)) {
 }
 
 // Check if the patientID is set in the URL
-if(isset($_GET['patientID'])) {
+if (isset($_GET['patientID'])) {
     // Retrieve the patientID from the URL
     $patientID = $_GET['patientID'];
 
     // Query to fetch data from multiple tables using JOIN
-    $sql = "SELECT p.LastName, p.FirstName, p.MiddleName, p.Age, p.BirthDate, p.Weight, p.Sex,
+    $sql = "SELECT p.LastName, p.FirstName, p.MiddleName, p.Age, p.BirthDate, p.Weight, p.Sex, p.Suffix,
                    c.LineNumber AS ContactLineNumber, c.EmailAddress,
                    a.Address, a.City, a.Province,
                    ec.FullName AS EmergencyContactFullName, ec.Relationship, ec.LineNumber AS EmergencyContactLineNumber,
@@ -62,16 +62,28 @@ if(isset($_GET['patientID'])) {
     $result = mysqli_stmt_get_result($stmt);
 
     // Check if there are any rows returned
-    if(mysqli_num_rows($result) > 0) {
+    if (mysqli_num_rows($result) > 0) {
         // Fetch the data
         $row = mysqli_fetch_assoc($result);
 
-        // Close the statement
-        mysqli_stmt_close($stmt);
+        // Now, check if the PatientID exists in the usercredentials table with ActiveStatus = 'Active'
+        $sql_check = "SELECT * FROM usercredentials WHERE PatientID = ? AND ActiveStatus = 'Active'";
+        $stmt_check = mysqli_prepare($conn, $sql_check);
+        mysqli_stmt_bind_param($stmt_check, "i", $patientID);
+        mysqli_stmt_execute($stmt_check);
+        $result_check = mysqli_stmt_get_result($stmt_check);
 
-        // Close the database connection
-        mysqli_close($conn);
+        $patientExists = mysqli_num_rows($result_check) > 0;
+
+        // Close the statement
+        mysqli_stmt_close($stmt_check);
     }
+
+    // Close the statement
+    mysqli_stmt_close($stmt);
+
+    // Close the database connection
+    mysqli_close($conn);
 }
 ?>
 
@@ -125,6 +137,7 @@ if(isset($_GET['patientID'])) {
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 <!--Profile Picture and Details-->
@@ -171,9 +184,15 @@ if(isset($_GET['patientID'])) {
 <div class="col-md-12 d-flex align-items-end justify-content-end pr-5">
     
 
-    <a href="backend/create-account.php?patientID=<?php echo $patientID; ?>" id="editLink" style="color:white; text-decoration:none;" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2">
-        <b>Create Patient Account</b>
-    </a>
+<?php if (isset($patientExists) && !$patientExists): ?>
+        <a href="backend/create-account.php?patientID=<?php echo $patientID; ?>" id="editLink" class="btn btn-blue-color btn-custom mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2" style="color:white;">
+        Create Patient Account
+        </a>
+    <?php elseif (isset($patientExists) && $patientExists): ?>
+        <button id="accountExists" class="btn btn-secondary mb-2 mb-sm-0 mr-sm-2 pt-2 pb-2" disabled>
+            <b>Account Already Exists</b>
+        </button>
+    <?php endif; ?>
 
 
         </div>
@@ -183,10 +202,12 @@ if(isset($_GET['patientID'])) {
             <div class="card mt-4">
          
                 <div class="card-body p-5">
-                        <h5 class="main-font-color"><b> Personal Information</b> </h5> 
                     
-
+                <div class="row d-flex mb-2">        
+                <h5 class="main-font-color ml-0"><b> Personal Information</b> </h5> 
+                </div>
 <div class="row d-flex mb-4"> 
+    
     <div class= "mr-0 pl-0 col-md-2">
         <div class="profile-category">First Name</div>
         <div class="profile-category-content"><?php echo $row['FirstName']; ?></div>
@@ -200,17 +221,26 @@ if(isset($_GET['patientID'])) {
     <div class="profile-category">Last Name</div>
         <div class="profile-category-content"><?php echo $row['LastName']; ?></div>
     </div>
+    <div class= "col-md-1 p-0">
+    <div class="profile-category">Suffix</div>
+        <div class="profile-category-content"><?php echo $row['Suffix']; ?></div>
+    </div>
     <div class= " col-md-2 p-0">
     <div class="profile-category">Birth Date</div>
         <div class="profile-category-content"><?php echo $row['BirthDate']; ?></div>
     </div>
-    <div class= "col-md-1 p-0">
-    <div class="profile-category">Age</div>
-        <div class="profile-category-content"><?php echo $row['Age']; ?></div>
-    </div>
+
     <div class= "col-md-2 p-0">
+    <div class="row">
+     <div class="col-md-6">
+    <div class="profile-category">Age</div>
+    <div class="profile-category-content"><?php echo $row['Age']; ?></div>
+    </div>
+    <div class="col-md-6">
     <div class="profile-category">Sex</div>
         <div class="profile-category-content"><?php echo $row['Sex']; ?></div>
+        </div>
+    </div>
     </div>
     <div class= "col-md-1 p-0">
     <div class="profile-category">Weight</div>
@@ -249,38 +279,40 @@ if(isset($_GET['patientID'])) {
 <div class="col-md-11">
 <div class="row mt-4">
    
-    <div class="col-md-6">
-        <div class="card pl-5 pr-5 pt-4 pb-5">
-            <h5 class="main-font-color"><b>Emergency Contact</b></h5>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-10 d-flex">
+<div class="col-md-6">
+    <div class="card pl-5 pr-5 pt-4 pb-5">
+        <h5 class="main-font-color"><b>Emergency Contact</b></h5>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12 d-flex flex-column">
+                                <div class="d-flex flex-wrap">
                                     <span class="emergency-contact">Full Name:</span>
-                                    <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactFullName']; ?></span>
+                                    <span class="emergency-contact-content ml-auto text-truncate"><?php echo $row['EmergencyContactFullName']; ?></span>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10 d-flex">
-                                    <span class="emergency-contact">Relationship:</span>
-                                    <span class="emergency-contact-content ml-auto"><?php echo $row['Relationship']; ?></span>
-                                </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12 d-flex">
+                                <span class="emergency-contact">Relationship:</span>
+                                <span class="emergency-contact-content ml-auto"><?php echo $row['Relationship']; ?></span>
                             </div>
-                            <div class="row">
-                                <div class="col-md-10 d-flex">
-                                    <span class="emergency-contact">Phone Number:</span>
-                                    <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactLineNumber']; ?></span>
-                                </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12 d-flex">
+                                <span class="emergency-contact">Phone Number:</span>
+                                <span class="emergency-contact-content ml-auto"><?php echo $row['EmergencyContactLineNumber']; ?></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
-            </div>
- 
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -370,7 +402,7 @@ if(isset($_GET['patientID'])) {
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-
+  <script src="js/notifications.js"></script>
 <!-- Include jQuery -->
 
 <script>

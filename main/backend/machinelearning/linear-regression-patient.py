@@ -8,7 +8,7 @@ def retrieve_patient_data(connection):
     """Retrieve patient data from the MySQL database."""
     try:
         # Modify the SQL query to group by DateAdded and calculate the count of patients for each day
-        sql = "SELECT DateAdded, COUNT(*) AS PatientCount FROM patient_ml GROUP BY DateAdded"
+        sql = "SELECT DateAdded, COUNT(*) AS PatientCount FROM patient GROUP BY DateAdded"
         patient_data = pd.read_sql(sql, connection)
         return patient_data
     except Exception as e:

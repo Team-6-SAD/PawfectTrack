@@ -1,79 +1,78 @@
 <?php
-// Database credentials
 include 'backend/pawfect_connect.php';
-date_default_timezone_set('Asia/Manila'); // Set to Philippine Time
 
-// Read JSON input from POST request
-$inputJSON = file_get_contents('php://input');
-$input = json_decode($inputJSON, true);
+// Capture and log incoming data
+$data = json_decode(file_get_contents('php://input'), true);
+file_put_contents('log.txt', "Incoming Data:\n" . print_r($data, true), FILE_APPEND);
 
-// Check if MedicineBrandID or EquipmentID is provided and valid
-if ((!isset($input['medicine_brand_id']) || !is_numeric($input['medicine_brand_id'])) && 
-    (!isset($input['equipment_id']) || !is_numeric($input['equipment_id']))) {
-    http_response_code(400);
-    die("Invalid ID provided");
+$response = ['status' => 'error', 'message' => 'Invalid data'];
+
+if (isset($data['medicine_brand_id'])) {
+    $medicineBrandID = $data['medicine_brand_id'];
+    
+    // Update medicineinventory table
+    $sqlMedicineInv = "UPDATE medicineinventory SET dismissed_at = NOW() WHERE MedicineBrandID = ?";
+    $stmtMedicineInv = $conn->prepare($sqlMedicineInv);
+    $stmtMedicineInv->bind_param("i", $medicineBrandID);
+    
+    // Update medicinebrand table
+    $sqlMedicineBrand = "UPDATE medicinebrand SET dismissed_at = NOW() WHERE MedicineBrandID = ?";
+    $stmtMedicineBrand = $conn->prepare($sqlMedicineBrand);
+    $stmtMedicineBrand->bind_param("i", $medicineBrandID);
+    
+    // Execute updates
+    $conn->autocommit(false); // Start a transaction
+    $updateMedicineInv = $stmtMedicineInv->execute();
+    $updateMedicineBrand = $stmtMedicineBrand->execute();
+    
+    if ($updateMedicineInv && $updateMedicineBrand) {
+        $conn->commit(); // Commit transaction if both updates are successful
+        $response = ['status' => 'success', 'message' => 'Notification dismissed for medicine and related brand'];
+    } else {
+        $conn->rollback(); // Rollback transaction if any update fails
+        $response['message'] = 'Failed to update medicine and related brand notifications: ' . $conn->error;
+    }
+    
+    $stmtMedicineInv->close();
+    $stmtMedicineBrand->close();
+} elseif (isset($data['equipment_id'])) {
+    $equipmentID = $data['equipment_id'];
+    
+    // Update equipmentstock table
+    $sqlEquipmentStock = "UPDATE equipmentstock SET dismissed_at = NOW() WHERE EquipmentID = ?";
+    $stmtEquipmentStock = $conn->prepare($sqlEquipmentStock);
+    $stmtEquipmentStock->bind_param("i", $equipmentID);
+    
+    // Update equipment table (assuming you have a dismissed_at column in equipment table)
+    $sqlEquipment = "UPDATE equipment SET dismissed_at = NOW() WHERE EquipmentID = ?";
+    $stmtEquipment = $conn->prepare($sqlEquipment);
+    $stmtEquipment->bind_param("i", $equipmentID);
+    
+    // Execute updates
+    $conn->autocommit(false); // Start a transaction
+    $updateEquipmentStock = $stmtEquipmentStock->execute();
+    $updateEquipment = $stmtEquipment->execute();
+    
+    if ($updateEquipmentStock && $updateEquipment) {
+        $conn->commit(); // Commit transaction if both updates are successful
+        $response = ['status' => 'success', 'message' => 'Notification dismissed for equipment and related equipment stock'];
+    } else {
+        $conn->rollback(); // Rollback transaction if any update fails
+        $response['message'] = 'Failed to update equipment and related equipment stock notifications: ' . $conn->error;
+    }
+    
+    $stmtEquipmentStock->close();
+    $stmtEquipment->close();
+} else {
+    $response['message'] = 'No valid ID provided';
 }
 
-// Initialize variables
-$medicine_brand_id = isset($input['medicine_brand_id']) ? intval($input['medicine_brand_id']) : null;
-$equipment_id = isset($input['equipment_id']) ? intval($input['equipment_id']) : null;
-
-// Prepare SQL statements for both tables
-$sqlBrand = "UPDATE medicinebrand SET dismissed_at = NOW() WHERE MedicineBrandID = ?";
-$sqlInventory = "UPDATE medicineinventory SET dismissed_at = NOW() WHERE MedicineBrandID = ?";
-$sqlEquipment = "UPDATE equipment SET dismissed_at = NOW() WHERE EquipmentID = ?";
-$sqlEquipmentStock = "UPDATE equipmentstock SET dismissed_at = NOW() WHERE EquipmentID = ?";
-
-// Start a transaction
-$conn->begin_transaction();
-
-try {
-    // Update dismissed_at in medicinebrand table
-    if ($medicine_brand_id !== null) {
-        $stmtBrand = $conn->prepare($sqlBrand);
-        $stmtBrand->bind_param('i', $medicine_brand_id);
-        if (!$stmtBrand->execute()) {
-            throw new Exception('Failed to update medicinebrand table');
-        }
-        $stmtBrand->close();
-
-        // Update dismissed_at in medicineinventory table
-        $stmtInventory = $conn->prepare($sqlInventory);
-        $stmtInventory->bind_param('i', $medicine_brand_id);
-        if (!$stmtInventory->execute()) {
-            throw new Exception('Failed to update medicineinventory table');
-        }
-        $stmtInventory->close();
-    }
-
-    // Update dismissed_at in equipment table
-    if ($equipment_id !== null) {
-        $stmtEquipment = $conn->prepare($sqlEquipment);
-        $stmtEquipment->bind_param('i', $equipment_id);
-        if (!$stmtEquipment->execute()) {
-            throw new Exception('Failed to update equipment table');
-        }
-        $stmtEquipment->close();
-
-        // Update dismissed_at in equipmentstock table
-        $stmtEquipmentStock = $conn->prepare($sqlEquipmentStock);
-        $stmtEquipmentStock->bind_param('i', $equipment_id);
-        if (!$stmtEquipmentStock->execute()) {
-            throw new Exception('Failed to update equipmentstock table');
-        }
-        $stmtEquipmentStock->close();
-    }
-
-    // Commit the transaction
-    $conn->commit();
-    echo json_encode(['success' => true]);
-} catch (Exception $e) {
-    // Rollback the transaction in case of an error
-    $conn->rollback();
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
-}
-
-// Close the connection
 $conn->close();
+
+// Log the response being sent back
+file_put_contents('log.txt', "Response:\n" . print_r($response, true), FILE_APPEND);
+
+// Set content type to JSON
+header('Content-Type: application/json');
+echo json_encode($response);
 ?>

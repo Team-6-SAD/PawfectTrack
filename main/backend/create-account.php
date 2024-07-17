@@ -83,7 +83,8 @@ if(isset($_GET['patientID'])) {
                 // Content
                 $mail->isHTML(true); // Set email format to HTML
                 $mail->Subject = 'Account Created Successfully';
-                $mail->Body    = 'Dear User, <br><br>Your account has been successfully created.<br>Username: ' . $username . '<br>Password: ' . $password;
+                $mail->Body    = 'Dear User, <br><br>Your account has been successfully created. You can now <br> log in using your username and password  to access your <br> account.
+                <br><br> Login Here: https://pawfecttrack.online/pawfect/main/Patient/Patient%20Login.php <br> <br> Here are your account details: <br> <br>Username: ' . $username . '<br>Password: ' . $password . '<br>If you wish to update your username, you can do so at any <br> time by logging into your account and navigating to the accounts setting page. <br> <br> If you forget your password, you can reset it directly on the <br> login page by clicking the "Forgot Password" link. <br> <br> If you have any questions or need further assistance, please contact our team at pawfecttrack@gmail.com <br> <br> Thank you, <br> <br> PawfectTrack Team';
 
                 $mail->send();
                 $_SESSION['success_message'] = 'Account created successfully. Email sent with account details.';

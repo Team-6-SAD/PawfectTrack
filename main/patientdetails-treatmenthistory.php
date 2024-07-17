@@ -107,6 +107,7 @@ mysqli_close($conn);
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 <!--Profile Picture and Details-->
@@ -228,7 +229,7 @@ mysqli_close($conn);
 
 <!-- Include jQuery -->
 
-
+<script src="js/notifications.js"></script>
 
 <script>
    document.getElementById("profileDropdown").addEventListener("mousedown", function(event) {

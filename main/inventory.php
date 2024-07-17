@@ -107,9 +107,7 @@ select option {
             background-color: #5e6e82 !important;
             border: 1px solid black !important;
         }
-        .hidden {
-            display: none;
-        }
+  
         
     </style>
 
@@ -123,7 +121,7 @@ select option {
             <div class="sidebar">
                 <?php include 'includes/sidebar.php'; ?>
             </div>
-
+            <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
             <!--Profile Picture and Details-->
             <div class="content" id="content">
@@ -151,9 +149,7 @@ select option {
                                 <div id="buttonContainer" class="d-flex flex-column flex-sm-row align-items-center mb-2 ml-2 mt-1">
                                     <!-- Edit button on the left -->
 
-                                    <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 ml-0 " style="color:white;  border-radius: 6px; font-weight: 400;">
-                                        Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-                                    </button>
+                                
                                     <!-- Additional buttons next to Edit -->
                                     <div class="d-flex flex-row flex-wrap align-items-center">
 
@@ -171,98 +167,62 @@ select option {
                                 </form>
 
                                 <table id="example" class="table table-striped">
-                                    <thead class="table-header no-break sm-text text-left">
-                                        <tr>
-                                            <th class="px-3"> <input type="checkbox" id="selectAllCheckbox"></th>
-                                            <th>Product Name</th>
-                                            <th>Quantity</th>
-                                            <th>Price Sold</th>
-                                            <th>Expiry Date</th>
-                                            <th>Price Bought</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                        $sql = "
-    SELECT 
-        mb.MedicineBrandID,
-        mb.BrandName,
-        mb.Route,
-        SUM(mi.StockQuantity) AS TotalStockQuantity,
-        mi.InventoryID,
-        mi.StockPrice,
-        mi.StockDosage,
-        mi.StockExpiryDate,
-        mi.StockBoughtPrice
-    FROM 
-        medicineinventory mi
-    JOIN 
-        medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
-    GROUP BY 
-        mb.MedicineBrandID,  -- Include MedicineBrandID in GROUP BY
-        mb.BrandName,
-        mb.Route,
-        mi.InventoryID,
-        mi.StockPrice,
-        mi.StockDosage,
-        mi.StockExpiryDate,
-        mi.StockBoughtPrice;
-";
- // Group by MedicineID, BrandName, and StockExpiryDate
+    <thead class="table-header no-break sm-text text-left">
+        <tr>
+            <th>Brand Name</th>
+            <th>Quantity</th>
+            <th>Price Sold</th>
+            <th>Expiry Date</th>
+            <th>Price Bought</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        $sql = "
+            SELECT 
+                mb.MedicineBrandID,
+                mb.BrandName,
+                mb.Route,
+                SUM(mi.StockQuantity) AS TotalStockQuantity,
+                mi.InventoryID,
+                mi.StockPrice,
+                mi.StockDosage,
+                mi.StockExpiryDate,
+                mi.StockBoughtPrice
+            FROM 
+                medicineinventory mi
+            JOIN 
+                medicinebrand mb ON mi.MedicineBrandID = mb.MedicineBrandID
+            GROUP BY 
+                mb.MedicineBrandID,
+                mb.BrandName,
+                mb.Route,
+                mi.InventoryID,
+                mi.StockPrice,
+                mi.StockDosage,
+                mi.StockExpiryDate,
+                mi.StockBoughtPrice;
+        ";
 
-                                        $result = $conn->query($sql);
+        $result = $conn->query($sql);
 
-                                        if ($result->num_rows > 0) {
-                                            // Output data of each row
-                                            while ($row = $result->fetch_assoc()) {
-                                                echo "<tr>";
-                                                echo "<td class='px-3'><input type='checkbox' class='select-checkbox' name='selectedRows[]' value='" . $row['InventoryID'] . "'></td>";
-                                                echo "<td>" . $row['BrandName'] . "</td>";
-                                                echo "<td>" . ($row['TotalStockQuantity'] !== null ? $row['TotalStockQuantity'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockPrice'] !== null ? $row['StockPrice'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockExpiryDate'] !== null ? $row['StockExpiryDate'] : 'N/A') . "</td>";
-                                                echo "<td>" . ($row['StockBoughtPrice'] !== null ? $row['StockBoughtPrice'] : 'N/A') . "</td>";
-                                                echo "</tr>";
-                                            }
-                                        } else {
-                                        }
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr data-id='" . $row['InventoryID'] . "'>";
+                echo "<td>" . $row['BrandName'] . "</td>";
+                echo "<td>" . ($row['TotalStockQuantity'] !== null ? $row['TotalStockQuantity'] : '0') . "</td>";
+                echo "<td>" . ($row['StockPrice'] !== null ? $row['StockPrice'] : '0') . "</td>";
+                echo "<td>" . ($row['StockExpiryDate'] !== null ? $row['StockExpiryDate'] : '0') . "</td>";
+                echo "<td>" . ($row['StockBoughtPrice'] !== null ? $row['StockBoughtPrice'] : '0') . "</td>";
+                echo "</tr>";
+            }
+        } else {
+            // Handle no rows case
+        }
+        ?>
+    </tbody>
+</table>
 
-                                        $sql = "SELECT 
-            SUM(es.Quantity) AS TotalQuantity,
-            e.EquipmentID,
-            e.Name
-        FROM 
-            equipmentstock es
-        JOIN 
-            equipment e ON es.EquipmentID = e.EquipmentID
-        GROUP BY 
-            es.EquipmentID";
-
-                                        $result = $conn->query($sql);
-
-                                        // Check if the query was successful
-                                        if ($result) {
-                                            // Initialize an empty array to store the query results
-                                            $equipmentStockData = array();
-
-                                            // Fetch the rows from the result set
-                                            while ($row = $result->fetch_assoc()) {
-                                                // Add each row to the equipment stock data array
-                                                $equipmentStockData[] = $row;
-                                            }
-
-                                            // Now $equipmentStockData contains the fetched data
-                                        } else {
-                                            // Error executing the query
-                                            echo "Error: " . $conn->error;
-                                        }
-                                        ?>
-
-
-
-
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
 
@@ -275,9 +235,7 @@ select option {
                                     <div class="card-body bg-main-color-2 p-4">
 <div class="medicine-header m-0">
     <div class="d-flex justify-content-start align-items-center">
-        <button id="actionButton" class="btn btn-gray-color action-button" style="color:white; border-radius: 6px; font-weight: 400;">
-            Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-        </button>
+
         <button id="deleteButton2" class="btn btn-danger action-button ml-2 hidden"><img src="img/img-dashboard/white-subtract.png" alt="Icon" style="width: 17px; height: 17px; margin-right: 7px;">Remove</button>
     </div>
     <div class="ml-auto">
@@ -293,7 +251,7 @@ select option {
                                             <thead>
                                                 <tr>
                                                     <th class="d-none">Medicine Name</th>
-                                                    <th class="d-none">Brand Name</th>
+                                                    <th class="d-none">Medicine Brand</th>
                                                     <th class="d-none">Total Stock Quantity</th>
                                                 </tr>
                                             </thead>
@@ -398,7 +356,7 @@ select option {
                                     <table id="UsageTable" class="table table-striped">
                                         <thead class="table-header no-break text-center">
                                             <tr>
-                                                <th>Product Name</th>
+                                                <th>Brand Name</th>
                                                 <th>Quantity</th>
                                                 <th>Dosage</th>
                                                 <th>Date Used</th>
@@ -451,7 +409,7 @@ select option {
                                         <div class="form-group col-md-6">
                                             <?php
                                             if (isset($_SESSION['productNameExists']) && $_SESSION['productNameExists'] === true) {
-                                                echo '<div class="alert alert-danger" role="alert">Product Name already exists</div>';
+                                                echo '<div class="alert alert-danger" role="alert">Medical Treatment already exists</div>';
                                                 unset($_SESSION['productNameExists']); // Clear the session variable
                                             }
                                             ?>
@@ -461,7 +419,7 @@ select option {
                                                 unset($_SESSION['productBrandExists']); // Clear the session variable
                                             }
                                             ?>
-                                          <label for="productName"><small class="font-weight-bold">Product Name</small></label>
+                                          <label for="productName"><small class="font-weight-bold">Medical Treatment</small></label>
                                             <input type="text" class="form-control" id="productName" name="productName" required oninput="preventLeadingSpace(event)">
                                         </div>
                                         <div class="form-group col-md-6">
@@ -809,7 +767,10 @@ select option {
                 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
                 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="js/notifications.js"></script>
+
                 <script>
+                  
     document.getElementById('stockDosage').addEventListener('input', function (e) {
         // Remove any non-numeric characters except dot
         this.value = this.value.replace(/[^0-9.]/g, '');
@@ -887,79 +848,70 @@ select option {
         }
     });
 </script>
-                <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const actionButton = document.getElementById('actionButton');
-            const deleteButton = document.getElementById('deleteButton2');
-            const rows = document.querySelectorAll('#TotalStock tbody tr');
-            const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-            const stockModal = new bootstrap.Modal(document.getElementById('stockModal'));
-            let selectedRows = [];
-            let selectionMode = false;
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const deleteButton = document.getElementById('deleteButton2');
+        const rows = document.querySelectorAll('#TotalStock tbody tr');
+        const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const stockModal = new bootstrap.Modal(document.getElementById('stockModal'));
+        let selectedRows = [];
+        let selectionMode = true;
 
-            actionButton.addEventListener('click', () => {
-                selectionMode = !selectionMode;
-              actionButton.innerHTML = selectionMode ? 'Cancel' : 'Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>';
-
-                if (!selectionMode) {
-                    selectedRows.forEach(row => row.classList.remove('selected'));
-                    selectedRows = [];
-                    deleteButton.classList.add('hidden');
+        rows.forEach(row => {
+            row.addEventListener('click', () => {
+                if (selectionMode) {
+                    if (row.classList.contains('selected')) {
+                        row.classList.remove('selected');
+                        selectedRows = selectedRows.filter(r => r !== row);
+                    } else {
+                        row.classList.add('selected');
+                        selectedRows.push(row);
+                    }
                 }
             });
+        });
 
-            rows.forEach(row => {
-                row.addEventListener('click', () => {
-                    if (selectionMode) {
-                        if (row.classList.contains('selected')) {
-                            row.classList.remove('selected');
-                            selectedRows = selectedRows.filter(r => r !== row);
-                        } else {
-                            row.classList.add('selected');
-                            selectedRows.push(row);
-                        }
-                        deleteButton.classList.toggle('hidden', selectedRows.length === 0);
-                    }
-                });
-            });
-
-            deleteButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', () => {
+            if (selectedRows.length === 0) {
+                alert('Please select a row for deletion.');
+            } else {
                 // Show the confirmation modal
                 confirmDeleteModal.show();
-            });
+            }
+        });
 
-            document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-                const idsToDelete = selectedRows.map(row => ({
-                    medicineId: row.getAttribute('data-medicine-id'),
-                    medicineBrandId: row.getAttribute('data-medicine-brand-id')
-                }));
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+            const idsToDelete = selectedRows.map(row => ({
+                medicineId: row.getAttribute('data-medicine-id'),
+                medicineBrandId: row.getAttribute('data-medicine-brand-id')
+            }));
 
-                fetch('backend/delete_medicine.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ ids: idsToDelete }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        selectedRows.forEach(row => row.remove());
-                        selectedRows = [];
-                        deleteButton.classList.add('hidden');
-                        selectionMode = false;
-                        actionButton.textContent = 'Action';
-                        location.reload();
-                    } else {
-                        stockModal.show();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            fetch('backend/delete_medicine.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ids: idsToDelete }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    selectedRows.forEach(row => row.remove());
+                    selectedRows = [];
+                    deleteButton.classList.add('hidden');
+                    selectionMode = false;
+                    location.reload();
+                } else {
+                    stockModal.show();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
         });
-    </script>
+    });
+</script>
+
                 <script>
                     feather.replace();
                 </script>
@@ -1150,103 +1102,13 @@ select option {
         updatePageInfo();
     });
 
-    // Initially hide all checkboxes
-    $('.select-checkbox').hide();
+
 
     // Flag to track edit mode status
-    var editMode = false;
+    var editMode = true;
 
-    // Function to toggle checkboxes visibility inside DataTable rows
-    function toggleCheckboxesVisibility() {
-        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
 
-        $(rows).each(function() {
-            var checkbox = $(this).find('.select-checkbox');
-            if (editMode) {
-                checkbox.show(); // Show checkbox if edit mode is on
-            } else {
-                checkbox.hide(); // Hide checkbox if edit mode is off
-                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
-            }
-        });
 
-        // Update buttons visibility after toggling checkboxes
-        toggleButtonsVisibility();
-    }
-
-    // Function to toggle buttons visibility based on number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton, #deleteButton, #viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton, #deleteButton').show();
-            $('#viewButton').hide();
-        } else {
-            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
-        }
-    }
-
-    // Hide "View", "Delete", "Edit" and "Select All" initially
-    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
-
-    // Handle "Edit" button click
-    $('#editButton').on('click', function() {
-        editMode = !editMode; // Toggle edit mode
-
-        // Toggle checkboxes visibility
-        toggleCheckboxesVisibility();
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle().data('checked', false);
-
-        // Uncheck "Select All" checkbox when edit mode is turned off
-        if (!editMode) {
-            $('#selectAllCheckbox').prop('checked', false);
-        }
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function() {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
-        $('.select-checkbox', rows).each(function() {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function() {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle "Update" button click
-    $('#updateButton').on('click', function() {
-        var selectedCheckbox = $('.select-checkbox:checked');
-
-        // Handle update logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'Edit Patient.php?patientID=' + patientID;
-        } else {
-            alert('Please select exactly one row to update.');
-        }
-    });
 
         // Link custom search input with DataTable
         var customSearchInput = $('#customSearchInput');
@@ -1268,15 +1130,26 @@ select option {
 });
 
 
-$('#confirmDeleteButton').on('click', function() {
-        var selectedRows = [];
-        $('#example').DataTable().$('tr').each(function() {
-        var checkbox = $(this).find('.select-checkbox');
-        if (checkbox.is(':checked')) {
-            selectedRows.push(checkbox.val());
+$(document).ready(function() {
+    var selectedRows = [];
+
+    // Handle row click
+    $('#example').on('click', 'tr', function() {
+        var id = $(this).data('id');
+        
+        // Toggle row selection
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            selectedRows = selectedRows.filter(function(rowId) {
+                return rowId !== id;
+            });
+        } else {
+            $(this).addClass('selected');
+            selectedRows.push(id);
         }
     });
 
+    $('#confirmDeleteButton').on('click', function() {
         if (selectedRows.length > 0) {
             $.ajax({
                 type: 'POST',
@@ -1293,6 +1166,8 @@ $('#confirmDeleteButton').on('click', function() {
             alert('No rows selected for deletion.');
         }
     });
+});
+
                 </script>
                 <script>
                     $(document).ready(function() {

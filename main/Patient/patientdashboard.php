@@ -2,7 +2,7 @@
 session_start();
 
 // Check if the 'admin' session variable is not set or is false (user not logged in)
-if (!isset($_SESSION['user']) || $_SESSION['user'] !== true || !isset($_SESSION['userID'])) {
+if (!isset($_SESSION['user']) && $_SESSION['user'] !== true && !isset($_SESSION['userID'])) {
     // Redirect the user to the login page
     header("Location: Patient Login.php");
     exit(); // Terminate the script

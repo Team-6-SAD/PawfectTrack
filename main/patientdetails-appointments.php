@@ -101,6 +101,7 @@ if (isset($_GET['patientID'])) {
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 
 <!--Profile Picture and Details-->
@@ -248,6 +249,7 @@ while ($row = mysqli_fetch_assoc($result)) {
   
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/notifications.js"></script>
 
   <script>
 $(document).ready(function() {

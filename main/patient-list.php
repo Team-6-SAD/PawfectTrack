@@ -29,40 +29,54 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now fetch one appointment per patient
-   $sql = "
+    $sql = "
+WITH LatestAppointments AS (
     SELECT
         p.PatientID,
-        CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
-        MAX(ai.SessionDays) AS CurrentSession,
-        MAX(ai.AppointmentDate) AS AppointmentDate,
-        MAX(ai.Status) AS Status,
-        MAX(bd.ExposureType) AS ExposureType
+         CONCAT(p.FirstName, ' ', p.LastName,
+               CASE WHEN p.Suffix IS NOT NULL AND p.Suffix <> '' THEN CONCAT(' ', p.Suffix) ELSE '' END
+        ) AS FullName,
+        t.Category,
+        ai.SessionDays AS CurrentSession,
+        ai.Status AS Status,
+        ai.AppointmentDate AS AppointmentDate,
+        ROW_NUMBER() OVER (
+            PARTITION BY p.PatientID
+            ORDER BY 
+                CASE WHEN ai.Status = 'Done' THEN 1 ELSE 0 END,  -- Done sessions last
+                ai.AppointmentDate ASC  -- Earliest appointment first
+        ) AS rn
     FROM
         patient p
-    LEFT JOIN
-        treatment t ON p.PatientID = t.PatientID
-    LEFT JOIN
-        (
-            SELECT
-                ai1.PatientID,
-                ai1.SessionDays,
-                ai1.AppointmentDate,
-                ai1.Status,
-                ai1.TreatmentID
-            FROM
-                appointmentinformation ai1
-            WHERE
-                ai1.Status = 'Pending'
-        ) ai ON t.TreatmentID = ai.TreatmentID
-    LEFT JOIN
-        bitedetails bd ON bd.PatientID = p.PatientID
+    LEFT JOIN (
+        SELECT
+            t1.PatientID,
+            t1.TreatmentID,
+            t1.Category
+        FROM
+            treatment t1
+        WHERE
+            t1.TreatmentID IN (
+                SELECT MAX(t2.TreatmentID)
+                FROM treatment t2
+                GROUP BY t2.PatientID
+            )
+    ) t ON p.PatientID = t.PatientID
+    LEFT JOIN appointmentinformation ai ON t.TreatmentID = ai.TreatmentID
     WHERE
         p.ActiveStatus = 'Active'
-    GROUP BY
-        p.PatientID, p.FirstName, p.LastName  -- Group by all non-aggregated columns in SELECT
-    ORDER BY
-        MAX(ai.AppointmentDate) ASC; -- Ensure the earliest pending appointment date is selected
+)
+
+SELECT *
+FROM LatestAppointments
+WHERE rn = 1
+ORDER BY PatientID DESC, AppointmentDate;
+
+
+
 ";
+
+
 
     
     
@@ -89,6 +103,9 @@ mysqli_close($conn);
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
   <link href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"  rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.css">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -138,12 +155,7 @@ table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, 
         .table thead th{
             border-bottom: none;
         }
-        #example thead th:first-child::after {
-    display: none;
-}
-#example thead th:first-child::before {
-    display: none;
-}
+
 .table td, .table th{
     border-top: none;
 }
@@ -169,7 +181,60 @@ tbody tr:nth-child(odd) {
 .select2-container--default .select2-selection--single{
   border-radius: 0px;
     }
+    
 </style>
+<style>
+.select-card {
+  cursor: pointer;
+
+ 
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.select-card:hover {
+  border-color: #007bff;
+  border: 2px solid #007bff;
+  transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  background-color: #F1F1F1;
+}
+
+.select-card-2 {
+  cursor: pointer;
+
+ 
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.select-card-2:hover {
+  border-color: #00B6BE;
+  border: 2px solid #00B6BE;
+  transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  background-color: #F1F1F1;
+}
+
+
+
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 14px;
+}
+</style>
+
+
+
+
 </head>
 <body>
 <div class="container-fluid">
@@ -179,7 +244,7 @@ tbody tr:nth-child(odd) {
         <div class="sidebar">
             <?php include 'includes/sidebar.php'; ?>
         </div>
-
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 
 <!--Profile Picture and Details-->
         <div class="content" id="content">
@@ -187,21 +252,15 @@ tbody tr:nth-child(odd) {
         <div class="col-md-12">
                     <div class="card mx-auto  table-card">
                     
-                        <h4 class="card-title text-center main-font-color p-3 table-header-1" style="background-color:#faf9fd;  border-radius: 8px 8px 0 0;"><b>LIST OF PATIENTS</b></h4>
+                        <h4 class=" text-center main-font-color p-3 table-header-1" style="background-color:#faf9fd;  border-radius: 8px 8px 0 0;"><b>LIST OF PATIENTS</b></h4>
 
 
                         <div id="buttonContainer" class="d-flex flex-column flex-md-row align-items-center mb-2 ml-2 mt-1 pl-1 pr-3">
     <!-- Edit button on the left -->
-   
-    <button id="editButton" class="btn btn-gray-color btn-custom  mr-3 px-3 ml-3 py-2" style="color:white;  border-radius: 6px; font-weight: 400;">
-  Action <span style="font-size: 8px; vertical-align: middle;"> &#9654; </span>
-</button>
+
     <!-- Additional buttons next to Edit -->
     <div class="d-flex flex-row flex-wrap align-items-center">
-     
-        <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;">View </button>
-        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-3 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Archive</button>
-        <button id="updateButton" class="btn btn-custom btn-blue-color btn-outline-info mr-3 px-4 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Edit</button>
+
 
     </div>
 
@@ -209,8 +268,12 @@ tbody tr:nth-child(odd) {
                     
                         <!-- Spacer to push custom search and Excel export buttons to the right -->
                             <div class="flex-grow-1"></div>
+                            <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2 px-3 py-2" style="white-space: nowrap; color:white; margin-bottom:1px;" >Archive</button>
                             <button id="existingPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 px-2"> <img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Existing Account</button> 
-                            <button id="addPatient" class="btn greener  mb-2 mb-sm-0 mr-sm-2 "><img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom:1px;"> Add Patient</button> 
+                            <button id="addPatient" class="btn greener mb-2 mb-sm-0 mr-sm-2" data-toggle="modal" data-target="#addPatientModal">
+    <img src="img/img-dashboard/white-add.png" alt="Icon" style="width: 20px; height: 20px; margin-right: 3px; margin-bottom: 1px;"> 
+    Add Patient
+</button>
                         <!-- Custom search on the right -->
                         
                     
@@ -236,12 +299,12 @@ if (mysqli_num_rows($patients_result) > 0) {
     echo '<table class="table" id="example">';
     echo '<thead class="table-header">';
     echo '<tr>';
-    echo '<th scope="col" class="pl-3"><input type="checkbox" id="selectAllCheckbox"> </th>';
     echo '<th scope="col">Patient ID</th>';
     echo '<th scope="col">Full Name</th>';
     echo '<th scope="col">Current Session</th>';
     echo '<th scope="col">Appointment Date</th>';
     echo '<th scope="col">Type of Exposure</th>';
+    echo '<th scope="col">Status</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -249,22 +312,17 @@ if (mysqli_num_rows($patients_result) > 0) {
     // Loop through each patient and insert data into table rows
     while ($patient = mysqli_fetch_assoc($patients_result)) {
         echo "<tr>";
-        echo "<td scope='row' class='pl-3'><input type='checkbox' class='select-checkbox' value='" . $patient['PatientID'] . "'></td>";
         echo "<td class='pl-3'>" . $patient['PatientID'] . "</td>";
-        echo "<td class='pl-3'>" . $patient['FullName'] . "</td>";
-        if ($patient['Status'] != "Pending") {
-            echo "<td class='pl-3'>Completed</td>"; // Display "Completed" if status is "Done"
-        } else {
+        echo "<td class='pl-3'><a href='patientdetails-profile.php?patientID=" . $patient['PatientID'] . "'>" . $patient['FullName'] . "</a></td>";
+
         echo "<td class='pl-3'>" . 'Day' . " " .  $patient['CurrentSession'] . "</td>";
-    }
-       
-    if ($patient['Status'] != "Pending") {
-        echo "<td class='pl-3'>Completed</td>"; // Display "Completed" if status is "Done"
-    } else {
-            echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>"; // Otherwise, display the appointment date
-        }
     
-        echo "<td class='pl-3'>" . $patient['ExposureType'] . "</td>";
+            echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>"; // Otherwise, display the appointment date
+        
+    
+        echo "<td class='pl-3'>" . $patient['Category'] . "</td>";
+        echo "<td class='pl-3'>" . $patient['Status'] . "</td>";
+
         echo "</tr>";
     }
     
@@ -311,8 +369,8 @@ if (mysqli_num_rows($patients_result) > 0) {
 <small style="letter-spacing: -1px; color:#5e6e82;"> selected patient record/s?<br></small>
 </div>
 <div class="align-items-center justify-content-center d-flex mb-3 mt-3">
-<button type="button" style="background-color: #C1C1C1; border:none;" class="btn btn-success px-3 mr-2 py-2" data-dismiss="modal"><b>Cancel</b></button>
-<button type="button" style="background-color: #2e86de; border:none;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()"><b>Archive</b></button>
+<button type="button" style="background-color: none; border:none; color:#5e6e82;" class="btn px-3 mr-4 py-2" data-dismiss="modal">Cancel</button>
+<button type="button" style="background-color: #2e86de; border:none; border-radius: 27.5px !important;" class="btn btn-success px-3 py-2" onclick="deleteSelectedRows()">Archive</button>
 </div>
 </div>  
 </div>
@@ -329,7 +387,7 @@ if (mysqli_num_rows($patients_result) > 0) {
                 </button>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="patientForm">
                     <div class="form-group px-5">
                       <label for="patientSelect"><small>Existing Account of Patient</small></label>
                         <select class="form-control" id="patientSelect" style="width: 100%;">
@@ -395,6 +453,86 @@ if (mysqli_num_rows($patients_result) > 0) {
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="addPatientModal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title p-3" id="addPatientModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="add-pre-exposure.php" class="card select-card" id="preExposureCard" style="text-decoration:none;">
+                            <div class="card-body d-flex flex-column align-items-center p-1">
+                                <img src="img/img-dashboard/immune-booster.png" style="height:100px; width:100px;">
+                                <h5 class="card-title mt-2" style="color:#002074;">Pre-exposure</h5>
+                                <p class="font-weight-normal" style="font-size:11px; color:black;">To prevent rabies infection before any potential exposure to the virus.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="add-post-exposure.php" class="card select-card-2" id="postExposureCard" style="text-decoration:none;">
+                            <div class="card-body d-flex flex-column align-items-center p-1">
+                                <img src="img/img-dashboard/syringe.png" style="height:100px; width:100px;">
+                                <h5 class="card-title mt-2" style="color:#00B6BE;">Post-exposure</h5>
+                                <p class="font-weight-normal" style="font-size:11px; color:black;">To prevent rabies infection after a potential exposure to the virus.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="modal-footer justify-content-center" style="border-top:none !important;">
+                <button type="button" class="btn " data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" style="background-color:#1BB58D; border-radius:27.5px !important; border:none;" id="saveCategory">Save changes</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addExistingPatientModal" tabindex="-1" role="dialog" aria-labelledby="addPatientModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title p-3" id="addPatientModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a class="card select-card" id="preExposureCard2" style="text-decoration:none;">
+                            <div class="card-body d-flex flex-column align-items-center p-1">
+                                <img src="img/img-dashboard/immune-booster.png" style="height:100px; width:100px;">
+                                <h5 class="card-title mt-2" style="color:#002074;">Pre-exposure</h5>
+                                <p class="font-weight-normal" style="font-size:11px; color:black;">To prevent rabies infection before any potential exposure to the virus.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a class="card select-card-2" id="postExposureCard2" style="text-decoration:none;">
+                            <div class="card-body d-flex flex-column align-items-center p-1">
+                                <img src="img/img-dashboard/syringe.png" style="height:100px; width:100px;">
+                                <h5 class="card-title mt-2" style="color:#00B6BE;">Post-exposure</h5>
+                                <p class="font-weight-normal" style="font-size:11px; color:black;">To prevent rabies infection after a potential exposure to the virus.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="modal-footer justify-content-center" style="border-top:none !important;">
+                <button type="button" class="btn " data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" style="background-color:#1BB58D; border-radius:27.5px !important; border:none;" id="saveCategory">Save changes</button>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+          
+
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -404,11 +542,13 @@ if (mysqli_num_rows($patients_result) > 0) {
     <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.js"></script>
 
 
     <!-- ... (your existing script imports) ... -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="js/notifications.js"></script>
                 <script>
                     $(document).ready(function() {
                         <?php if (isset($_SESSION['successPatientModal'])) { ?>
@@ -472,20 +612,46 @@ $(document).ready(function() {
         $('#patientSelect').select2('destroy');
     });
 
-    // Handle form submission
-    $('#patientModal form').on('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
+    var selectedPatientId;
 
-        // Get the selected patient value
-        var selectedPatientID = $('#patientSelect').val();
+$('#patientForm').on('submit', function(event) {
+    event.preventDefault();
+    selectedPatientId = $('#patientSelect').val();
+    if (selectedPatientId) {
+        // Make an AJAX request to check if the patient has pending appointments
+        $.ajax({
+            url: 'checkPendingAppointments.php', // URL to your server-side script that checks for pending appointments
+            type: 'POST',
+            data: { patientID: selectedPatientId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.hasPendingAppointments) {
+                    alert('This patient still has unfinished appointments.');
+                } else {
+                    $('#patientModal').modal('hide');
+                    $('#addExistingPatientModal').modal('show');
+                }
+            },
+            error: function() {
+                alert('An error occurred while checking for pending appointments. Please try again.');
+            }
+        });
+    } else {
+        alert('Please select an existing patient.');
+    }
+});
 
-        // Redirect to the desired URL with the selected patient value
-        if (selectedPatientID) {
-            window.location.href = 'existing-patient-record.php?patientID=' + selectedPatientID;
-        } else {
-            alert('Please select a patient.');
-        }
-    });
+$('#preExposureCard2').on('click', function() {
+    if (selectedPatientId) {
+        window.location.href = 'existing-preexposure.php?patientID=' + selectedPatientId;
+    }
+});
+
+$('#postExposureCard2').on('click', function() {
+    if (selectedPatientId) {
+        window.location.href = 'existing-postexposure.php?patientID=' + selectedPatientId;
+    }
+});
 });
 
 </script>
@@ -516,6 +682,27 @@ $(document).ready(function() {
 
 </script>
 
+<script>
+$(document).ready(function() {
+  let selectedCard = null;
+
+  $('.select-card').click(function() {
+    $('.select-card').removeClass('selected');
+    $(this).addClass('selected');
+    selectedCard = $(this).attr('id');
+  });
+
+  $('#saveCategory').click(function() {
+    if (selectedCard) {
+      console.log('Selected category:', selectedCard);
+      // You can use the selected category value for your needs
+      $('#addPatientModal').modal('hide');
+    } else {
+      alert('Please select a category');
+    }
+  });
+});
+</script>
 
 
 <script>
@@ -569,25 +756,57 @@ function redirectToEdit(patientID) {
     }
 }
 
-</script>
+</script><button type="button" class="btn btn-info button-notif" style="border-radius: 50% !important; height: 40px; width: 40px;">
+    <div class="d-flex justify-content-center align-items-center">
+        <img src="img/img-dashboard/notif-bell-blue.png" style="height: 25px; width: 25px;">
+    </div>
+</button>
+
 <script>
-        $('.select-checkbox').hide();
 $(document).ready(function() {
     // DataTable initialization
     var table = $('#example').DataTable({
+        order: [[0, 'desc']],
         paging: true,
         responsive: true,
         searching: true,
         pageLength: 5,
         lengthMenu: [[5, 25, 50, -1], [5, 25, 50, "All"]],
         dom: "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable sorting for the first column (index 0)
-        ],
         language: {
             lengthMenu: "Display _MENU_"
+        },
+        select: {
+            style: 'multi'
         }
     });
+
+    // Handle row selection event
+    table.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var selectedData = table.rows({ selected: true }).data();
+            var selectedIDs = [];
+            for (var i = 0; i < selectedData.length; i++) {
+                selectedIDs.push(selectedData[i][0]); // Assuming PatientID is in the first column
+            }
+            console.log('Selected PatientIDs: ' + selectedIDs.join(', '));
+            // Perform your action with selected IDs here
+        }
+    });
+
+    // Handle row deselection event
+    table.on('deselect', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var selectedData = table.rows({ selected: true }).data();
+            var selectedIDs = [];
+            for (var i = 0; i < selectedData.length; i++) {
+                selectedIDs.push(selectedData[i][0]); // Assuming PatientID is in the first column
+            }
+            console.log('Selected PatientIDs: ' + selectedIDs.join(', '));
+            // Perform your action with selected IDs here
+        }
+    });
+
 
     // Function to update page information
     function updatePageInfo() {
@@ -609,91 +828,16 @@ $(document).ready(function() {
         updatePageInfo();
     });
 
-    // Initially hide all checkboxes
-    $('.select-checkbox').hide();
 
     // Flag to track edit mode status
     var editMode = false;
 
-    // Function to toggle checkboxes visibility inside DataTable rows
-    function toggleCheckboxesVisibility() {
-        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
 
-        $(rows).each(function() {
-            var checkbox = $(this).find('.select-checkbox');
-            if (editMode) {
-                checkbox.show(); // Show checkbox if edit mode is on
-            } else {
-                checkbox.hide(); // Hide checkbox if edit mode is off
-                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
-            }
-        });
 
-        // Update buttons visibility after toggling checkboxes
-        toggleButtonsVisibility();
-    }
 
-    // Function to toggle buttons visibility based on number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton, #deleteButton, #viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#deleteButton').show();
-            $('#viewButton').hide();
-          $('#updateButton').hide();
-        } else {
-            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
-        }
-    }
 
-    // Hide "View", "Delete", "Edit" and "Select All" initially
-    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
 
-    // Handle "Edit" button click
-    $('#editButton').on('click', function() {
-        editMode = !editMode; // Toggle edit mode
 
-        // Toggle checkboxes visibility
-        toggleCheckboxesVisibility();
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle().data('checked', false);
-
-        // Uncheck "Select All" checkbox when edit mode is turned off
-        if (!editMode) {
-            $('#selectAllCheckbox').prop('checked', false);
-        }
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function() {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
-        $('.select-checkbox', rows).each(function() {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function() {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
 
     // Handle "Update" button click
     $('#updateButton').on('click', function() {
@@ -714,50 +858,32 @@ $(document).ready(function() {
         table.search(this.value).draw();
     });
     // Handle "View" button click
-    $('#viewButton').on('click', function() {
-        var selectedCheckbox = $('.select-checkbox:checked');
-
-        // Handle view logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
-        } else {
-            alert('Please select exactly one row to view.');
-        }
-    });
+   
 });
 
 
 // Function to delete selected rows
 function deleteSelectedRows() {
-    var selectedRows = [];
-
-    $('#example').DataTable().$('tr').each(function() {
-        var checkbox = $(this).find('.select-checkbox');
-        if (checkbox.is(':checked')) {
-            selectedRows.push(checkbox.val());
-        }
+    var table = $('#example').DataTable();
+    var selectedRows = table.rows({ selected: true }).data().toArray();
+    var selectedIDs = selectedRows.map(function(row) {
+        return row[0]; // Assuming PatientID is in the first column
     });
 
     // Validate and perform deletion here if needed
-    if (selectedRows.length === 0) {
-        alert('No rows selected for deletion.');
+    if (selectedIDs.length === 0) {
+        alert('No rows selected for archival.');
         return;
     }
 
     // Assuming you have a form with id "deleteForm" and a hidden input "selectedRowsInput"
-    $('#selectedRowsInput').val(selectedRows);
+    $('#selectedRowsInput').val(selectedIDs.join(','));
     $('#deleteForm').submit(); // Submit the form to handle deletion
 }
+
 </script>
 
-<script>
 
-    document.getElementById("addPatient").addEventListener("click", function() {
-        // Redirect to Add Patient.php
-        window.location.href = "Add Patient.php";
-    });
-</script>
 
 </body>
 </html>

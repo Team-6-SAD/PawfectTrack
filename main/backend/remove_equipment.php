@@ -11,34 +11,42 @@ if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true || !isset($_SESSIO
 // Include your database connection file
 require_once 'pawfect_connect.php';
 
-// Check if selectedRows array is set and not empty
-if (isset($_POST['selectedRows']) && !empty($_POST['selectedRows'])) {
-    // Convert the selectedRows string into an array of EquipmentIDs
-    $selectedRows = $_POST['selectedRows'];
-    
-    // Array to store EquipmentIDs that need to be checked for deletion
-    $equipmentIDsToDelete = array();
-    
-    // Loop through each selected EquipmentID
-    foreach ($selectedRows as $EquipmentID) {
-        // First, delete from equipmentstock table
-        $sql = "DELETE FROM equipmentstock WHERE EquipmentID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $EquipmentID);
-        $stmt->execute();
+// Check if the request method is POST and the content type is JSON
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+    // Get the raw POST data
+    $rawPostData = file_get_contents('php://input');
+    // Decode the JSON data into an associative array
+    $data = json_decode($rawPostData, true);
 
-        // Now, delete from equipment table
-        $sql = "DELETE FROM equipment WHERE EquipmentID = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $EquipmentID);
-        $stmt->execute();
+    // Check if selectedRows array is set and not empty
+    if (isset($data['selectedRows']) && !empty($data['selectedRows'])) {
+        // Get the selectedRows array
+        $selectedRows = $data['selectedRows'];
+        
+        // Loop through each selected EquipmentID
+        foreach ($selectedRows as $EquipmentID) {
+            // First, delete from equipmentstock table
+            $sql = "DELETE FROM equipmentstock WHERE EquipmentID = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $EquipmentID);
+            $stmt->execute();
+
+            // Now, delete from equipment table
+            $sql = "DELETE FROM equipment WHERE EquipmentID = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $EquipmentID);
+            $stmt->execute();
+        }
+        
+        // Redirect back to the inventory page
+        header("Location: ../equipment-inventory.php");
+        exit();
+    } else {
+        // No equipment selected for removal
+        echo "No equipment selected for removal!";
     }
-    
-    // Redirect back to the inventory page
-    header("Location: ../equipment-inventory.php");
-    exit();
 } else {
-    // No equipment selected for removal
-    echo "No equipment selected for removal!";
+    // Invalid request
+    echo "Invalid request!";
 }
 ?>

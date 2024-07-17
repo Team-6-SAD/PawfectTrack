@@ -29,37 +29,49 @@ if ($row = mysqli_fetch_assoc($result)) {
     $adminPhoto = $row['adminphoto'];
 
     // Now fetch one appointment per patient
-   $sql = "
+    $sql = "
+WITH LatestAppointments AS (
     SELECT
         p.PatientID,
         CONCAT(p.FirstName, ' ', p.LastName) AS FullName,
-        MAX(ai.SessionDays) AS CurrentSession,
-        MAX(ai.AppointmentDate) AS AppointmentDate,
-        MAX(ai.Status) AS Status,
-        MAX(bd.ExposureType) AS ExposureType
+        t.Category,
+        ai.SessionDays AS CurrentSession,
+        ai.Status AS Status,
+        ai.AppointmentDate AS AppointmentDate,
+        ROW_NUMBER() OVER (
+            PARTITION BY p.PatientID
+            ORDER BY 
+                CASE WHEN ai.Status = 'Done' THEN 1 ELSE 0 END,  -- Done sessions last
+                ai.AppointmentDate ASC  -- Earliest appointment first
+        ) AS rn
     FROM
         patient p
-    LEFT JOIN
-        treatment t ON p.PatientID = t.PatientID
-    LEFT JOIN
-        (
-            SELECT
-                ai1.PatientID,
-                ai1.SessionDays,
-                ai1.AppointmentDate,
-                ai1.Status,
-                ai1.TreatmentID
-            FROM
-                appointmentinformation ai1
-        ) ai ON t.TreatmentID = ai.TreatmentID
-    LEFT JOIN
-        bitedetails bd ON bd.PatientID = p.PatientID
+    LEFT JOIN (
+        SELECT
+            t1.PatientID,
+            t1.TreatmentID,
+            t1.Category
+        FROM
+            treatment t1
+        WHERE
+            t1.TreatmentID IN (
+                SELECT MAX(t2.TreatmentID)
+                FROM treatment t2
+                GROUP BY t2.PatientID
+            )
+    ) t ON p.PatientID = t.PatientID
+    LEFT JOIN appointmentinformation ai ON t.TreatmentID = ai.TreatmentID
     WHERE
         p.ActiveStatus = 'Inactive'
-    GROUP BY
-        p.PatientID, p.FirstName, p.LastName  -- Group by all non-aggregated columns in SELECT
-    ORDER BY
-        MAX(ai.AppointmentDate) ASC; -- Ensure the earliest pending appointment date is selected
+)
+
+SELECT *
+FROM LatestAppointments
+WHERE rn = 1
+ORDER BY PatientID DESC, AppointmentDate;
+
+
+
 ";
 
     $patients_result = mysqli_query($conn, $sql);
@@ -93,7 +105,73 @@ mysqli_close($conn);
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
 
   <title>Archival</title>
+  <style>
+    table.dataTable.no-footer {
+    border-bottom: none !important;
+}
+    table.dataTable thead .sorting:before, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_desc_disabled:before {
+        content: "\F148" !important; /* Font Awesome icon for ascending sort */
+        font-family: "bootstrap-icons";
+        right: 0.8em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
+table.dataTable thead .sorting {
+    background-image: none !important;
+}
+table.dataTable thead .sorting_asc {
+    background-image: none !important;
+}
+table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+    
+    content: "\F128" !important; /* Font Awesome icon for descending sort */
+    font-family: 'bootstrap-icons';
+        right: 0.2em !important;
+        top: 40% !important;
+        font-size: 14px !important;
+}
 
+          h3, small {
+            margin: 0; /* Remove default margins */
+            padding: 0; /* Remove default padding */
+        }
+
+        h3 {
+            margin-bottom: -5px; /* Adjust the bottom margin as needed */
+        }
+    
+   
+        .table thead th{
+            border-bottom: none;
+        }
+
+.table td, .table th{
+    border-top: none;
+}
+tbody tr:nth-child(odd) {
+        background-color: #F7F8FA !important;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #FFFFFF;
+    }   
+    .btn{
+        border-radius: 8px !important;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .form-group{
+      font-weight:normal !important;
+    }
+    .select2-selection__placeholder{
+    color: #ECECEC !important;
+      font-size:12px;
+}
+.select2-container--default .select2-selection--single{
+  border-radius: 0px;
+    }
+    
+</style>
 </head>
 <body>
 <div class="container-fluid">
@@ -105,8 +183,10 @@ mysqli_close($conn);
         </div>
 
 
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999; position:fixed;"></div>
 <!--Profile Picture and Details-->
         <div class="content" id="content">
+            
         <div class="row  mr-5 ml-3 ">
         <div class="col-md-12 mb-5">
                     <div class="card mx-auto  table-card p-3 ">
@@ -117,14 +197,13 @@ mysqli_close($conn);
 
                         <div id="buttonContainer" class="d-flex flex-column flex-md-row align-items-center mb-2 ml-2 mt-1">
     <!-- Edit button on the left -->
-    
-    <button id="editButton" class="btn btn-gray-color btn-custom mb-2 mb-sm-0 mr-sm-2 ml-3" style="color:white">Action</button>
+
 
     <!-- Additional buttons next to Edit -->
     <div class="d-flex flex-row flex-wrap align-items-center">
      
-        <button id="viewButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;">View </button>
-        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2" style="white-space: nowrap; color:white;"  >Restore</button>
+      
+        <button id="deleteButton" class="btn btn-custom btn-blue-color btn-outline-info mr-2 ml-3" style="white-space: nowrap; color:white;"  >Restore</button>
 
     </div>
 
@@ -151,18 +230,18 @@ mysqli_close($conn);
 
          
                 <div class="card-body">
-  <?php // Check if there are any patients fetched from the database
+   <?php // Check if there are any patients fetched from the database
 if (mysqli_num_rows($patients_result) > 0) {
     // Output the table only if there are patients
     echo '<table class="table" id="example">';
     echo '<thead class="table-header">';
     echo '<tr>';
-    echo '<th scope="col" class="pl-3"><input type="checkbox" id="selectAllCheckbox"> </th>';
     echo '<th scope="col">Patient ID</th>';
     echo '<th scope="col">Full Name</th>';
     echo '<th scope="col">Current Session</th>';
     echo '<th scope="col">Appointment Date</th>';
     echo '<th scope="col">Type of Exposure</th>';
+    echo '<th scope="col">Status</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
@@ -170,12 +249,17 @@ if (mysqli_num_rows($patients_result) > 0) {
     // Loop through each patient and insert data into table rows
     while ($patient = mysqli_fetch_assoc($patients_result)) {
         echo "<tr>";
-        echo "<td scope='row' class='pl-3'><input type='checkbox' class='select-checkbox' value='" . $patient['PatientID'] . "'></td>";
         echo "<td class='pl-3'>" . $patient['PatientID'] . "</td>";
-        echo "<td class='pl-3'>" . $patient['FullName'] . "</td>";
+        echo "<td class='pl-3'><a href='patientdetails-profile.php?patientID=" . $patient['PatientID'] . "'>" . $patient['FullName'] . "</a></td>";
+
         echo "<td class='pl-3'>" . 'Day' . " " .  $patient['CurrentSession'] . "</td>";
-        echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>";
-        echo "<td class='pl-3'>" . $patient['ExposureType'] . "</td>";
+    
+            echo "<td class='pl-3'>" . $patient['AppointmentDate'] . "</td>"; // Otherwise, display the appointment date
+        
+    
+        echo "<td class='pl-3'>" . $patient['Category'] . "</td>";
+        echo "<td class='pl-3'>" . $patient['Status'] . "</td>";
+
         echo "</tr>";
     }
     
@@ -236,19 +320,20 @@ if (mysqli_num_rows($patients_result) > 0) {
 
 <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <!-- Data Table JS -->
-    
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Data Table JS -->
 <script src='https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js'></script>
 
     <script src="https://cdn.datatables.net/buttons/2.0.0/js/dataTables.buttons.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.0.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.js"></script>
 
 
     <!-- ... (your existing script imports) ... -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+<script src="js/notifications.js"></script>
 <script>
         $('.select-checkbox').hide();
     $(document).ready(function() {
@@ -316,32 +401,50 @@ $(document).ready(function () {
 
 </script>
 <script>
-    
-    function redirectToEdit() {
-        // Assuming PatientID is stored in a variable called patientID
-        // Redirect to Edit Patient.php with the PatientID parameter
-        window.location.href = "Edit Patient.php?PatientID=" + patientID;
-    }
-</script>
-
-<script>
-
 $(document).ready(function() {
     // DataTable initialization
     var table = $('#example').DataTable({
+        order: [[0, 'desc']],
         paging: true,
         responsive: true,
         searching: true,
         pageLength: 5,
         lengthMenu: [[5, 25, 50, -1], [5, 25, 50, "All"]],
         dom: "<'row'<'col-sm-12't>>" + "<'row'<'col-sm-12 ml-5 mt-3'>><<'col-sm-12'lp>>",
-        columnDefs: [
-            { orderable: false, targets: 0 } // Disable sorting for the first column (index 0)
-        ],
         language: {
             lengthMenu: "Display _MENU_"
+        },
+        select: {
+            style: 'multi'
         }
     });
+
+    // Handle row selection event
+    table.on('select', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var selectedData = table.rows({ selected: true }).data();
+            var selectedIDs = [];
+            for (var i = 0; i < selectedData.length; i++) {
+                selectedIDs.push(selectedData[i][0]); // Assuming PatientID is in the first column
+            }
+            console.log('Selected PatientIDs: ' + selectedIDs.join(', '));
+            // Perform your action with selected IDs here
+        }
+    });
+
+    // Handle row deselection event
+    table.on('deselect', function (e, dt, type, indexes) {
+        if (type === 'row') {
+            var selectedData = table.rows({ selected: true }).data();
+            var selectedIDs = [];
+            for (var i = 0; i < selectedData.length; i++) {
+                selectedIDs.push(selectedData[i][0]); // Assuming PatientID is in the first column
+            }
+            console.log('Selected PatientIDs: ' + selectedIDs.join(', '));
+            // Perform your action with selected IDs here
+        }
+    });
+
 
     // Function to update page information
     function updatePageInfo() {
@@ -363,90 +466,16 @@ $(document).ready(function() {
         updatePageInfo();
     });
 
-    // Initially hide all checkboxes
-    $('.select-checkbox').hide();
 
     // Flag to track edit mode status
     var editMode = false;
 
-    // Function to toggle checkboxes visibility inside DataTable rows
-    function toggleCheckboxesVisibility() {
-        var rows = table.rows({ search: 'applied' }).nodes(); // Get all rows, including filtered ones
 
-        $(rows).each(function() {
-            var checkbox = $(this).find('.select-checkbox');
-            if (editMode) {
-                checkbox.show(); // Show checkbox if edit mode is on
-            } else {
-                checkbox.hide(); // Hide checkbox if edit mode is off
-                checkbox.prop('checked', false); // Ensure checkbox is unchecked when hidden
-            }
-        });
 
-        // Update buttons visibility after toggling checkboxes
-        toggleButtonsVisibility();
-    }
 
-    // Function to toggle buttons visibility based on number of checkboxes checked
-    function toggleButtonsVisibility() {
-        var checkedCheckboxes = $('.select-checkbox:checked');
-        if (checkedCheckboxes.length === 1) {
-            $('#updateButton, #deleteButton, #viewButton').show();
-        } else if (checkedCheckboxes.length > 1) {
-            $('#updateButton, #deleteButton').show();
-            $('#viewButton').hide();
-        } else {
-            $('#updateButton, #deleteButton, #viewButton, #selectAllButton').hide();
-        }
-    }
 
-    // Hide "View", "Delete", "Edit" and "Select All" initially
-    $('#viewButton, #deleteButton, #updateButton, #selectAllCheckbox').hide();
 
-    // Handle "Edit" button click
-    $('#editButton').on('click', function() {
-        editMode = !editMode; // Toggle edit mode
 
-        // Toggle checkboxes visibility
-        toggleCheckboxesVisibility();
-
-        // Toggle the visibility and state of the "Select All" button
-        $('#selectAllCheckbox').toggle().data('checked', false);
-
-        // Uncheck "Select All" checkbox when edit mode is turned off
-        if (!editMode) {
-            $('#selectAllCheckbox').prop('checked', false);
-        }
-
-        $('.status-dropdown').prop('disabled', true);
-
-        // Hide "Select All" button if no checkboxes are visible
-        if ($('.select-checkbox:visible').length === 0) {
-            $('#selectAllCheckbox').hide();
-        }
-    });
-
-    // Handle "Select All" button click
-    $('#selectAllCheckbox').on('click', function() {
-        var rows = table.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        // Toggle state of all checkboxes and disable/enable dropdowns accordingly
-        $('.select-checkbox', rows).each(function() {
-            var applicantID = $(this).val();
-            var dropdown = $("select[name='statusUpdate[" + applicantID + "]']");
-            dropdown.prop("disabled", !$(this).prop("checked"));
-        });
-
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
-
-    // Handle individual checkboxes
-    $('#example tbody').on('change', '.select-checkbox', function() {
-        // Update buttons visibility
-        toggleButtonsVisibility();
-    });
 
     // Handle "Update" button click
     $('#updateButton').on('click', function() {
@@ -460,50 +489,38 @@ $(document).ready(function() {
             alert('Please select exactly one row to update.');
         }
     });
+
         // Link custom search input with DataTable
         var customSearchInput = $('#customSearchInput');
     customSearchInput.on('input', function() {
         table.search(this.value).draw();
     });
-
     // Handle "View" button click
-    $('#viewButton').on('click', function() {
-        var selectedCheckbox = $('.select-checkbox:checked');
-
-        // Handle view logic
-        if (selectedCheckbox.length === 1) {
-            var patientID = selectedCheckbox.val();
-            window.location.href = 'patientdetails-profile.php?patientID=' + patientID;
-        } else {
-            alert('Please select exactly one row to view.');
-        }
-    });
+   
 });
 
 
 // Function to delete selected rows
 function deleteSelectedRows() {
-    var selectedRows = [];
-
-    $('#example').DataTable().$('tr').each(function() {
-        var checkbox = $(this).find('.select-checkbox');
-        if (checkbox.is(':checked')) {
-            selectedRows.push(checkbox.val());
-        }
+    var table = $('#example').DataTable();
+    var selectedRows = table.rows({ selected: true }).data().toArray();
+    var selectedIDs = selectedRows.map(function(row) {
+        return row[0]; // Assuming PatientID is in the first column
     });
 
     // Validate and perform deletion here if needed
-    if (selectedRows.length === 0) {
-        alert('No rows selected for deletion.');
+    if (selectedIDs.length === 0) {
+        alert('No rows selected for archival.');
         return;
     }
 
     // Assuming you have a form with id "deleteForm" and a hidden input "selectedRowsInput"
-    $('#selectedRowsInput').val(selectedRows);
+    $('#selectedRowsInput').val(selectedIDs.join(','));
     $('#deleteForm').submit(); // Submit the form to handle deletion
 }
 
 </script>
+
 <script>
 
     // Toggle sidebar functionality
@@ -514,13 +531,7 @@ function deleteSelectedRows() {
 
 </script>
 
-<script>
 
-    document.getElementById("addPatient").addEventListener("click", function() {
-        // Redirect to Add Patient.php
-        window.location.href = "Add Patient.php";
-    });
-</script>
 
 </body>
 </html>
